@@ -57,7 +57,6 @@ def create_compressed_tarball(prefix, files, tmpdir, basename,
     # we can access small manifest or json files without decompressing
     # possible large binary or data files
     fullpath = tmp_path + ext
-    print("Compressing to {}".format(fullpath))
     with utils.tmp_chdir(prefix):
         with libarchive.file_writer(fullpath, 'gnutar', filter_name=compression_filter,
                                     options=filter_opts) as archive:
@@ -73,23 +72,32 @@ def _tar_xf(tarball, dir_path):
             libarchive.extract.EXTRACT_SECURE_NOABSOLUTEPATHS
     if not os.path.isabs(tarball):
         tarball = os.path.join(os.getcwd(), tarball)
-    with utils._tmp_chdir(dir_path):
+    with utils.tmp_chdir(dir_path):
         libarchive.extract_file(tarball, flags)
 
 
 class CondaTarBZ2(AbstractBaseFormat):
 
     @staticmethod
-    def extract(fn, dest_dir=None):
+    def extract(fn, dest_dir=None, **kw):
+        file_id = os.path.basename(fn).replace('.tar.bz2', '')
         if not dest_dir:
-            dest_dir = os.path.join(os.getcwd(), os.path.basename(fn).replace('.tar.bz2', ''))
+            dest_dir = os.path.join(os.getcwd(), file_id)
+        if not os.path.isdir(dest_dir):
+            os.makedirs(dest_dir)
+        if kw.get('components'):
+            print("Warning: ignoring request for components - .tar.bz2 files can't "
+                  "be partially extracted")
+        if not os.path.isabs(fn):
+            fn = os.path.normpath(os.path.join(os.getcwd(), fn))
         _tar_xf(fn, dest_dir)
 
+    @staticmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
         with TemporaryDirectory() as tmpdir:
             out_file = create_compressed_tarball(prefix, file_list, tmpdir,
                                                  out_fn.replace('.tar.bz2', ''),
                                                  '.tar.bz2', 'bzip2')
             final_path = os.path.join(out_folder, os.path.basename(out_file))
-            shutil.rename(out_file, final_path)
+            shutil.move(out_file, final_path)
         return final_path
