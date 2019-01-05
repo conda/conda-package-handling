@@ -39,14 +39,14 @@ def parse_args(parse_this=None):
 
 def main(args=None):
     args = parse_args(args)
-    if args.subparser_name == 'extract':
+    if args.subparser_name in ('extract', 'x'):
         if args.info:
             api.extract(args.archive_path, args.dest, components='info')
         else:
             api.extract(args.archive_path, args.dest)
-    elif args.subparser_name == 'create':
+    elif args.subparser_name in ('create', 'c'):
         api.bundle(args.prefix, args.file_list, args.out_fn, args.out_folder)
-    elif args.subparser_name == 'transmute':
+    elif args.subparser_name in ('transmute', 't'):
         api.transmute(args.in_file, args.out_ext, args.out_folder)
     else:
         raise NotImplementedError("Command {} is not implemented".format(args.subparser_name))
