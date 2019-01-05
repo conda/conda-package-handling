@@ -25,7 +25,9 @@ def extract(fn, dest_dir=None, components=None):
                          .format(fn, list(SUPPORTED_EXTENSIONS.keys())))
 
 
-def create(prefix, file_list, out_fn, out_folder=_os.getcwd(), **kw):
+def create(prefix, file_list, out_fn, out_folder=None, **kw):
+    if not out_folder:
+        out_folder = _os.getcwd()
     if file_list is None:
         file_list = [_os.path.relpath(_os.path.join(dp, f), prefix)
                      for dp, dn, filenames in _os.walk(prefix)
@@ -43,7 +45,9 @@ def create(prefix, file_list, out_fn, out_folder=_os.getcwd(), **kw):
             SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
 
 
-def transmute(in_file, out_ext, out_folder=_os.getcwd(), **kw):
+def transmute(in_file, out_ext, out_folder=None, **kw):
+    if not out_folder:
+        out_folder = _os.getcwd()
     with _TemporaryDirectory() as tmp:
         extract(in_file, dest_dir=tmp)
         file_list = [_os.path.relpath(_os.path.join(dp, f), tmp)
