@@ -3,30 +3,27 @@
 
 package:
   name: conda_package_handling
-  
   version: {{ data['version'] }}
 
 source:
   path: ..
 
 build:
-  # If the installation is complex, or different between Unix and Windows, use
-  # separate bld.bat and build.sh files instead of this key.  Add the line
-  # "skip: True  # [py<35]" (for example) to limit to Python 3.5 and newer, or
-  # "skip: True  # [not win]" to limit to Windows.
   script: python setup.py install --single-version-externally-managed --record=record.txt
+  noarch: python
+  entry_points:
+    - cph = conda_package_handling.cli:main
 
 requirements:
-  build:
-    - python
+  host:
+    - python >=3.5
     - setuptools
   run:
-    - python
+    - python >=3.5
     # dependencies are defined in setup.py
     {% for dep in data['install_requires'] %}
     - {{ dep.lower() }}
     {% endfor %}
-    {# raw is for ignoring templating with cookiecutter, leaving it for use with conda-build #}
 
 test:
   source_files:

@@ -3,6 +3,8 @@ import versioneer
 
 requirements = [
     # package requirements go here
+    "six",
+    "libarchive"
 ]
 
 setup(
@@ -16,7 +18,7 @@ setup(
     packages=['conda_package_handling'],
     entry_points={
         'console_scripts': [
-            'conda_package_handling=conda_package_handling.cli:cli'
+            'cph=conda_package_handling.cli:main'
         ]
     },
     install_requires=requirements,

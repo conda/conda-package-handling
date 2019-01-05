@@ -20,8 +20,8 @@ def test_api_extract_tarball_explicit_path(testing_workdir):
 
 
 def test_api_extract_conda_v2_implicit_path(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + '.conda')
-    api.extract(tarfile)
+    condafile = os.path.join(data_dir, test_package_name + '.conda')
+    api.extract(condafile)
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
 
 
@@ -32,20 +32,22 @@ def test_api_extract_conda_v2_explicit_path(testing_workdir):
 
 
 def test_api_extract_info_conda_v2(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + '.conda')
-    api.extract(tarfile, 'manual_path', components='info')
+    condafile = os.path.join(data_dir, test_package_name + '.conda')
+    api.extract(condafile, 'manual_path', components='info')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
     assert not os.path.isdir(os.path.join(testing_workdir, 'manual_path', 'lib'))
 
 
-def test_api_convert_tarball_to_conda_v2(testing_workdir):
+def test_api_transmute_tarball_to_conda_v2(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
-    api.convert(tarfile, '.conda')
+    api.transmute(tarfile, '.conda', testing_workdir)
+    assert os.path.isfile(os.path.join(testing_workdir, test_package_name + '.conda'))
 
 
-def test_api_convert_conda_v2_to_tarball(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + '.conda')
-    api.convert(tarfile, '.tar.bz2')
+def test_api_transmute_conda_v2_to_tarball(testing_workdir):
+    condafile = os.path.join(data_dir, test_package_name + '.conda')
+    api.transmute(condafile, '.tar.bz2', testing_workdir)
+    assert os.path.isfile(os.path.join(testing_workdir, test_package_name + '.tar.bz2'))
 
 
 def test_warning_when_bundling_no_metadata(testing_workdir):

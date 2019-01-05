@@ -43,7 +43,7 @@ def create(prefix, file_list, out_fn, out_folder=_os.getcwd(), **kw):
             SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
 
 
-def convert(in_file, out_ext, **kw):
+def transmute(in_file, out_ext, out_folder=_os.getcwd(), **kw):
     with _TemporaryDirectory() as tmp:
         extract(in_file, dest_dir=tmp)
         file_list = [_os.path.relpath(_os.path.join(dp, f), tmp)
@@ -52,4 +52,4 @@ def convert(in_file, out_ext, **kw):
         for ext in SUPPORTED_EXTENSIONS:
             if in_file.endswith(ext):
                 basename = _os.path.basename(in_file).replace(ext, '')
-        create(tmp, file_list, basename + out_ext, **kw)
+        create(tmp, file_list, basename + out_ext, out_folder=out_folder, **kw)

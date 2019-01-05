@@ -6,7 +6,7 @@ def parse_args(parse_this=None):
     parser = argparse.ArgumentParser()
     sp = parser.add_subparsers(title='subcommands', dest='subparser_name')
 
-    extract_parser = sp.add_parser('extract', help='extract all package contents')
+    extract_parser = sp.add_parser('extract', help='extract package contents', aliases=['x'])
     extract_parser.add_argument('archive_path', help='path to archive to extract')
     extract_parser.add_argument('--dest', help='destination to extract to.  If not set, defaults to'
                                 ' package filename minus extension in cwd.')
@@ -16,7 +16,7 @@ def parse_args(parse_this=None):
                                 'flag has no effect and all files are extracted.',
                                 action="store_true")
 
-    create_parser = sp.add_parser('create', help='bundle files into a package')
+    create_parser = sp.add_parser('create', help='bundle files into a package', aliases=['c'])
     create_parser.add_argument('prefix', help="folder of files to bundle.  Not strictly required to"
                                " have conda package metadata, but if conda package metadata isn't "
                                "present, you'll see a warning and your file will not work as a "
@@ -28,10 +28,12 @@ def parse_args(parse_this=None):
                                "lists all files in the prefix.")
     create_parser.add_argument("--out-folder", help="Folder to dump final archive to")
 
-    convert_parser = sp.add_parser('convert', help='convert from one package type to another')
+    convert_parser = sp.add_parser('transmute', help='convert from one package type to another',
+                                   aliases=['t'])
     convert_parser.add_argument('in_file', help="existing file to convert from")
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
                                 "Examples: .tar.bz2, .conda")
+    convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
     return parser.parse_args(parse_this)
 
 
@@ -43,9 +45,9 @@ def main(args=None):
         else:
             api.extract(args.archive_path, args.dest)
     elif args.subparser_name == 'create':
-        api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
-    elif args.subparser_name == 'convert':
-        api.convert(args.in_file, args.out_ext)
+        api.bundle(args.prefix, args.file_list, args.out_fn, args.out_folder)
+    elif args.subparser_name == 'transmute':
+        api.convert(args.in_file, args.out_ext, args.out_folder)
     else:
         raise NotImplementedError("Command {} is not implemented".format(args.subparser_name))
 
