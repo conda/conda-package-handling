@@ -4,12 +4,12 @@ https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+forma
 import json
 import os
 import shutil
-from tempfile import TemporaryDirectory
 import zipfile
 
 from conda_package_handling import utils
 from conda_package_handling.interface import AbstractBaseFormat
 from conda_package_handling.tarball import create_compressed_tarball, _tar_xf
+from conda_package_handling.utils import TemporaryDirectory
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = ('.tar.zst', 'zstd', 'zstd:compression-level=22')

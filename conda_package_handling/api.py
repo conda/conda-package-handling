@@ -1,11 +1,11 @@
 import os as _os
-from tempfile import TemporaryDirectory as _TemporaryDirectory
 
 from six import string_types as _string_types
 import tqdm
 
 from conda_package_handling.tarball import CondaTarBZ2 as _CondaTarBZ2
 from conda_package_handling.conda_fmt import CondaFormat_v2 as _CondaFormat_v2
+from conda_package_handling.utils import TemporaryDirectory as _TemporaryDirectory
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
