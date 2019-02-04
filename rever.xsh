@@ -17,7 +17,7 @@ $AUTHORS_FILENAME = "AUTHORS.txt"
 #
 # Changelog settings
 #
-$CHANGELOG_FILENAME = "CHANGELOG.txt"
+$CHANGELOG_FILENAME = "CHANGELOG.md"
 $CHANGELOG_PATTERN = "# current developments"
 $CHANGELOG_HEADER = """# current developments
 $RELEASE_DATE $VERSION:
