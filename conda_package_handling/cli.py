@@ -30,7 +30,7 @@ def parse_args(parse_this=None):
 
     convert_parser = sp.add_parser('transmute', help='convert from one package type to another',
                                    aliases=['t'])
-    convert_parser.add_argument('in_file', help="existing file to convert from")
+    convert_parser.add_argument('in_file', help="existing file to convert from.  Glob patterns accepted.")
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
                                 "Examples: .tar.bz2, .conda")
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")

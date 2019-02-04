@@ -4,7 +4,7 @@ import versioneer
 requirements = [
     # package requirements go here
     "six",
-    "libarchive"
+    # "python-libarchive-c"
 ]
 
 setup(

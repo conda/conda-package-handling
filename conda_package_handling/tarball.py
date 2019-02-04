@@ -85,9 +85,9 @@ class CondaTarBZ2(AbstractBaseFormat):
             dest_dir = os.path.join(os.getcwd(), file_id)
         if not os.path.isdir(dest_dir):
             os.makedirs(dest_dir)
-        if kw.get('components'):
-            print("Warning: ignoring request for components - .tar.bz2 files can't "
-                  "be partially extracted")
+        # if kw.get('components'):
+        #     print("Warning: ignoring request for components - .tar.bz2 files can't "
+        #           "be partially extracted")
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
         _tar_xf(fn, dest_dir)

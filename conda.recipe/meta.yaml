@@ -1,4 +1,3 @@
-
 {% set data = load_setup_py_data() %}
 
 package:
@@ -16,14 +15,12 @@ build:
 
 requirements:
   host:
-    - python >=3.5
+    - python
     - setuptools
   run:
-    - python >=3.5
-    # dependencies are defined in setup.py
-    {% for dep in data['install_requires'] %}
-    - {{ dep.lower() }}
-    {% endfor %}
+    - python
+    - python-libarchive-c
+    - tqdm
 
 test:
   source_files:
