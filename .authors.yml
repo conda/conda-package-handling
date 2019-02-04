@@ -1,0 +1,10 @@
+- name: Michael Sarahan
+  email: msarahan@gmail.com
+  github: msarahan
+  alternate_emails:
+  - msarahan@continuum.io
+  - msarahan@anaconda.com
+  aliases:
+  - Mike Sarahan
+  num_commits: 9
+  first_commit: 2019-01-03 20:00:40
