@@ -1,15 +1,18 @@
-from abc import ABC, abstractmethod
+import abc
 import os
 
+import six
 
-class AbstractBaseFormat(ABC):
+
+@six.add_metaclass(abc.ABCMeta)
+class AbstractBaseFormat():
 
     @staticmethod
-    @abstractmethod
+    @abc.abstractmethod
     def extract(fn, dest_dir=None, **kw):
         raise NotImplementedError
 
     @staticmethod
-    @abstractmethod
+    @abc.abstractmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
         raise NotImplementedError
