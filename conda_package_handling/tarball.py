@@ -3,12 +3,13 @@ import re
 import shutil
 import subprocess
 import sys
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import NamedTemporaryFile
 
 import libarchive
 
 from conda_package_handling import utils
 from conda_package_handling.interface import AbstractBaseFormat
+from conda_package_handling.utils import TemporaryDirectory
 
 
 def _sort_file_order(prefix, files):
