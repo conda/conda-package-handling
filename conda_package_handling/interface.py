@@ -16,3 +16,8 @@ class AbstractBaseFormat():
     @abc.abstractmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
         raise NotImplementedError
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_pkg_details(in_file):
+        raise NotImplementedError

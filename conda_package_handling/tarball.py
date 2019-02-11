@@ -102,3 +102,12 @@ class CondaTarBZ2(AbstractBaseFormat):
             final_path = os.path.join(out_folder, os.path.basename(out_file))
             shutil.move(out_file, final_path)
         return final_path
+
+    @staticmethod
+    def get_pkg_details(in_file):
+        stat_result = os.lstat(in_file)
+        size = stat_result.st_size
+        with open(in_file, 'rb') as f:
+            md5 = utils.md5_checksum(f)
+            sha256 = utils.sha256_checksum(f)
+        return {"size": size, "md5": md5, "sha256": sha256}

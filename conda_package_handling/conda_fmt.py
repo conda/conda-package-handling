@@ -22,14 +22,18 @@ def _write_conda_pkg_version_spec(tmpdir):
         json.dump(pkg_metadata, f)
 
 
+def _lookup_component_filename(zf, file_id, component_name):
+    contents = zf.namelist()
+    component_filename_without_ext = '-'.join((component_name, file_id))
+    component_filename = [_ for _ in contents if
+                            _.startswith(component_filename_without_ext)]
+    return component_filename
+
 def _extract_component(fn, file_id, component_name, dest_dir=None):
     with TemporaryDirectory() as tmp:
         with utils.tmp_chdir(tmp):
             with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
-                contents = zf.namelist()
-                component_filename_without_ext = '-'.join((component_name, file_id))
-                component_filename = [_ for _ in contents if
-                                        _.startswith(component_filename_without_ext)]
+                component_filename = _lookup_component_filename(zf, file_id, component_name)
                 if not component_filename:
                     raise RuntimeError("didn't find {} in {}".format(
                         component_filename_without_ext, fn))
@@ -83,3 +87,22 @@ class CondaFormat_v2(AbstractBaseFormat):
             final_path = os.path.join(out_folder, os.path.basename(conda_pkg_fn))
             shutil.move(conda_pkg_fn, final_path)
         return final_path
+
+    @staticmethod
+    def get_pkg_details(in_file):
+        # the thing of interest with the new format is the inner pkg-* file, not the package as a whole.
+        file_id = os.path.basename(in_file).replace('.conda', '')
+        stat_result = os.lstat(in_file)
+        size = stat_result.st_size
+        with zipfile.ZipFile(in_file, compression=zipfile.ZIP_STORED) as zf:
+            component_filename = _lookup_component_filename(zf, file_id, 'pkg')
+            if not component_filename:
+                raise RuntimeError("didn't find {} in {}".format(
+                    component_filename_without_ext, in_file))
+            else:
+                component_filename = component_filename[0]
+            pkg_file = zf.open(component_filename, 'r')
+            inner_sha256 = utils.sha256_checksum(pkg_file)
+        with open(in_file, 'rb') as fd:
+            outer_sha256 = utils.sha256_checksum(fd)
+        return {"size": size, "inner_sha256": inner_sha256, "outer_sha256": outer_sha256}

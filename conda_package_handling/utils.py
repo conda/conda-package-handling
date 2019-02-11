@@ -1,4 +1,5 @@
 import contextlib
+import hashlib
 import os
 import re
 import shutil
@@ -112,3 +113,23 @@ def filter_info_files(files_list, prefix):
                     'info[\\\\/]link.json',
                     'info[\\\\/]icon.png',
             ))
+
+
+def _checksum(fd, algorithm, buffersize=65536):
+    fd.seek(0)
+    hash_impl = getattr(hashlib, algorithm)
+    if not hash_impl:
+        raise ValueError("Unrecognized hash algorithm: {}".format(algorithm))
+    else:
+        hash_impl = hash_impl()
+    for block in iter(lambda: fd.read(buffersize), b''):
+        hash_impl.update(block)
+    return hash_impl.hexdigest()
+
+
+def sha256_checksum(fd):
+    return _checksum(fd, 'sha256')
+
+
+def md5_checksum(fd):
+    return _checksum(fd, 'md5')

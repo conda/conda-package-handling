@@ -78,3 +78,14 @@ def transmute(in_file, out_ext, out_folder=None, **kw):
             t.set_description("Converting: %s" % fn)
             t.update()
             _convert(fn)
+
+
+def get_pkg_details(in_file):
+    """For the new pkg format, we return the size and hashes of the inner pkg part of the file"""
+    for ext in SUPPORTED_EXTENSIONS:
+        if in_file.endswith(ext):
+            details = SUPPORTED_EXTENSIONS[ext].get_pkg_details(in_file)
+            break
+    else:
+        raise ValueError("Don't know what to do with file {}".format(in_file))
+    return details
