@@ -7,6 +7,9 @@ import warnings as _warnings
 
 from six import string_types
 
+DUMMY_TIMESTAMP = int(os.environ.get('SOURCE_DATE_EPOCH', 0))
+
+
 try:
     from tempfile import TemporaryDirectory
 except ImportError:

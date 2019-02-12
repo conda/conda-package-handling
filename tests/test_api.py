@@ -20,6 +20,7 @@ def test_api_tarball_details(testing_workdir):
     assert results["md5"] == "0f9cce120a73803a70abb14bd4d4900b"
     assert results["sha256"] == "34c659b0fdc53d28ae721fd5717446fb8abebb1016794bd61e25937853f4c29c"
 
+
 def test_api_conda_v2_details(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
     results = api.get_pkg_details(condafile)
