@@ -107,7 +107,9 @@ class CondaTarBZ2(AbstractBaseFormat):
     def get_pkg_details(in_file):
         stat_result = os.lstat(in_file)
         size = stat_result.st_size
+        # open the file twice because we need to start from the beginning each time
         with open(in_file, 'rb') as f:
             md5 = utils.md5_checksum(f)
+        with open(in_file, 'rb') as f:
             sha256 = utils.sha256_checksum(f)
         return {"size": size, "md5": md5, "sha256": sha256}
