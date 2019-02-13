@@ -116,7 +116,6 @@ def filter_info_files(files_list, prefix):
 
 
 def _checksum(fd, algorithm, buffersize=65536):
-    fd.seek(0)
     hash_impl = getattr(hashlib, algorithm)
     if not hash_impl:
         raise ValueError("Unrecognized hash algorithm: {}".format(algorithm))
