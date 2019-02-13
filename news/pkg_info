@@ -1,0 +1,25 @@
+Enhancements:
+-------------
+
+* new api-only function, ``get_pkg_details`` that returns package size and checksum info in dictionary form
+
+Bug fixes:
+----------
+
+* <news item>
+
+Deprecations:
+-------------
+
+* <news item>
+
+Docs:
+-----
+
+* <news item>
+
+Other:
+------
+
+* <news item>
+
