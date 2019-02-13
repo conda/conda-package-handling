@@ -1,9 +1,15 @@
 import argparse
-from conda_package_handling import api
+from conda_package_handling import api, __version__
 
 
 def parse_args(parse_this=None):
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-V', '--version',
+        action='version',
+        help='Show the conda-package-handling version number and exit.',
+        version='conda-package-handling %s' % __version__,
+    )
     sp = parser.add_subparsers(title='subcommands', dest='subparser_name')
 
     extract_parser = sp.add_parser('extract', help='extract package contents', aliases=['x'])
