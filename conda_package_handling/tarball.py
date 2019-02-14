@@ -9,27 +9,11 @@ import libarchive
 
 from conda_package_handling import utils
 from conda_package_handling.interface import AbstractBaseFormat
-from conda_package_handling.utils import TemporaryDirectory
+from conda_package_handling.utils import TemporaryDirectory, DUMMY_TIMESTAMP
 
 
 def _sort_file_order(prefix, files):
     """Sort by filesize or by binsort, to optimize compression"""
-    def order(f):
-        # we don't care about empty files so send them back via 100000
-        fsize = os.stat(os.path.join(prefix, f)).st_size or 100000
-        # info/* records will be False == 0, others will be 1.
-        info_order = int(os.path.dirname(f) != 'info')
-        if info_order:
-            _, ext = os.path.splitext(f)
-            # Strip any .dylib.* and .so.* and rename .dylib to .so
-            ext = re.sub(r'(\.dylib|\.so).*$', r'.so', ext)
-            if not ext:
-                # Files without extensions should be sorted by dirname
-                info_order = 1 + hash(os.path.dirname(f)) % (10 ** 8)
-            else:
-                info_order = 1 + abs(hash(ext)) % (10 ** 8)
-        return info_order, fsize
-
     binsort = os.path.join(sys.prefix, 'bin', 'binsort')
     if os.path.exists(binsort):
         with NamedTemporaryFile(mode='w', suffix='.filelist', delete=False) as fl:
@@ -38,13 +22,28 @@ def _sort_file_order(prefix, files):
                 fl.close()
                 cmd = binsort + ' -t 1 -q -d -o 1000 {}'.format(fl.name)
                 out, _ = subprocess.Popen(cmd, shell=True,
-                                            stdout=subprocess.PIPE).communicate()
+                                          stdout=subprocess.PIPE).communicate()
                 files_list = out.decode('utf-8').strip().split('\n')
                 # binsort returns the absolute paths.
                 files_list = [f.split(prefix + os.sep, 1)[-1]
                                 for f in files_list]
                 os.unlink(fl.name)
     else:
+        def order(f):
+            # we don't care about empty files so send them back via 100000
+            fsize = os.stat(os.path.join(prefix, f)).st_size or 100000
+            # info/* records will be False == 0, others will be 1.
+            info_order = int(os.path.dirname(f) != 'info')
+            if info_order:
+                _, ext = os.path.splitext(f)
+                # Strip any .dylib.* and .so.* and rename .dylib to .so
+                ext = re.sub(r'(\.dylib|\.so).*$', r'.so', ext)
+                if not ext:
+                    # Files without extensions should be sorted by dirname
+                    info_order = 1 + hash(os.path.dirname(f)) % (10 ** 8)
+                else:
+                    info_order = 1 + abs(hash(ext)) % (10 ** 8)
+            return info_order, fsize, f
         files_list = list(f for f in sorted(files, key=order))
     return files_list
 
@@ -53,6 +52,13 @@ def create_compressed_tarball(prefix, files, tmpdir, basename,
                               ext, compression_filter, filter_opts=''):
     tmp_path = os.path.join(tmpdir, basename)
     files = _sort_file_order(prefix, files)
+    for f in files:
+        fp = os.path.join(prefix, f)
+        try:
+            os.chown(fp, 0, 0)
+        except AttributeError:
+            pass
+        os.utime(fp, (DUMMY_TIMESTAMP, DUMMY_TIMESTAMP))
 
     # add files in order of a) in info directory, b) increasing size so
     # we can access small manifest or json files without decompressing
