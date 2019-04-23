@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import shutil
@@ -100,7 +101,12 @@ class CondaTarBZ2(AbstractBaseFormat):
                                                  out_fn.replace('.tar.bz2', ''),
                                                  '.tar.bz2', 'bzip2')
             final_path = os.path.join(out_folder, os.path.basename(out_file))
-            shutil.move(out_file, final_path)
+            try:
+                shutil.move(out_file, final_path)
+            except OSError as e:
+                logging.getLogger(__name__).info("Moving temporary"
+                    "package from {} to {} had some issues.  Error "
+                    "message was: {}".format(out_file, final_path, repr(e)))
         return final_path
 
     @staticmethod
