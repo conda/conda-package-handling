@@ -52,7 +52,7 @@ def main(args=None):
         else:
             api.extract(args.archive_path, args.dest)
     elif args.subparser_name in ('create', 'c'):
-        api.bundle(args.prefix, args.file_list, args.out_fn, args.out_folder)
+        api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
     elif args.subparser_name in ('transmute', 't'):
         api.transmute(args.in_file, args.out_ext, args.out_folder)
     else:
