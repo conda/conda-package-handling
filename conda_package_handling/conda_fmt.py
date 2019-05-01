@@ -64,7 +64,7 @@ class CondaFormat_v2(AbstractBaseFormat):
         return CondaFormat_v2.extract(fn, dest_dir, components=['info'])
 
     @staticmethod
-    def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
+    def create(prefix, file_list, out_fn, out_folder=os.getcwd(), gpg_wrapper=None, **kw):
         with TemporaryDirectory() as tmp:
             out_fn = out_fn.replace('.conda', '')
             conda_pkg_fn = os.path.join(tmp, out_fn) + '.conda'
@@ -84,6 +84,12 @@ class CondaFormat_v2(AbstractBaseFormat):
                     for pkg in (info_tarball, pkg_tarball):
                         zf.write(os.path.basename(pkg))
                     zf.write('metadata.json')
+                    # This should always be done at the end
+                    if gpg_wrapper:
+                      _signature_file = 'signature.asc'
+                      gpg_wrapper.sign(artifacts=zf.namelist(), output='signature.asc')
+                      zf.write(_signature_file)
+
             final_path = os.path.join(out_folder, os.path.basename(conda_pkg_fn))
             shutil.move(conda_pkg_fn, final_path)
         return final_path
@@ -106,3 +112,40 @@ class CondaFormat_v2(AbstractBaseFormat):
         with open(in_file, 'rb') as fd:
             outer_sha256 = utils.sha256_checksum(fd)
         return {"size": size, "inner_sha256": inner_sha256, "outer_sha256": outer_sha256}
+
+    @staticmethod
+    def gpg_sign(fn, gpg_wrapper=None, out_folder=os.getcwd()):
+        assert gpg_wrapper
+
+        final_fn = os.path.join(out_folder, os.path.basename(fn))
+        with TemporaryDirectory() as tmp:
+            with utils.tmp_chdir(tmp):
+                with zipfile.ZipFile(fn, 'r', compression=zipfile.ZIP_STORED) as zf:
+                    zf.extractall()
+                    content = utils.ensure_list(zf.namelist())
+                signature_file = 'signature.asc'
+                try:
+                    content.remove(signature_file)
+                except ValueError:
+                    pass
+                with zipfile.ZipFile(final_fn, 'w', compression=zipfile.ZIP_STORED) as zf:
+                    gpg_wrapper.sign(artifacts=content,
+                                     output=signature_file)
+                    for zn in content:
+                        zf.write(zn)
+                    zf.write(signature_file)
+
+            shutil.move(fn, final_fn)
+
+    @staticmethod
+    def gpg_verify(fn, gpg_wrapper=None):
+        assert gpg_wrapper
+
+        with TemporaryDirectory() as tmp:
+            with utils.tmp_chdir(tmp):
+                with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
+                    zf.extractall()
+                    content = utils.ensure_list(zf.namelist())
+                    content.remove('signature.asc')
+                    gpg_wrapper.verify(artifacts=content,
+                                       signature="signature.asc")

@@ -5,7 +5,9 @@ import tqdm
 
 from conda_package_handling.tarball import CondaTarBZ2 as _CondaTarBZ2
 from conda_package_handling.conda_fmt import CondaFormat_v2 as _CondaFormat_v2
-from conda_package_handling.utils import TemporaryDirectory as _TemporaryDirectory
+from conda_package_handling.utils import (TemporaryDirectory as _TemporaryDirectory,
+                                          ensure_list as _ensure_list,
+                                          GPGWrapper as _GPGWrapper)
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -78,6 +80,38 @@ def transmute(in_file, out_ext, out_folder=None, **kw):
             t.set_description("Converting: %s" % fn)
             t.update()
             _convert(fn)
+
+
+def gpg_sign(fns, out_folder=None, tool='gpg', identity=None, homedir=None, **kw):
+    from glob import glob
+    if not out_folder:
+        out_folder = _os.path.dirname(_ensure_list(fns)[0]) or _os.getcwd()
+    _gpg_wrapper = _GPGWrapper(tool=tool, identity=identity, homedir=homedir)
+
+    flist = glob(fns)
+    with tqdm.tqdm(total=len(flist)) as t:
+        for fn in flist:
+            t.set_description("Signing: %s" % fn)
+            t.update()
+            for ext in SUPPORTED_EXTENSIONS:
+                if fn.endswith(ext):
+                    SUPPORTED_EXTENSIONS[ext].gpg_sign(fn, out_folder=out_folder,
+                                                       gpg_wrapper=_gpg_wrapper, **kw)
+
+
+def gpg_verify(fns, tool='gpg', homedir=None, **kw):
+    from glob import glob
+    flist = glob(fns)
+
+    _gpg_wrapper = _GPGWrapper(tool=tool, homedir=homedir)
+
+    with tqdm.tqdm(total=len(flist)) as t:
+        for fn in flist:
+            t.set_description("Verifying: %s" % fn)
+            t.update()
+            for ext in SUPPORTED_EXTENSIONS:
+                if fn.endswith(ext):
+                    SUPPORTED_EXTENSIONS[ext].gpg_verify(fn, gpg_wrapper=_gpg_wrapper, **kw)
 
 
 def get_pkg_details(in_file):

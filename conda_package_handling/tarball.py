@@ -113,3 +113,22 @@ class CondaTarBZ2(AbstractBaseFormat):
         with open(in_file, 'rb') as f:
             sha256 = utils.sha256_checksum(f)
         return {"size": size, "md5": md5, "sha256": sha256}
+
+    @staticmethod
+    def gpg_sign(fn, gpg_wrapper=None, out_folder=os.getcwd()):
+        assert gpg_wrapper
+
+        signature_file = "{}.asc".format(os.path.basename(fn))
+        gpg_wrapper.sign(utils.ensure_list(fn),
+                         output=os.path.join(out_folder, signature_file))
+
+    @staticmethod
+    def gpg_verify(fn, gpg_wrapper=None):
+        assert gpg_wrapper
+
+        signature_file = "{}.asc".format(os.path.basename(fn))
+        signature_file = os.path.join(os.path.dirname(fn), signature_file)
+        assert os.path.exists(signature_file)
+
+        gpg_wrapper.verify(artifacts=utils.ensure_list(fn),
+                           signature=signature_file)

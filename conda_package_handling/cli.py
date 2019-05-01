@@ -41,6 +41,25 @@ def parse_args(parse_this=None):
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
                                 "Examples: .tar.bz2, .conda")
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
+
+    gpg_sign_parser = sp.add_parser('gpg-sign', help="sign package using GPG", aliases=['gpgs'])
+    gpg_sign_parser.add_argument('--tool', help="GPG program to be used to sign archives",
+                                 default='gpg', dest='gpgs_tool')
+    gpg_sign_parser.add_argument('--identity', help="GPG identity to be used to sign archives",
+                                 dest='gpgs_identity')
+    gpg_sign_parser.add_argument('--homedir', help="GPG home directory", dest='gpgs_homedir')
+    gpg_sign_parser.add_argument('archives', help="Path to archive(s) which need(s) to be signed. "
+                                 "Glob patterns accepted")
+    gpg_sign_parser.add_argument("--out-folder", help="Folder to dump signed archive(s) to")
+
+    gpg_verify_parser = sp.add_parser('gpg-verify', help="verify package using GPG",
+                                      aliases=['gpgv'])
+    gpg_verify_parser.add_argument('--tool', help="GPG program to be used to verify archives",
+                                   default='gpg', dest='gpgv_tool')
+    gpg_verify_parser.add_argument('--homedir', help="GPG home directory", dest='gpgv_homedir')
+    gpg_verify_parser.add_argument('archives', help="Path to archive(s) which need(s) to be "
+                                   "verified. Glob patterns accepted")
+
     return parser.parse_args(parse_this)
 
 
@@ -55,6 +74,13 @@ def main(args=None):
         api.bundle(args.prefix, args.file_list, args.out_fn, args.out_folder)
     elif args.subparser_name in ('transmute', 't'):
         api.transmute(args.in_file, args.out_ext, args.out_folder)
+    elif args.subparser_name in ('gpg-sign', 'gpgs'):
+        api.gpg_sign(args.archives, out_folder=args.out_folder,
+                     tool=args.gpgs_tool, identity=args.gpgs_identity,
+                     homedir=args.gpgs_homedir)
+    elif args.subparser_name in ('gpg-verify', 'gpgv'):
+        api.gpg_verify(args.archives, tool=args.gpgv_tool,
+                       homedir=args.gpgv_homedir)
     else:
         raise NotImplementedError("Command {} is not implemented".format(args.subparser_name))
 
