@@ -3,6 +3,7 @@ import hashlib
 import os
 import re
 import shutil
+import subprocess
 import warnings as _warnings
 
 from six import string_types
@@ -132,3 +133,40 @@ def sha256_checksum(fd):
 
 def md5_checksum(fd):
     return _checksum(fd, 'md5')
+
+
+class GPGWrapper(object):
+    # Wrapper around gpg to delegate signing and verification of artifacts
+
+    def __init__(self, tool='gpg', identity=None, homedir=None):
+        self.tool = tool
+        self.identity = identity
+        self.homedir = homedir
+        _cmd_hunk = [self.tool, "--yes"]
+        if self.identity:
+            _cmd_hunk += ["--local-user", "{}".format(self.identity)]
+        if self.homedir:
+            _cmd_hunk += ["--homedir", "{}".format(self.homedir)]
+        self.cmd_hunk = _cmd_hunk
+
+    def sign(self, artifacts=[], output=None):
+        assert len(artifacts)
+        assert all(isinstance(x, string_types) for x in artifacts)
+
+        if not output:
+            output = "{}.asc".format(artifacts[0])
+
+        subprocess.check_output(self.cmd_hunk + [
+                                   "--armor",
+                                   "--output={}".format(output),
+                                   "--detach-sig", "--sign"
+                                ] + sorted(artifacts))
+
+    def verify(self, artifacts=[], signature="signature.asc"):
+        assert len(artifacts)
+        assert all(isinstance(x, string_types) for x in artifacts)
+        assert os.path.exists(signature)
+
+        subprocess.call(self.cmd_hunk + [
+                           "--verify", signature
+                        ] + sorted(artifacts))
