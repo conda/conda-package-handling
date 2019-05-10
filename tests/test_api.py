@@ -20,12 +20,13 @@ def test_api_tarball_details(testing_workdir):
     assert results["md5"] == "0f9cce120a73803a70abb14bd4d4900b"
     assert results["sha256"] == "34c659b0fdc53d28ae721fd5717446fb8abebb1016794bd61e25937853f4c29c"
 
+
 def test_api_conda_v2_details(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
     results = api.get_pkg_details(condafile)
     assert results["size"] == 113421
-    assert results["inner_sha256"] == "c9c3042f7ce1c304a5aa4baa0bfd1b23e0fbb16e17e203fd3a16ade20beb5ee5"
-    assert results["outer_sha256"] == "181ec44eb7b06ebb833eae845bcc466ad96474be1f33ee55cab7ac1b0fdbbfa3"
+    assert results["sha256"] == "181ec44eb7b06ebb833eae845bcc466ad96474be1f33ee55cab7ac1b0fdbbfa3"
+    assert results["md5"] == "23c226430e35a3bd994db6c36b9ac8ae"
 
 
 def test_api_extract_tarball_explicit_path(testing_workdir):
