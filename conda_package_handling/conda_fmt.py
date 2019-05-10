@@ -2,6 +2,7 @@
 https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+format+v2"""
 
 import json
+import logging
 import os
 import shutil
 import zipfile
@@ -35,8 +36,7 @@ def _extract_component(fn, file_id, component_name, dest_dir=None):
             with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
                 component_filename = _lookup_component_filename(zf, file_id, component_name)
                 if not component_filename:
-                    raise RuntimeError("didn't find {} in {}".format(
-                        component_filename_without_ext, fn))
+                    raise RuntimeError("didn't find {} in {}".format(component_name, fn))
                 component_filename = component_filename[0]
                 zf.extract(component_filename)
                 _tar_xf(component_filename, dest_dir)
@@ -85,7 +85,12 @@ class CondaFormat_v2(AbstractBaseFormat):
                         zf.write(os.path.basename(pkg))
                     zf.write('metadata.json')
             final_path = os.path.join(out_folder, os.path.basename(conda_pkg_fn))
-            shutil.move(conda_pkg_fn, final_path)
+            try:
+                shutil.move(conda_pkg_fn, final_path)
+            except OSError as e:
+                logging.getLogger(__name__).info("Moving temporary"
+                    "package from {} to {} had some issues.  Error "
+                    "message was: {}".format(conda_pkg_fn, final_path, repr(e)))
         return final_path
 
     @staticmethod
@@ -97,8 +102,7 @@ class CondaFormat_v2(AbstractBaseFormat):
         with zipfile.ZipFile(in_file, compression=zipfile.ZIP_STORED) as zf:
             component_filename = _lookup_component_filename(zf, file_id, 'pkg')
             if not component_filename:
-                raise RuntimeError("didn't find {} in {}".format(
-                    component_filename_without_ext, in_file))
+                raise RuntimeError("didn't find pkg tarball in {}".format(in_file))
             else:
                 component_filename = component_filename[0]
             pkg_file = zf.open(component_filename, 'r')
