@@ -1,0 +1,25 @@
+Enhancements:
+-------------
+
+* <news item>
+
+Bug fixes:
+----------
+
+* fix path join bug, where an absolute path for out_fn was causing file writing problems
+
+Deprecations:
+-------------
+
+* <news item>
+
+Docs:
+-----
+
+* <news item>
+
+Other:
+------
+
+* <news item>
+
