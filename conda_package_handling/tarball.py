@@ -98,15 +98,16 @@ class CondaTarBZ2(AbstractBaseFormat):
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
         with TemporaryDirectory() as tmpdir:
             out_file = create_compressed_tarball(prefix, file_list, tmpdir,
-                                                 out_fn.replace('.tar.bz2', ''),
+                                                 os.path.basename(out_fn).replace('.tar.bz2', ''),
                                                  '.tar.bz2', 'bzip2')
             final_path = os.path.join(out_folder, os.path.basename(out_file))
-            try:
-                shutil.move(out_file, final_path)
-            except OSError as e:
-                logging.getLogger(__name__).info("Moving temporary"
-                    "package from {} to {} had some issues.  Error "
-                    "message was: {}".format(out_file, final_path, repr(e)))
+            if out_file != final_path:
+                try:
+                    shutil.move(out_file, final_path)
+                except OSError as e:
+                    logging.getLogger(__name__).info("Moving temporary "
+                        "package from {} to {} had some issues.  Error "
+                        "message was: {}".format(out_file, final_path, repr(e)))
         return final_path
 
     @staticmethod
