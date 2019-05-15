@@ -1,4 +1,18 @@
 # current developments
+2019-05-14 1.1.1:
+------------------
+
+Bug fixes:
+----------
+
+* fix path join bug, where an absolute path for out_fn was causing file writing problems
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-05-10 1.1.0:
 ------------------
 
