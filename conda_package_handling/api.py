@@ -56,36 +56,40 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
             SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
 
 
+def _convert(fn, out_ext, out_folder, **kw):
+    basename = None
+    for ext in SUPPORTED_EXTENSIONS:
+        if fn.endswith(ext):
+            basename = _os.path.basename(fn).replace(ext, '')
+    if not basename:
+        print("Input file %s doesn't have a supported extension (%s), skipping it"
+                % (fn, SUPPORTED_EXTENSIONS))
+        return
+    out_fn = _os.path.join(out_folder, basename + out_ext)
+    if _os.path.lexists(out_fn):
+        print("Skipping %s because %s already exists" % (fn, out_fn))
+    else:
+        with _TemporaryDirectory() as tmp:
+            extract(fn, dest_dir=tmp)
+            file_list = _collect_paths(tmp)
+            create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
+    return fn
+
+
 def transmute(in_file, out_ext, out_folder=None, **kw):
     from glob import glob
+    from concurrent.futures import ProcessPoolExecutor, as_completed
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
-    def _convert(fn):
-        basename = None
-        for ext in SUPPORTED_EXTENSIONS:
-            if fn.endswith(ext):
-                basename = _os.path.basename(fn).replace(ext, '')
-        if not basename:
-            print("Input file %s doesn't have a supported extension (%s), skipping it"
-                  % (fn, SUPPORTED_EXTENSIONS))
-            return
-        out_fn = _os.path.join(out_folder, basename + out_ext)
-        if _os.path.lexists(out_fn):
-            print("Skipping %s because %s already exists" % (fn, out_fn))
-        else:
-            with _TemporaryDirectory() as tmp:
-                extract(fn, dest_dir=tmp)
-                file_list = _collect_paths(tmp)
-                create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
-
-    # TODO: parallelize?  Maybe this is better left to the terminal (xargs?)
     flist = glob(in_file)
     with tqdm.tqdm(total=len(flist)) as t:
-        for fn in flist:
-            t.set_description("Converting: %s" % fn)
-            t.update()
-            _convert(fn)
+        with ProcessPoolExecutor() as executor:
+            futures = (executor.submit(_convert, fn, out_ext, out_folder, **kw) for fn in flist)
+            for future in as_completed(futures):
+                fn = future.result()
+                t.set_description("Converted: %s" % fn)
+                t.update()
 
 
 def get_pkg_details(in_file):

@@ -1,11 +1,14 @@
 from setuptools import setup
 import versioneer
+import sys
 
 requirements = [
     # package requirements go here
     "six",
     # "python-libarchive-c"
 ]
+if sys.version_info.major == 2:
+    requirements.append('futures')
 
 setup(
     name='conda-package-handling',

@@ -18,6 +18,7 @@ requirements:
     - python
     - setuptools
   run:
+    - futures   # [py27]
     - python
     - python-libarchive-c
     - six
