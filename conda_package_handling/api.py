@@ -11,6 +11,17 @@ SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
 
 
+def _collect_paths(prefix):
+    dir_paths, file_paths = [], []
+    for dp, dn, filenames in _os.walk(prefix):
+        for f in filenames:
+            file_paths.append(_os.path.relpath(_os.path.join(dp, f), prefix))
+        dir_paths.extend(_os.path.relpath(_os.path.join(dp, _), prefix) for _ in dn)
+    file_list = file_paths + [dp for dp in dir_paths
+                              if not any(f.startswith(dp) for f in file_paths)]
+    return file_list
+
+
 def extract(fn, dest_dir=None, components=None):
     if dest_dir:
         if not _os.path.isabs(dest_dir):
@@ -30,9 +41,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
     if not out_folder:
         out_folder = _os.getcwd()
     if file_list is None:
-        file_list = [_os.path.relpath(_os.path.join(dp, f), prefix)
-                     for dp, dn, filenames in _os.walk(prefix)
-                     for f in filenames]
+        file_list = _collect_paths(prefix)
+
     elif isinstance(file_list, _string_types):
         try:
             with open(file_list) as f:
@@ -66,9 +76,7 @@ def transmute(in_file, out_ext, out_folder=None, **kw):
         else:
             with _TemporaryDirectory() as tmp:
                 extract(fn, dest_dir=tmp)
-                file_list = [_os.path.relpath(_os.path.join(dp, f), tmp)
-                            for dp, dn, filenames in _os.walk(tmp)
-                            for f in filenames]
+                file_list = _collect_paths(tmp)
                 create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
 
     # TODO: parallelize?  Maybe this is better left to the terminal (xargs?)
