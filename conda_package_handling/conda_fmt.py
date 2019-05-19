@@ -96,7 +96,7 @@ class CondaFormat_v2(AbstractBaseFormat):
 
     @staticmethod
     def get_pkg_details(in_file):
-        stat_result = os.lstat(in_file)
+        stat_result = os.stat(in_file)
         size = stat_result.st_size
         # open the file twice because we need to start from the beginning each time
         with open(in_file, 'rb') as f:
