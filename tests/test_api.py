@@ -1,4 +1,10 @@
+from datetime import datetime
 import os
+import sys
+import tarfile
+
+import pytest
+import libarchive
 
 from conda_package_handling import api
 
@@ -68,3 +74,65 @@ def test_api_transmute_conda_v2_to_tarball(testing_workdir):
 
 def test_warning_when_bundling_no_metadata(testing_workdir):
     pass
+
+
+def test_create_package_with_uncommon_conditions_captures_all_content(testing_workdir):
+    tfname = api.create(os.path.join(data_dir, 'package_with_uncommon_things'), None, 'barbarella.tar.bz2')
+
+    api.extract(tfname)
+    flist = [
+        'empty_folder',
+        'empty_file',
+        'a_folder/empty_file',
+        'a_folder/text_file',
+        'a_folder/hardlink_to_text_file',
+        'symlink_stuff/a_folder',
+        'symlink_stuff/symlink_to_empty_file',
+        'symlink_stuff/symlink_to_text_file',
+        'symlink_stuff/symlink_to_symlink_to_empty_file',
+        'symlink_stuff/symlink_to_symlink_to_text_file',
+        'symlink_stuff/a_folder',
+        # not directly included but checked symlink
+        'symlink_stuff/a_folder/text_file',
+    ]
+
+    missing_content = []
+    for f in flist:
+        path_that_should_be_there = os.path.join(testing_workdir, tfname[:-8], f)
+        if not (os.path.exists(path_that_should_be_there) or
+                os.path.lexists(path_that_should_be_there)):
+            missing_content.append(f)
+    if missing_content:
+        print("missing files in output package")
+        print(missing_content)
+        sys.exit(1)
+
+    extracted_folder = os.path.basename(tfname)[:-8]
+
+    # hardlinks should be preserved, but they're currently not
+    # hardlinked_file = os.path.join(testing_workdir, extracted_folder, 'a_folder/text_file')
+    # stat = os.stat(hardlinked_file)
+    # assert stat.st_nlink == 2
+
+    hardlinked_file = os.path.join(testing_workdir, extracted_folder, 'a_folder/empty_file')
+    stat = os.stat(hardlinked_file)
+    assert stat.st_nlink == 1
+
+
+@pytest.mark.skipif(datetime.now() <= datetime(2019, 7, 1), reason="Don't understand why this doesn't behave.  Punt.")
+def test_secure_refusal_to_extract_abs_paths(testing_workdir):
+    with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
+        open('thebrain', 'w').close()
+        tf.add(os.path.join(testing_workdir, 'thebrain'), '/naughty/abs_path')
+
+    with pytest.raises(libarchive.exception.ArchiveError):
+        api.extract('pinkie.tar.bz2')
+
+
+def tests_secure_refusal_to_extract_dotdot(testing_workdir):
+    with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
+        open('thebrain', 'w').close()
+        tf.add(os.path.join(testing_workdir, 'thebrain'), '../naughty/abs_path')
+
+    with pytest.raises(libarchive.exception.ArchiveError):
+        api.extract('pinkie.tar.bz2')

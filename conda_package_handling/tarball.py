@@ -17,7 +17,7 @@ def _sort_file_order(prefix, files):
     """Sort by filesize or by binsort, to optimize compression"""
     def order(f):
         # we don't care about empty files so send them back via 100000
-        fsize = os.stat(os.path.join(prefix, f)).st_size or 100000
+        fsize = os.lstat(os.path.join(prefix, f)).st_size or 100000
         # info/* records will be False == 0, others will be 1.
         info_order = int(os.path.dirname(f) != 'info')
         if info_order:
