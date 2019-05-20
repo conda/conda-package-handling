@@ -19,8 +19,6 @@ install:
   - conda update -q conda
   - conda install conda-build anaconda-client pytest pytest-cov six python-libarchive-c futures
   - conda config --set auto_update_conda no
-  - rm -rf "$HOME/miniconda/lib/python${TRAVIS_PYTHON_VERSION}/site-packages/conda_prefix_handling*"
-  - pip install .
   - conda build conda.recipe --no-test
   - conda install --use-local conda_package_handling
   - conda info -a

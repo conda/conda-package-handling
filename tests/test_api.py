@@ -119,7 +119,8 @@ def test_create_package_with_uncommon_conditions_captures_all_content(testing_wo
 
     hardlinked_file = os.path.join(testing_workdir, extracted_folder, 'a_folder/empty_file')
     stat = os.stat(hardlinked_file)
-    assert stat.st_nlink == 1
+    if sys.platform != 'win32':
+        assert stat.st_nlink == 1
 
 
 @pytest.mark.skipif(datetime.now() <= datetime(2019, 7, 1), reason="Don't understand why this doesn't behave.  Punt.")
