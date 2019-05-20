@@ -1,4 +1,18 @@
 # current developments
+2019-05-20 1.1.3:
+------------------
+
+Bug fixes:
+----------
+
+* improve tests of symlink and other file contents
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-05-20 1.1.2:
 ------------------
 
