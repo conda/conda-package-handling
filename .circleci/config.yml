@@ -21,11 +21,12 @@ jobs:
           command: |
             # conda env create -q || conda env update -q
             # source activate adj
-            conda install -qy conda-build anaconda-client pytest pytest-cov
+            conda install -qy conda-build anaconda-client pytest pytest-cov python-libarchive-c six futures
             conda config --set auto_update_conda no
             conda info -a
+            pip install -e .
             conda build conda.recipe --no-test
-            conda install --use-local conda_package_handling
+            conda install --use-local conda-package-handling
 
       
       # - save_cache:

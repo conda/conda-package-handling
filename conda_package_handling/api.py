@@ -53,7 +53,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
     for ext in SUPPORTED_EXTENSIONS:
         if out_fn.endswith(ext):
-            SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
+            out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
+    return out
 
 
 def _convert(fn, out_ext, out_folder, **kw):
