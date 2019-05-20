@@ -1,4 +1,18 @@
 # current developments
+2019-05-20 1.1.2:
+------------------
+
+Bug fixes:
+----------
+
+* fix creation dropping symlinks and things that are not otherwise "files"
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-05-14 1.1.1:
 ------------------
 
