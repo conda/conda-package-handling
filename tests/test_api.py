@@ -92,9 +92,12 @@ def test_create_package_with_uncommon_conditions_captures_all_content(testing_wo
         'symlink_stuff/symlink_to_symlink_to_empty_file',
         'symlink_stuff/symlink_to_symlink_to_text_file',
         'symlink_stuff/a_folder',
-        # not directly included but checked symlink
-        'symlink_stuff/a_folder/text_file',
     ]
+
+    # no symlinks on windows
+    if sys.platform != 'win32':
+        # not directly included but checked symlink
+        flist.append('symlink_stuff/a_folder/text_file')
 
     missing_content = []
     for f in flist:
