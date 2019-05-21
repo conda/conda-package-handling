@@ -76,51 +76,70 @@ def test_warning_when_bundling_no_metadata(testing_workdir):
     pass
 
 
+@pytest.mark.skipif(sys.platform=="win32", reason="windows and symlinks are not great")
 def test_create_package_with_uncommon_conditions_captures_all_content(testing_workdir):
-    tfname = api.create(os.path.join(data_dir, 'package_with_uncommon_things'), None, 'barbarella.tar.bz2')
+    os.makedirs('src/a_folder')
+    os.makedirs('src/empty_folder')
+    os.makedirs('src/symlink_stuff')
+    with open('src/a_folder/text_file', 'w') as f:
+        f.write('weee')
+    open('src/empty_file', 'w').close()
+    os.link('src/a_folder/text_file', 'src/a_folder/hardlink_to_text_file')
+    os.symlink('../a_folder', 'src/symlink_stuff/symlink_to_a')
+    os.symlink('../empty_file', 'src/symlink_stuff/symlink_to_empty_file')
+    os.symlink('../a_folder/text_file', 'src/symlink_stuff/symlink_to_text_file')
 
-    api.extract(tfname)
-    flist = [
-        'empty_folder',
-        'empty_file',
-        'a_folder/empty_file',
-        'a_folder/text_file',
-        'a_folder/hardlink_to_text_file',
-        'symlink_stuff/a_folder',
-        'symlink_stuff/symlink_to_empty_file',
-        'symlink_stuff/symlink_to_text_file',
-        'symlink_stuff/symlink_to_symlink_to_empty_file',
-        'symlink_stuff/symlink_to_symlink_to_text_file',
-        'symlink_stuff/a_folder',
-    ]
+    with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
+        tf.add('src/empty_folder', 'empty_folder')
+        tf.add('src/empty_file', 'empty_file')
+        tf.add('src/a_folder', 'a_folder')
+        tf.add('src/a_folder/text_file', 'a_folder/text_file')
+        tf.add('src/a_folder/hardlink_to_text_file', 'a_folder/hardlink_to_text_file')
+        tf.add('src/symlink_stuff/symlink_to_a', 'symlink_stuff/symlink_to_a')
+        tf.add('src/symlink_stuff/symlink_to_empty_file', 'symlink_stuff/symlink_to_empty_file')
+        tf.add('src/symlink_stuff/symlink_to_text_file', 'symlink_stuff/symlink_to_text_file')
 
-    # no symlinks on windows
-    if sys.platform != 'win32':
-        # not directly included but checked symlink
-        flist.append('symlink_stuff/a_folder/text_file')
+    cph_created = api.create('src', None, 'thebrain.tar.bz2')
 
-    missing_content = []
-    for f in flist:
-        path_that_should_be_there = os.path.join(testing_workdir, tfname[:-8], f)
-        if not (os.path.exists(path_that_should_be_there) or
-                os.path.lexists(path_that_should_be_there)):
-            missing_content.append(f)
-    if missing_content:
-        print("missing files in output package")
-        print(missing_content)
-        sys.exit(1)
+    # test against both archives created manually and those created by cph.  They should be equal in all ways.
+    for fn in ('pinkie.tar.bz2', 'thebrain.tar.bz2'):
+        api.extract(fn)
+        target_dir = fn[:-8]
+        flist = [
+            'empty_folder',
+            'empty_file',
+            'a_folder/text_file',
+            'a_folder/hardlink_to_text_file',
+            'symlink_stuff/symlink_to_a',
+            'symlink_stuff/symlink_to_text_file',
+            'symlink_stuff/symlink_to_empty_file',
+        ]
 
-    extracted_folder = os.path.basename(tfname)[:-8]
+        # no symlinks on windows
+        if sys.platform != 'win32':
+            # not directly included but checked symlink
+            flist.append('symlink_stuff/symlink_to_a/text_file')
 
-    # hardlinks should be preserved, but they're currently not
-    # hardlinked_file = os.path.join(testing_workdir, extracted_folder, 'a_folder/text_file')
-    # stat = os.stat(hardlinked_file)
-    # assert stat.st_nlink == 2
+        missing_content = []
+        for f in flist:
+            path_that_should_be_there = os.path.join(testing_workdir, target_dir, f)
+            if not (os.path.exists(path_that_should_be_there) or
+                    os.path.lexists(path_that_should_be_there)):
+                missing_content.append(f)
+        if missing_content:
+            print("missing files in output package")
+            print(missing_content)
+            sys.exit(1)
 
-    hardlinked_file = os.path.join(testing_workdir, extracted_folder, 'a_folder/empty_file')
-    stat = os.stat(hardlinked_file)
-    if sys.platform != 'win32':
-        assert stat.st_nlink == 1
+        # hardlinks should be preserved, but they're currently not with libarchive
+        # hardlinked_file = os.path.join(testing_workdir, target_dir, 'a_folder/text_file')
+        # stat = os.stat(hardlinked_file)
+        # assert stat.st_nlink == 2
+
+        hardlinked_file = os.path.join(testing_workdir, target_dir, 'empty_file')
+        stat = os.stat(hardlinked_file)
+        if sys.platform != 'win32':
+            assert stat.st_nlink == 1
 
 
 @pytest.mark.skipif(datetime.now() <= datetime(2019, 7, 1), reason="Don't understand why this doesn't behave.  Punt.")
