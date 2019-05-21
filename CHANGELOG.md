@@ -1,4 +1,18 @@
 # current developments
+2019-05-21 1.1.5:
+------------------
+
+Bug fixes:
+----------
+
+* generate symlink tests rather than including file layout, to avoid issues on win
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-05-21 1.1.4:
 ------------------
 
