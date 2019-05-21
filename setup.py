@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import versioneer
 import sys
 
@@ -18,7 +18,8 @@ setup(
     author="Anaconda, Inc.",
     author_email='conda@anaconda.com',
     url='https://github.com/conda/conda-package-handling',
-    packages=['conda_package_handling'],
+    packages=find_packages("src", exclude=["tests"]),
+    package_dir={"": "src"},
     entry_points={
         'console_scripts': [
             'cph=conda_package_handling.cli:main'

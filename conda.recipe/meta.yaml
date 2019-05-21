@@ -1,8 +1,8 @@
 {% set data = load_setup_py_data() %}
 
 package:
-  name: conda_package_handling
-  version: {{ data['version'] }}
+  name: conda-package-handling
+  version: {{ GIT_DESCRIBE_TAG }}.{{ GIT_BUILD_STR }}
 
 source:
   path: ..

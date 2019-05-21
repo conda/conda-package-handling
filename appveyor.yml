@@ -41,7 +41,7 @@ install:
   - conda info
   # this is to ensure dependencies
   - conda build conda.recipe --no-test
-  - conda install --use-local conda_package_handling
+  - conda install --use-local conda-package-handling
 
 
 # Not a .NET project, we build package in the install step instead
