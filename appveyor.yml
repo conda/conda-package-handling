@@ -48,7 +48,7 @@ install:
 build: false
 
 test_script:
-  - py.test --color=yes -v --cov src/conda_package_handling --cov-report xml tests
+  - py.test --color=yes -v --cov conda_package_handling --cov-report xml tests
 
 on_success:
   - conda install -c conda-forge codecov

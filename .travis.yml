@@ -23,7 +23,7 @@ install:
   - conda install --use-local conda-package-handling
   - conda info -a
 script:
-  - pytest -v --color=yes --cov=src/conda_package_handling tests
+  - pytest -v --color=yes --cov=conda_package_handling tests
 after_success:
   - conda install -c conda-forge codecov
   - codecov
