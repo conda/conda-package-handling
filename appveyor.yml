@@ -41,14 +41,14 @@ install:
   - conda info
   # this is to ensure dependencies
   - conda build conda.recipe --no-test
-  - conda install --use-local conda_package_handling
+  - conda install --use-local conda-package-handling
 
 
 # Not a .NET project, we build package in the install step instead
 build: false
 
 test_script:
-  - py.test --color=yes -v --cov conda_package_handling --cov-report xml tests
+  - py.test --color=yes -v --cov src/conda_package_handling --cov-report xml tests
 
 on_success:
   - conda install -c conda-forge codecov

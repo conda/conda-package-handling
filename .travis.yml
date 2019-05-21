@@ -20,10 +20,10 @@ install:
   - conda install conda-build anaconda-client pytest pytest-cov six python-libarchive-c futures
   - conda config --set auto_update_conda no
   - conda build conda.recipe --no-test
-  - conda install --use-local conda_package_handling
+  - conda install --use-local conda-package-handling
   - conda info -a
 script:
-  - pytest -v --color=yes --cov=conda_package_handling tests
+  - pytest -v --color=yes --cov=src/conda_package_handling tests
 after_success:
   - conda install -c conda-forge codecov
   - codecov
