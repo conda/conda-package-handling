@@ -1,4 +1,18 @@
 # current developments
+2019-05-21 1.1.4:
+------------------
+
+Enhancements:
+-------------
+
+* moved conda_package_handling into src (src layout)
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-05-20 1.1.3:
 ------------------
 
