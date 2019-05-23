@@ -67,14 +67,18 @@ def _convert(fn, out_ext, out_folder, **kw):
                 % (fn, SUPPORTED_EXTENSIONS))
         return
     out_fn = _os.path.join(out_folder, basename + out_ext)
+    success = True
     if _os.path.lexists(out_fn):
         print("Skipping %s because %s already exists" % (fn, out_fn))
     else:
         with _TemporaryDirectory() as tmp:
-            extract(fn, dest_dir=tmp)
-            file_list = _collect_paths(tmp)
-            create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
-    return fn
+            try:
+                extract(fn, dest_dir=tmp)
+                file_list = _collect_paths(tmp)
+                create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
+            except:
+                success = False
+    return fn, success
 
 
 def transmute(in_file, out_ext, out_folder=None, **kw):
@@ -84,13 +88,17 @@ def transmute(in_file, out_ext, out_folder=None, **kw):
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
     flist = glob(in_file)
+    failed_files = []
     with tqdm.tqdm(total=len(flist)) as t:
         with ProcessPoolExecutor() as executor:
             futures = (executor.submit(_convert, fn, out_ext, out_folder, **kw) for fn in flist)
             for future in as_completed(futures):
-                fn = future.result()
+                fn, success = future.result()
                 t.set_description("Converted: %s" % fn)
                 t.update()
+                if not success:
+                    failed_files.append(fn)
+    return failed_files
 
 
 def get_pkg_details(in_file):

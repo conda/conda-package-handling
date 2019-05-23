@@ -54,7 +54,10 @@ def main(args=None):
     elif args.subparser_name in ('create', 'c'):
         api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
     elif args.subparser_name in ('transmute', 't'):
-        api.transmute(args.in_file, args.out_ext, args.out_folder)
+        failed_files = api.transmute(args.in_file, args.out_ext, args.out_folder)
+        if failed_files:
+            print("failed files:")
+            print(failed_files)
     else:
         raise NotImplementedError("Command {} is not implemented".format(args.subparser_name))
 
