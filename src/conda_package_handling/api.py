@@ -68,9 +68,7 @@ def _convert(fn, out_ext, out_folder, **kw):
         return
     out_fn = _os.path.join(out_folder, basename + out_ext)
     success = True
-    if _os.path.lexists(out_fn):
-        print("Skipping %s because %s already exists" % (fn, out_fn))
-    else:
+    if not _os.path.lexists(out_fn):
         with _TemporaryDirectory() as tmp:
             try:
                 extract(fn, dest_dir=tmp)
