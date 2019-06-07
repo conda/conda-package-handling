@@ -83,15 +83,9 @@ def _tar_xf(tarball, dir_path):
 class CondaTarBZ2(AbstractBaseFormat):
 
     @staticmethod
-    def extract(fn, dest_dir=None, **kw):
-        file_id = os.path.basename(fn).replace('.tar.bz2', '')
-        if not dest_dir:
-            dest_dir = os.path.join(os.getcwd(), file_id)
+    def extract(fn, dest_dir, **kw):
         if not os.path.isdir(dest_dir):
             os.makedirs(dest_dir)
-        # if kw.get('components'):
-        #     print("Warning: ignoring request for components - .tar.bz2 files can't "
-        #           "be partially extracted")
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
         _tar_xf(fn, dest_dir)

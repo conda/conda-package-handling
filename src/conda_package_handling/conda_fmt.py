@@ -48,11 +48,9 @@ class CondaFormat_v2(AbstractBaseFormat):
     one, so that handling of v2 stays working."""
 
     @staticmethod
-    def extract(fn, dest_dir=None, **kw):
+    def extract(fn, dest_dir, **kw):
         components = utils.ensure_list(kw.get('components')) or ('info', 'pkg')
         file_id = os.path.basename(fn).replace('.conda', '')
-        if not dest_dir:
-            dest_dir = os.path.join(os.getcwd(), file_id)
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
         if not os.path.isdir(dest_dir):

@@ -3,9 +3,9 @@ import os as _os
 from six import string_types as _string_types
 import tqdm
 
-from conda_package_handling.tarball import CondaTarBZ2 as _CondaTarBZ2
-from conda_package_handling.conda_fmt import CondaFormat_v2 as _CondaFormat_v2
-from conda_package_handling.utils import TemporaryDirectory as _TemporaryDirectory
+from .tarball import CondaTarBZ2 as _CondaTarBZ2
+from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
+from .utils import TemporaryDirectory as _TemporaryDirectory
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -22,12 +22,25 @@ def _collect_paths(prefix):
     return file_list
 
 
+def get_default_extracted_folder(in_file):
+        dirname = None
+        for ext in SUPPORTED_EXTENSIONS:
+            if in_file.endswith(ext):
+                dirname = _os.path.basename(in_file)[:-len(ext)]
+
+        if not _os.path.isabs(dirname):
+            dirname = _os.path.normpath(_os.path.join(_os.getcwd(), dirname))
+        return dirname
+
+
 def extract(fn, dest_dir=None, components=None):
     if dest_dir:
         if not _os.path.isabs(dest_dir):
             dest_dir = _os.path.normpath(_os.path.join(_os.getcwd(), dest_dir))
         if not _os.path.isdir(dest_dir):
             _os.makedirs(dest_dir)
+    else:
+        dest_dir = get_default_extracted_folder(fn)
     for ext in SUPPORTED_EXTENSIONS:
         if fn.endswith(ext):
             SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
@@ -58,10 +71,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 
 def _convert(fn, out_ext, out_folder, **kw):
-    basename = None
-    for ext in SUPPORTED_EXTENSIONS:
-        if fn.endswith(ext):
-            basename = _os.path.basename(fn).replace(ext, '')
+    basename = get_default_extracted_folder(fn)
     if not basename:
         print("Input file %s doesn't have a supported extension (%s), skipping it"
                 % (fn, SUPPORTED_EXTENSIONS))
@@ -78,8 +88,7 @@ def _convert(fn, out_ext, out_folder, **kw):
                 success = False
     return fn, success
 
-
-def transmute(in_file, out_ext, out_folder=None, **kw):
+def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
     from glob import glob
     from concurrent.futures import ProcessPoolExecutor, as_completed
     if not out_folder:
@@ -88,7 +97,7 @@ def transmute(in_file, out_ext, out_folder=None, **kw):
     flist = glob(in_file)
     failed_files = []
     with tqdm.tqdm(total=len(flist)) as t:
-        with ProcessPoolExecutor() as executor:
+        with ProcessPoolExecutor(max_workers=processes) as executor:
             futures = (executor.submit(_convert, fn, out_ext, out_folder, **kw) for fn in flist)
             for future in as_completed(futures):
                 fn, success = future.result()

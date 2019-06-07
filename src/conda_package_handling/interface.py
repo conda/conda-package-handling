@@ -9,7 +9,7 @@ class AbstractBaseFormat():
 
     @staticmethod
     @abc.abstractmethod
-    def extract(fn, dest_dir=None, **kw):
+    def extract(fn, dest_dir, **kw):
         raise NotImplementedError
 
     @staticmethod
