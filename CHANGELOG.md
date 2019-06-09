@@ -1,4 +1,19 @@
 # current developments
+2019-06-08 1.2.0:
+------------------
+
+Enhancements:
+-------------
+
+* add get_default_extracted_folder api function that returns the folder location where a file would be extracted to by default (no dest folder specified) 
+* add --processes flag to cph t, to limit number of processes spawned.  Defaults to number of CPUs if not set.
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-05-21 1.1.5:
 ------------------
 
