@@ -157,5 +157,5 @@ def tests_secure_refusal_to_extract_dotdot(testing_workdir):
         open('thebrain', 'w').close()
         tf.add(os.path.join(testing_workdir, 'thebrain'), '../naughty/abs_path')
 
-    with pytest.raises(libarchive.exception.ArchiveError):
+    with pytest.raises(api.InvalidArchiveError):
         api.extract('pinkie.tar.bz2')

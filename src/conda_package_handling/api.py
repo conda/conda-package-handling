@@ -1,11 +1,13 @@
 import os as _os
 
+from libarchive.exception import ArchiveError as _LibarchiveArchiveError
 from six import string_types as _string_types
 import tqdm
 
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
 from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 from .utils import TemporaryDirectory as _TemporaryDirectory
+from .exceptions import InvalidArchiveError
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -43,7 +45,10 @@ def extract(fn, dest_dir=None, components=None):
         dest_dir = get_default_extracted_folder(fn)
     for ext in SUPPORTED_EXTENSIONS:
         if fn.endswith(ext):
-            SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
+            try:
+                SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
+            except _LibarchiveArchiveError as e:
+                raise InvalidArchiveError(fn, str(e))
             break
     else:
         raise ValueError("Didn't recognize extension for file '{}'.  Supported extensions are: {}"
