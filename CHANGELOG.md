@@ -1,4 +1,18 @@
 # current developments
+2019-06-10 1.3.0:
+------------------
+
+Enhancements:
+-------------
+
+* add a cph-specific exception, so that downstream consumers of cph don't have to handle libarchive exceptions
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-08 1.2.0:
 ------------------
 
