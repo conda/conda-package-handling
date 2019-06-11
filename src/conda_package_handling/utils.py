@@ -44,7 +44,16 @@ except ImportError:
                 except (TypeError, AttributeError) as ex:
                     if "None" not in '%s' % (ex,):
                         raise
-                    shutil.rmtree(self.name)
+                    try:
+                        shutil.rmtree(self.name)
+                    except:
+                        _warnings.warn('Conda-package-handling says: "I tried to clean up, '
+                                       'but I could not.  There is a mess in %s that you might '
+                                       'want to clean up yourself.  Sorry..."')
+                except:
+                    _warnings.warn('Conda-package-handling says: "I tried to clean up, '
+                                    'but I could not.  There is a mess in %s that you might '
+                                    'want to clean up yourself.  Sorry..."')
                 self._closed = True
                 if _warn and _warnings.warn:
                     _warnings.warn("Implicitly cleaning up {!r}".format(self),
