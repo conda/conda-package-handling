@@ -25,14 +25,14 @@ def _collect_paths(prefix):
 
 
 def get_default_extracted_folder(in_file):
-        dirname = None
-        for ext in SUPPORTED_EXTENSIONS:
-            if in_file.endswith(ext):
-                dirname = _os.path.basename(in_file)[:-len(ext)]
+    dirname = None
+    for ext in SUPPORTED_EXTENSIONS:
+        if in_file.endswith(ext):
+            dirname = _os.path.basename(in_file)[:-len(ext)]
 
-        if not _os.path.isabs(dirname):
-            dirname = _os.path.normpath(_os.path.join(_os.getcwd(), dirname))
-        return dirname
+    if not _os.path.isabs(dirname):
+        dirname = _os.path.normpath(_os.path.join(_os.getcwd(), dirname))
+    return dirname
 
 
 def extract(fn, dest_dir=None, components=None):
@@ -93,6 +93,7 @@ def _convert(fn, out_ext, out_folder, **kw):
                 success = False
     return fn, success
 
+
 def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
     from glob import glob
     from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -101,7 +102,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
 
     flist = glob(in_file)
     failed_files = []
-    with tqdm.tqdm(total=len(flist)) as t:
+    with tqdm.tqdm(total=len(flist), leave=False) as t:
         with ProcessPoolExecutor(max_workers=processes) as executor:
             futures = (executor.submit(_convert, fn, out_ext, out_folder, **kw) for fn in flist)
             for future in as_completed(futures):

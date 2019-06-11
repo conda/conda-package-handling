@@ -1,5 +1,6 @@
 from errno import ENOENT
 
+
 class InvalidArchiveError(Exception):
     """Raised when libarchive can't open a file"""
     def __init__(self, fn, msg, *args, **kw):

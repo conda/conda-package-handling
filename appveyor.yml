@@ -37,7 +37,7 @@ install:
   - conda update -q conda
   - conda config --set auto_update_conda no
   - conda update -q --all
-  - conda install -q pytest pytest-cov conda-build anaconda-client
+  - conda install -q pytest pytest-cov pytest-mock conda-build anaconda-client
   - conda info
   # this is to ensure dependencies
   - conda build conda.recipe --no-test
