@@ -1,0 +1,25 @@
+Enhancements:
+-------------
+
+* <news item>
+
+Bug fixes:
+----------
+
+* try to wrap tempdir cleanup so that it never exits violently.  Add warning message.
+
+Deprecations:
+-------------
+
+* <news item>
+
+Docs:
+-----
+
+* <news item>
+
+Other:
+------
+
+* <news item>
+
