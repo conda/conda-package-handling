@@ -1,70 +1,305 @@
 import contextlib
+from errno import ENOENT, EACCES, EPERM, EROFS
+import fnmatch
 import hashlib
+from itertools import chain
+import logging
 import os
+from os.path import (isdir, isfile, basename, dirname, join, split, lexists, normpath,
+                     abspath, islink)
 import re
 import shutil
+from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE, S_IXGRP, S_IXOTH, S_IXUSR
+from subprocess import check_output, CalledProcessError, STDOUT
+import sys
+from tempfile import mkdtemp
 import warnings as _warnings
 
 from six import string_types
 
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    from tempfile import mkdtemp
+on_win = sys.platform == 'win32'
+log = logging.getLogger(__file__)
+CONDA_TEMP_EXTENSION = '.c~'
 
-    class TemporaryDirectory(object):
-        """Create and return a temporary directory.  This has the same
-        behavior as mkdtemp but can be used as a context manager.  For
-        example:
 
-            with TemporaryDirectory() as tmpdir:
-                ...
+def which(executable):
+    from distutils.spawn import find_executable
+    return find_executable(executable)
 
-        Upon exiting the context, the directory and everything contained
-        in it are removed.
-        """
 
-        # Handle mkdtemp raising an exception
-        name = None
-        _closed = False
+def make_writable(path):
+    try:
+        mode = os.lstat(path).st_mode
+        if S_ISDIR(mode):
+            os.chmod(path, S_IMODE(mode) | S_IWRITE | S_IEXEC)
+        elif islink(path):
+            os.lchmod(path, S_IMODE(mode) | S_IWRITE)
+        elif S_ISREG(mode):
+            os.chmod(path, S_IMODE(mode) | S_IWRITE)
+        else:
+            log.debug("path cannot be made writable: %s", path)
+        return True
+    except Exception as e:
+        eno = getattr(e, 'errno', None)
+        if eno in (ENOENT,):
+            log.debug("tried to make writable, but didn't exist: %s", path)
+            raise
+        elif eno in (EACCES, EPERM, EROFS):
+            log.debug("tried make writable but failed: %s\n%r", path, e)
+            return False
+        else:
+            log.warn("Error making path writable: %s\n%r", path, e)
+            raise
 
-        def __init__(self, suffix="", prefix='tmp', dir=None):
-            self.name = mkdtemp(suffix, prefix, dir)
 
-        def __repr__(self):
-            return "<{} {!r}>".format(self.__class__.__name__, self.name)
-
-        def __enter__(self):
-            return self.name
-
-        def cleanup(self, _warn=False, _warnings=_warnings):
-            if self.name and not self._closed:
+def recursive_make_writable(path):
+    # The need for this function was pointed out at
+    #   https://github.com/conda/conda/issues/3266#issuecomment-239241915
+    # Especially on windows, file removal will often fail because it is marked read-only
+    if isdir(path):
+        for root, dirs, files in os.walk(path):
+            for path in chain.from_iterable((files, dirs)):
                 try:
-                    shutil.rmtree(self.name)
-                except (TypeError, AttributeError) as ex:
-                    if "None" not in '%s' % (ex,):
-                        raise
-                    try:
-                        shutil.rmtree(self.name)
-                    except:
-                        _warnings.warn('Conda-package-handling says: "I tried to clean up, '
-                                       'but I could not.  There is a mess in %s that you might '
-                                       'want to clean up yourself.  Sorry..."')
+                    make_writable(join(root, path))
                 except:
-                    _warnings.warn('Conda-package-handling says: "I tried to clean up, '
-                                    'but I could not.  There is a mess in %s that you might '
-                                    'want to clean up yourself.  Sorry..."')
-                self._closed = True
-                if _warn and _warnings.warn:
-                    _warnings.warn("Implicitly cleaning up {!r}".format(self),
-                                    _warnings.ResourceWarning)
+                    pass
+    else:
+        try:
+            make_writable(path)
+        except:
+            pass
 
-        def __exit__(self, exc, value, tb):
-            self.cleanup()
 
-        def __del__(self):
-            # Issue a ResourceWarning if implicit cleanup needed
-            self.cleanup(_warn=True)
+def rmtree(path, *args, **kwargs):
+    # subprocessing to delete large folders can be quite a bit faster
+    path = normpath(path)
+    if on_win:
+        try:
+            # the fastest way seems to be using DEL to recursively delete files
+            # https://www.ghacks.net/2017/07/18/how-to-delete-large-folders-in-windows-super-fast/
+            # However, this is not entirely safe, as it can end up following symlinks to folders
+            # https://superuser.com/a/306618/184799
+            # so, we stick with the slower, but hopefully safer way.  Maybe if we figured out how
+            #    to scan for any possible symlinks, we could do the faster way.
+            # out = check_output('DEL /F/Q/S *.* > NUL 2> NUL'.format(path), shell=True,
+            #                    stderr=STDOUT, cwd=path)
+
+            out = check_output('RD /S /Q "{}" > NUL 2> NUL'.format(path), shell=True,
+                               stderr=STDOUT)
+        except:
+            try:
+                # Try to delete in Unicode
+                name = None
+                from conda._vendor.auxlib.compat import Utf8NamedTemporaryFile
+                from conda.utils import quote_for_shell
+
+                with Utf8NamedTemporaryFile(mode="w", suffix=".bat", delete=False) as batch_file:
+                    batch_file.write('RD /S {}\n'.format(quote_for_shell([path])))
+                    batch_file.write('chcp 65001\n')
+                    batch_file.write('RD /S {}\n'.format(quote_for_shell([path])))
+                    batch_file.write('EXIT 0\n')
+                    name = batch_file.name
+                # If the above is bugged we can end up deleting hard-drives, so we check
+                # that 'path' appears in it. This is not bulletproof but it could save you (me).
+                with open(name, 'r') as contents:
+                    content = contents.read()
+                    assert path in content
+                comspec = os.environ['COMSPEC']
+                CREATE_NO_WINDOW = 0x08000000
+                # It is essential that we `pass stdout=None, stderr=None, stdin=None` here because
+                # if we do not, then the standard console handles get attached and chcp affects the
+                # parent process (and any which share those console handles!)
+                out = check_output([comspec, '/d', '/c', name], shell=False,
+                                   stdout=None, stderr=None, stdin=None,
+                                   creationflags=CREATE_NO_WINDOW)
+
+            except CalledProcessError as e:
+                if e.returncode != 5:
+                    log.error("Removing folder {} the fast way failed.  Output was: {}"
+                              .format(out))
+                    raise
+                else:
+                    log.debug("removing dir contents the fast way failed.  Output was: {}"
+                              .format(out))
+    else:
+        try:
+            os.makedirs('.empty')
+        except:
+            pass
+        # yes, this looks strange.  See
+        #    https://unix.stackexchange.com/a/79656/34459
+        #    https://web.archive.org/web/20130929001850/http://linuxnote.net/jianingy/en/linux/a-fast-way-to-remove-huge-number-of-files.html  # NOQA
+        rsync = which('rsync')
+        if rsync and isdir('.empty'):
+            try:
+                out = check_output(
+                    [rsync, '-a', '--force', '--delete', join(os.getcwd(), '.empty') + "/",
+                     path + "/"],
+                    stderr=STDOUT)
+            except CalledProcessError:
+                log.debug("removing dir contents the fast way failed.  Output was: {}".format(out))
+            shutil.rmtree('.empty')
+    shutil.rmtree(path)
+
+
+def unlink_or_rename_to_trash(path):
+    """If files are in use, especially on windows, we can't remove them.
+    The fallback path is to rename them (but keep their folder the same),
+    which maintains the file handle validity.  See comments at:
+    https://serverfault.com/a/503769
+    """
+    try:
+        make_writable(path)
+        os.unlink(path)
+    except EnvironmentError:
+        try:
+            os.rename(path, path + ".conda_trash")
+        except EnvironmentError:
+            if on_win:
+                # on windows, it is important to use the rename program, as just using python's
+                #    rename leads to permission errors when files are in use.
+                with TemporaryDirectory() as tmpdir:
+                    trash_script = join(tmpdir, 'rename_tmp.bat')
+                    with open(trash_script, 'w') as f:
+                        f.write('@pushd "%1"\n')
+                        f.write('@REM Rename src to dest')
+                        f.write('@ren "%2" "%3" > NUL 2> NUL")')
+
+                    _dirname, _fn = split(path)
+                    dest_fn = path + ".conda_trash"
+                    counter = 1
+                    while isfile(dest_fn):
+                        dest_fn = dest_fn.splitext[0] + '.conda_trash_{}'.format(counter)
+                        counter += 1
+                    out = "< empty >"
+                    try:
+                        out = check_output(['cmd.exe', '/C', trash_script, _dirname, _fn,
+                                            basename(dest_fn)],
+                                           stderr=STDOUT)
+                    except CalledProcessError:
+                        log.warn("renaming file path {} to trash failed.  Output was: {}"
+                                 .format(path, out))
+
+            log.warn("Could not remove or rename {}.  Please remove this file manually (you "
+                     "may need to reboot to free file handles)".format(path))
+
+
+def remove_empty_parent_paths(path):
+    # recurse to clean up empty folders that were created to have a nested hierarchy
+    parent_path = dirname(path)
+    while(isdir(parent_path) and not os.listdir(parent_path)):
+        rmdir(parent_path)
+        parent_path = dirname(parent_path)
+
+
+def rm_rf(path, clean_empty_parents=False, *args, **kw):
+    """
+    Completely delete path
+    max_retries is the number of times to retry on failure. The default is 5. This only applies
+    to deleting a directory.
+    If removing path fails and trash is True, files will be moved to the trash directory.
+    """
+    recursive_make_writable(path)
+    try:
+        path = abspath(path)
+        if isdir(path) and not islink(path):
+            rmdir(path)
+        elif lexists(path):
+            unlink_or_rename_to_trash(path)
+        else:
+            log.debug("rm_rf failed. Not a link, file, or directory: %s", path)
+    finally:
+        if lexists(path):
+            log.info("rm_rf failed for %s", path)
+            return False
+    if isdir(path):
+        delete_trash(path)
+    if clean_empty_parents:
+        remove_empty_parent_paths(path)
+    return True
+
+
+# aliases that all do the same thing (legacy compat)
+try_rmdir_all_empty = move_to_trash = move_path_to_trash = rm_rf
+
+
+def delete_trash(prefix):
+    if not prefix:
+        prefix = sys.prefix
+    exclude = set(['envs'])
+    for root, dirs, files in os.walk(prefix, topdown=True):
+        dirs[:] = [d for d in dirs if d not in exclude]
+        for fn in files:
+            if (fnmatch.fnmatch(fn, "*.conda_trash*") or
+                    fnmatch.fnmatch(fn, "*" + CONDA_TEMP_EXTENSION)):
+                filename = join(root, fn)
+                try:
+                    os.unlink(filename)
+                    remove_empty_parent_paths(filename)
+                except (OSError, IOError) as e:
+                    log.debug("%r errno %d\nCannot unlink %s.", e, e.errno, filename)
+
+
+def rmdir(dirpath):
+    if not isdir(dirpath):
+        return
+    try:
+        rmtree(dirpath)
+    # we don't really care about errors that much.  We'll catch remaining files
+    #    with slower python logic.
+    except:
+        pass
+
+    for root, dirs, files in os.walk(dirpath, topdown=False):
+        for f in files:
+            unlink_or_rename_to_trash(join(root, f))
+
+
+# we have our own TemporaryDirectory class because it's faster and handles disk issues better.
+class TemporaryDirectory(object):
+    """Create and return a temporary directory.  This has the same
+    behavior as mkdtemp but can be used as a context manager.  For
+    example:
+
+        with TemporaryDirectory() as tmpdir:
+            ...
+
+    Upon exiting the context, the directory and everything contained
+    in it are removed.
+    """
+
+    # Handle mkdtemp raising an exception
+    name = None
+    _closed = False
+
+    def __init__(self, suffix="", prefix='tmp', dir=None):
+        self.name = mkdtemp(suffix, prefix, dir)
+
+    def __repr__(self):
+        return "<{} {!r}>".format(self.__class__.__name__, self.name)
+
+    def __enter__(self):
+        return self.name
+
+    def cleanup(self, _warn=False, _warnings=_warnings):
+        if self.name and not self._closed:
+            try:
+                rm_rf(self.name)
+            except:
+                _warnings.warn('Conda-package-handling says: "I tried to clean up, '
+                                'but I could not.  There is a mess in %s that you might '
+                                'want to clean up yourself.  Sorry..."' % self.name)
+            self._closed = True
+            if _warn and _warnings.warn:
+                _warnings.warn("Implicitly cleaning up {!r}".format(self),
+                                _warnings.ResourceWarning)
+
+    def __exit__(self, exc, value, tb):
+        self.cleanup()
+
+    def __del__(self):
+        # Issue a ResourceWarning if implicit cleanup needed
+        self.cleanup(_warn=True)
 
 
 @contextlib.contextmanager

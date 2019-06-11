@@ -17,7 +17,7 @@ install:
   - hash -r
   - conda config --set always_yes yes
   - conda update -q conda
-  - conda install conda-build anaconda-client pytest pytest-cov six python-libarchive-c futures
+  - conda install conda-build anaconda-client pytest pytest-cov pytest-mock six python-libarchive-c futures
   - conda config --set auto_update_conda no
   - conda build conda.recipe --no-test
   - conda install --use-local conda-package-handling
