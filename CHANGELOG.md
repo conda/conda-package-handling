@@ -1,4 +1,18 @@
 # current developments
+2019-06-11 1.3.1:
+------------------
+
+Bug fixes:
+----------
+
+* try to wrap tempdir cleanup so that it never exits violently.  Add warning message.
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-10 1.3.0:
 ------------------
 
