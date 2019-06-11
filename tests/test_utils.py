@@ -22,15 +22,18 @@ def test_rename_to_trash(testing_workdir, mocker, errno):
     unlink.side_effect = EnvironmentError(errno, "")
     with open("dummy", 'w') as f:
         f.write('weeee')
-
     utils.unlink_or_rename_to_trash('dummy')
     assert os.path.isfile('dummy.conda_trash')
+
     # force a second error for the inner rename try (after unlink fails)
     if sys.platform == 'win32':
+
+        with open("dummy", 'w') as f:
+            f.write('weeee')
         rename = mocker.patch("os.rename")
         unlink.side_effect = EnvironmentError(errno, "")
-        utils.unlink_or_rename_to_trash('dummy.conda_trash')
-        assert os.path.isfile('dummy.conda_trash.conda_trash')
+        utils.unlink_or_rename_to_trash('dummy')
+        assert os.path.isfile('dummy.conda_trash')
 
 
 def test_delete_trash(testing_workdir, mocker):
