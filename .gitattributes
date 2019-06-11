@@ -1,0 +1,2 @@
+src/conda_package_handling/_version.py export-subst
+* text=auto eol=lf
