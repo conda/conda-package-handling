@@ -1,4 +1,18 @@
 # current developments
+2019-06-11 1.3.3:
+------------------
+
+Bug fixes:
+----------
+
+* add .gitattributes file to fix versioneer not working
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-11 1.3.2:
 ------------------
 
