@@ -1,4 +1,18 @@
 # current developments
+2019-06-11 1.3.2:
+------------------
+
+Bug fixes:
+----------
+
+* port rm_rf functionality from conda, to better handle permissions errors being observed on Azure and Appveyor windows hosts (but not on local machines)
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-11 1.3.1:
 ------------------
 
