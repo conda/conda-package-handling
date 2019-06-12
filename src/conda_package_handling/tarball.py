@@ -99,9 +99,9 @@ class CondaTarBZ2(AbstractBaseFormat):
             final_path = os.path.join(out_folder, os.path.basename(out_file))
             if out_file != final_path:
                 try:
-                    shutil.move(out_file, final_path)
+                    shutil.copy(out_file, final_path)
                 except OSError as e:
-                    logging.getLogger(__name__).info("Moving temporary "
+                    logging.getLogger(__name__).info("Copying temporary "
                         "package from {} to {} had some issues.  Error "
                         "message was: {}".format(out_file, final_path, repr(e)))
         return final_path

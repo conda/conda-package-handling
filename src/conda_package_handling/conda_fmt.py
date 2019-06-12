@@ -85,9 +85,9 @@ class CondaFormat_v2(AbstractBaseFormat):
                     zf.write('metadata.json')
             final_path = os.path.join(out_folder, os.path.basename(conda_pkg_fn))
             try:
-                shutil.move(conda_pkg_fn, final_path)
+                shutil.copy(conda_pkg_fn, final_path)
             except OSError as e:
-                logging.getLogger(__name__).info("Moving temporary"
+                logging.getLogger(__name__).info("Copying temporary"
                     "package from {} to {} had some issues.  Error "
                     "message was: {}".format(conda_pkg_fn, final_path, repr(e)))
         return final_path
