@@ -1,4 +1,18 @@
 # current developments
+2019-06-12 1.3.5:
+------------------
+
+Bug fixes:
+----------
+
+* fix recursion issue with TemporaryDirectory
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-11 1.3.4:
 ------------------
 
