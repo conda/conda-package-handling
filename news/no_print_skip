@@ -6,7 +6,7 @@ Enhancements:
 Bug fixes:
 ----------
 
-* Don't print message for every skipped file that already exists
+* Don't print message for every skipped file that already exists.  Don't even look at files that match the target conversion pattern.
 
 Deprecations:
 -------------

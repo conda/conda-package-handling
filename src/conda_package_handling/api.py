@@ -100,7 +100,12 @@ def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
-    flist = glob(in_file)
+    flist = set(glob(in_file))
+    if in_file.endswith('.tar.bz2'):
+        flist = flist - set(glob(in_file.replace('.tar.bz2', out_ext)))
+    elif in_file.endswith('.conda'):
+        flist = flist - set(glob(in_file.replace('.conda', out_ext)))
+
     failed_files = {}
     with tqdm.tqdm(total=len(flist), leave=False) as t:
         with ProcessPoolExecutor(max_workers=processes) as executor:
