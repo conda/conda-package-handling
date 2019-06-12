@@ -71,14 +71,12 @@ class CondaFormat_v2(AbstractBaseFormat):
 
         pkg_metadata = {'conda_pkg_format_version': CONDA_PACKAGE_FORMAT_VERSION}
 
-        with zipfile.ZipFile(conda_pkg_fn + ".c~", 'w', compression=zipfile.ZIP_STORED) as zf:
+        with zipfile.ZipFile(conda_pkg_fn, 'w', compression=zipfile.ZIP_STORED) as zf:
             with NamedTemporaryFile(mode='w', delete=False) as tf:
                 json.dump(pkg_metadata, tf)
                 zf.write(tf.name, 'metadata.json')
             for pkg in (info_tarball, pkg_tarball):
                 zf.write(pkg, os.path.basename(pkg))
-
-        os.rename(conda_pkg_fn + ".c~", conda_pkg_fn)
 
         utils.rm_rf(tf.name)
         utils.rm_rf(info_tarball)
