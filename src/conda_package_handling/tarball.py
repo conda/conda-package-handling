@@ -10,7 +10,6 @@ import libarchive
 
 from conda_package_handling import utils
 from conda_package_handling.interface import AbstractBaseFormat
-from conda_package_handling.utils import TemporaryDirectory
 
 
 def _sort_file_order(prefix, files):
@@ -92,19 +91,15 @@ class CondaTarBZ2(AbstractBaseFormat):
 
     @staticmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
-        with TemporaryDirectory() as tmpdir:
-            out_file = create_compressed_tarball(prefix, file_list, tmpdir,
-                                                 os.path.basename(out_fn).replace('.tar.bz2', ''),
-                                                 '.tar.bz2', 'bzip2')
-            final_path = os.path.join(out_folder, os.path.basename(out_file))
-            if out_file != final_path:
-                try:
-                    shutil.copy(out_file, final_path)
-                except OSError as e:
-                    logging.getLogger(__name__).info("Copying temporary "
-                        "package from {} to {} had some issues.  Error "
-                        "message was: {}".format(out_file, final_path, repr(e)))
-        return final_path
+        if os.path.isabs(out_fn):
+            out_folder = os.path.dirname(out_fn)
+        out_file = create_compressed_tarball(prefix, file_list, out_folder,
+                                             os.path.basename(out_fn).replace('.tar.bz2', ''),
+                                             '.tar.bz2.c~', 'bzip2')
+        # we output to .c~ to avoid clobbering existing good files until we know we
+        #    have a finished file
+        os.rename(out_file, out_file.replace('.c~', ''))
+        return out_file
 
     @staticmethod
     def get_pkg_details(in_file):

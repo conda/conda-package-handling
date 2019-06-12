@@ -62,7 +62,8 @@ def test_api_extract_info_conda_v2(testing_workdir):
 
 def test_api_transmute_tarball_to_conda_v2(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
-    api.transmute(tarfile, '.conda', testing_workdir)
+    errors = api.transmute(tarfile, '.conda', testing_workdir)
+    assert not errors
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name + '.conda'))
 
 

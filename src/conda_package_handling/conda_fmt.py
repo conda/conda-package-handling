@@ -5,22 +5,15 @@ import json
 import logging
 import os
 import shutil
+from tempfile import NamedTemporaryFile
 import zipfile
 
 from conda_package_handling import utils
 from conda_package_handling.interface import AbstractBaseFormat
 from conda_package_handling.tarball import create_compressed_tarball, _tar_xf
-from conda_package_handling.utils import TemporaryDirectory
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = ('.tar.zst', 'zstd', 'zstd:compression-level=22')
-
-
-def _write_conda_pkg_version_spec(tmpdir):
-    metadata_file = os.path.join(tmpdir, 'metadata.json')
-    pkg_metadata = {'conda_pkg_format_version': CONDA_PACKAGE_FORMAT_VERSION}
-    with open(metadata_file, 'w') as f:
-        json.dump(pkg_metadata, f)
 
 
 def _lookup_component_filename(zf, file_id, component_name):
@@ -31,16 +24,14 @@ def _lookup_component_filename(zf, file_id, component_name):
     return component_filename
 
 
-def _extract_component(fn, file_id, component_name, dest_dir=None):
-    with TemporaryDirectory() as tmp:
-        with utils.tmp_chdir(tmp):
-            with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
-                component_filename = _lookup_component_filename(zf, file_id, component_name)
-                if not component_filename:
-                    raise RuntimeError("didn't find {} component in {}".format(component_name, fn))
-                component_filename = component_filename[0]
-                zf.extract(component_filename)
-                _tar_xf(component_filename, dest_dir)
+def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
+    with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
+        component_filename = _lookup_component_filename(zf, file_id, component_name)
+        if not component_filename:
+            raise RuntimeError("didn't find {} component in {}".format(component_name, fn))
+        component_filename = component_filename[0]
+        zf.extract(component_filename)
+        _tar_xf(component_filename, dest_dir)
 
 
 class CondaFormat_v2(AbstractBaseFormat):
@@ -64,33 +55,35 @@ class CondaFormat_v2(AbstractBaseFormat):
 
     @staticmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
-        with TemporaryDirectory() as tmp:
-            out_fn = out_fn.replace('.conda', '')
-            conda_pkg_fn = os.path.join(tmp, out_fn) + '.conda'
-            pkg_files = utils.filter_info_files(file_list, prefix)
-            info_files = set(file_list) - set(pkg_files)
-            ext, comp_filter, filter_opts = kw.get('compression_tuple') or DEFAULT_COMPRESSION_TUPLE
+        if os.path.isabs(out_fn):
+            out_folder = os.path.dirname(out_fn)
+            out_fn = os.path.basename(out_fn)
+        conda_pkg_fn = os.path.join(out_folder, out_fn)
+        out_fn = out_fn.replace('.conda', '')
+        pkg_files = utils.filter_info_files(file_list, prefix)
+        info_files = set(file_list) - set(pkg_files)
+        ext, comp_filter, filter_opts = kw.get('compression_tuple') or DEFAULT_COMPRESSION_TUPLE
 
-            info_tarball = create_compressed_tarball(prefix, info_files, tmp, 'info-' + out_fn,
-                                                    ext, comp_filter, filter_opts)
-            pkg_tarball = create_compressed_tarball(prefix, pkg_files, tmp, 'pkg-' + out_fn,
-                                                    ext, comp_filter, filter_opts)
+        info_tarball = create_compressed_tarball(prefix, info_files, out_folder, 'info-' + out_fn,
+                                                ext, comp_filter, filter_opts)
+        pkg_tarball = create_compressed_tarball(prefix, pkg_files, out_folder, 'pkg-' + out_fn,
+                                                ext, comp_filter, filter_opts)
 
-            _write_conda_pkg_version_spec(tmp)
+        pkg_metadata = {'conda_pkg_format_version': CONDA_PACKAGE_FORMAT_VERSION}
 
-            with utils.tmp_chdir(tmp):
-                with zipfile.ZipFile(conda_pkg_fn, 'w', compression=zipfile.ZIP_STORED) as zf:
-                    for pkg in (info_tarball, pkg_tarball):
-                        zf.write(os.path.basename(pkg))
-                    zf.write('metadata.json')
-            final_path = os.path.join(out_folder, os.path.basename(conda_pkg_fn))
-            try:
-                shutil.copy(conda_pkg_fn, final_path)
-            except OSError as e:
-                logging.getLogger(__name__).info("Copying temporary"
-                    "package from {} to {} had some issues.  Error "
-                    "message was: {}".format(conda_pkg_fn, final_path, repr(e)))
-        return final_path
+        with zipfile.ZipFile(conda_pkg_fn + ".c~", 'w', compression=zipfile.ZIP_STORED) as zf:
+            with NamedTemporaryFile(mode='w', delete=False) as tf:
+                json.dump(pkg_metadata, tf)
+                zf.write(tf.name, 'metadata.json')
+            for pkg in (info_tarball, pkg_tarball):
+                zf.write(pkg, os.path.basename(pkg))
+
+        os.rename(conda_pkg_fn + ".c~", conda_pkg_fn)
+
+        utils.rm_rf(tf.name)
+        utils.rm_rf(info_tarball)
+        utils.rm_rf(pkg_tarball)
+        return conda_pkg_fn
 
     @staticmethod
     def get_pkg_details(in_file):
