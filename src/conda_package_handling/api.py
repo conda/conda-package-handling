@@ -82,16 +82,16 @@ def _convert(fn, out_ext, out_folder, **kw):
                 % (fn, SUPPORTED_EXTENSIONS))
         return
     out_fn = _os.path.join(out_folder, basename + out_ext)
-    success = True
+    errors = None
     if not _os.path.lexists(out_fn):
         with _TemporaryDirectory() as tmp:
             try:
                 extract(fn, dest_dir=tmp)
                 file_list = _collect_paths(tmp)
                 create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
-            except:
-                success = False
-    return fn, success
+            except InvalidArchiveError as e:
+                errors = str(e)
+    return fn, errors
 
 
 def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
@@ -101,16 +101,16 @@ def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
     flist = glob(in_file)
-    failed_files = []
+    failed_files = {}
     with tqdm.tqdm(total=len(flist), leave=False) as t:
         with ProcessPoolExecutor(max_workers=processes) as executor:
             futures = (executor.submit(_convert, fn, out_ext, out_folder, **kw) for fn in flist)
             for future in as_completed(futures):
-                fn, success = future.result()
+                fn, errors = future.result()
                 t.set_description("Converted: %s" % fn)
                 t.update()
-                if not success:
-                    failed_files.append(fn)
+                if errors:
+                    failed_files[fn] = errors
     return failed_files
 
 

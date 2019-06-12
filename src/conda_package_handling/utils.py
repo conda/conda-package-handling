@@ -10,9 +10,9 @@ from os.path import (isdir, isfile, basename, dirname, join, split, lexists, nor
 import re
 import shutil
 from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE, S_IXGRP, S_IXOTH, S_IXUSR
-from subprocess import check_output, CalledProcessError, STDOUT
+from subprocess import check_output, CalledProcessError, STDOUT, list2cmdline
 import sys
-from tempfile import mkdtemp
+from tempfile import mkdtemp, NamedTemporaryFile
 import warnings as _warnings
 
 from six import string_types
@@ -70,6 +70,32 @@ def recursive_make_writable(path):
             pass
 
 
+def quote_for_shell(arguments, shell=None):
+    if not shell:
+        shell = 'cmd.exe' if on_win else 'bash'
+    if shell == 'cmd.exe':
+        return list2cmdline(arguments)
+    else:
+        # If any multiline argument gets mixed with any other argument (which is true if we've
+        # arrived in this function) then we just quote it. This assumes something like:
+        # ['python', '-c', 'a\nmultiline\nprogram\n']
+        # It may make sense to allow specifying a replacement character for '\n' too? e.g. ';'
+        quoted = []
+        # This could all be replaced with some regex wizardry but that is less readable and
+        # for code like this, readability is very important.
+        for arg in arguments:
+            if '"' in arg:
+                quote = "'"
+            elif "'" in arg:
+                quote = '"'
+            elif not any(_ in arg for _ in (' ', '\n')):
+                quote = ''
+            else:
+                quote = '"'
+            quoted.append(quote + arg + quote)
+        return ' '.join(quoted)
+
+
 def rmtree(path, *args, **kwargs):
     # subprocessing to delete large folders can be quite a bit faster
     path = normpath(path)
@@ -90,10 +116,8 @@ def rmtree(path, *args, **kwargs):
             try:
                 # Try to delete in Unicode
                 name = None
-                from conda._vendor.auxlib.compat import Utf8NamedTemporaryFile
-                from conda.utils import quote_for_shell
 
-                with Utf8NamedTemporaryFile(mode="w", suffix=".bat", delete=False) as batch_file:
+                with NamedTemporaryFile(suffix=".bat", delete=False) as batch_file:
                     batch_file.write('RD /S {}\n'.format(quote_for_shell([path])))
                     batch_file.write('chcp 65001\n')
                     batch_file.write('RD /S {}\n'.format(quote_for_shell([path])))
@@ -158,8 +182,7 @@ def unlink_or_rename_to_trash(path):
             if on_win:
                 # on windows, it is important to use the rename program, as just using python's
                 #    rename leads to permission errors when files are in use.
-                with TemporaryDirectory() as tmpdir:
-                    trash_script = join(tmpdir, 'rename_tmp.bat')
+                with NamedTemporaryFile(suffix='.bat') as trash_script:
                     with open(trash_script, 'w') as f:
                         f.write('@pushd "%1"\n')
                         f.write('@REM Rename src to dest')
