@@ -1,0 +1,26 @@
+Enhancements:
+-------------
+
+* <news item>
+
+Bug fixes:
+----------
+
+* fix setup.cfg path issue with versioneer
+* try copying temporary artifact to final location instead of moving it, in hopes of avoiding permission errors
+
+Deprecations:
+-------------
+
+* <news item>
+
+Docs:
+-----
+
+* <news item>
+
+Other:
+------
+
+* <news item>
+
