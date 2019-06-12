@@ -1,4 +1,18 @@
 # current developments
+2019-06-12 1.3.7:
+------------------
+
+Bug fixes:
+----------
+
+* Don't print message for every skipped file that already exists.  Don't even look at files that match the target conversion pattern.
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-12 1.3.6:
 ------------------
 
