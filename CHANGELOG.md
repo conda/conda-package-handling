@@ -1,4 +1,19 @@
 # current developments
+2019-06-11 1.3.4:
+------------------
+
+Bug fixes:
+----------
+
+* fix setup.cfg path issue with versioneer
+* try copying temporary artifact to final location instead of moving it, in hopes of avoiding permission errors
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-11 1.3.3:
 ------------------
 
