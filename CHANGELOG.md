@@ -1,4 +1,18 @@
 # current developments
+2019-06-13 1.3.8:
+------------------
+
+Bug fixes:
+----------
+
+* Write output files to output path directly, rather than any temporary.  Hope that this fixes permission errors on appveyor/azure
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-12 1.3.7:
 ------------------
 
