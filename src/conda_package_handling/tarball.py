@@ -95,10 +95,7 @@ class CondaTarBZ2(AbstractBaseFormat):
             out_folder = os.path.dirname(out_fn)
         out_file = create_compressed_tarball(prefix, file_list, out_folder,
                                              os.path.basename(out_fn).replace('.tar.bz2', ''),
-                                             '.tar.bz2.c~', 'bzip2')
-        # we output to .c~ to avoid clobbering existing good files until we know we
-        #    have a finished file
-        os.rename(out_file, out_file.replace('.c~', ''))
+                                             '.tar.bz2', 'bzip2')
         return out_file
 
     @staticmethod
