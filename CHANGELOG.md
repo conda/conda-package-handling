@@ -1,4 +1,18 @@
 # current developments
+2019-06-14 1.3.9:
+------------------
+
+Bug fixes:
+----------
+
+* put temporary files in CWD/.cph_tmp(random) instead of default temp dir.  Hope that this fixes the permission problems seen on appveyor and azure.
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-13 1.3.8:
 ------------------
 
