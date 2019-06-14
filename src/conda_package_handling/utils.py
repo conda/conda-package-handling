@@ -295,7 +295,7 @@ class TemporaryDirectory(object):
     name = None
     _closed = False
 
-    def __init__(self, suffix="", prefix='tmp', dir=None):
+    def __init__(self, suffix="", prefix='.cph_tmp', dir=os.getcwd()):
         self.name = mkdtemp(suffix, prefix, dir)
 
     def __repr__(self):
