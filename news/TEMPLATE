@@ -6,7 +6,7 @@ Enhancements:
 Bug fixes:
 ----------
 
-* <news item>
+* raise InvalidArchiveError when a bad zip file is encountered (partial download of .conda file, for example)
 
 Deprecations:
 -------------

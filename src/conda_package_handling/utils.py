@@ -9,7 +9,7 @@ from os.path import (isdir, isfile, basename, dirname, join, split, lexists, nor
                      abspath, islink)
 import re
 import shutil
-from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE, S_IXGRP, S_IXOTH, S_IXUSR
+from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE
 from subprocess import check_output, CalledProcessError, STDOUT, list2cmdline
 import sys
 from tempfile import mkdtemp, NamedTemporaryFile
@@ -253,8 +253,8 @@ def delete_trash(prefix):
     for root, dirs, files in os.walk(prefix, topdown=True):
         dirs[:] = [d for d in dirs if d not in exclude]
         for fn in files:
-            if (fnmatch.fnmatch(fn, "*.conda_trash*") or
-                    fnmatch.fnmatch(fn, "*" + CONDA_TEMP_EXTENSION)):
+            if fnmatch.fnmatch(fn, "*.conda_trash*") or fnmatch.fnmatch(
+                    fn, "*" + CONDA_TEMP_EXTENSION):
                 filename = join(root, fn)
                 try:
                     os.unlink(filename)
