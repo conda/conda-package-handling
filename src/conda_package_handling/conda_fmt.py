@@ -2,13 +2,12 @@
 https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+format+v2"""
 
 import json
-import logging
 import os
-import shutil
 from tempfile import NamedTemporaryFile
 import zipfile
 
 from conda_package_handling import utils
+from conda_package_handling.exceptions import InvalidArchiveError
 from conda_package_handling.interface import AbstractBaseFormat
 from conda_package_handling.tarball import create_compressed_tarball, _tar_xf
 
@@ -25,15 +24,19 @@ def _lookup_component_filename(zf, file_id, component_name):
 
 
 def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
-    with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
-        with utils.TemporaryDirectory() as tmpdir:
-            with utils.tmp_chdir(tmpdir):
-                component_filename = _lookup_component_filename(zf, file_id, component_name)
-                if not component_filename:
-                    raise RuntimeError("didn't find {} component in {}".format(component_name, fn))
-                component_filename = component_filename[0]
-                zf.extract(component_filename)
-                _tar_xf(component_filename, dest_dir)
+    try:
+        with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
+            with utils.TemporaryDirectory() as tmpdir:
+                with utils.tmp_chdir(tmpdir):
+                    component_filename = _lookup_component_filename(zf, file_id, component_name)
+                    if not component_filename:
+                        raise RuntimeError("didn't find {} component in {}"
+                                           .format(component_name, fn))
+                    component_filename = component_filename[0]
+                    zf.extract(component_filename)
+                    _tar_xf(component_filename, dest_dir)
+    except zipfile.BadZipFile as e:
+        raise InvalidArchiveError(fn, str(e))
 
 
 class CondaFormat_v2(AbstractBaseFormat):
