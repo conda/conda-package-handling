@@ -32,9 +32,7 @@ def make_writable(path):
         mode = os.lstat(path).st_mode
         if S_ISDIR(mode):
             os.chmod(path, S_IMODE(mode) | S_IWRITE | S_IEXEC)
-        elif islink(path):
-            os.lchmod(path, S_IMODE(mode) | S_IWRITE)
-        elif S_ISREG(mode):
+        elif S_ISREG(mode) or islink(path):
             os.chmod(path, S_IMODE(mode) | S_IWRITE)
         else:
             log.debug("path cannot be made writable: %s", path)

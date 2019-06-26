@@ -1,4 +1,8 @@
 import os as _os
+from glob import glob as _glob
+import functools as _functools
+from concurrent.futures import ProcessPoolExecutor as _Executor
+import tempfile as _tempfile
 
 from six import string_types as _string_types
 import tqdm
@@ -84,47 +88,76 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 def _convert(fn, out_ext, out_folder, **kw):
     basename = get_default_extracted_folder(fn)
+    from .validate import validate_converted_files_match
     if not basename:
         print("Input file %s doesn't have a supported extension (%s), skipping it"
                 % (fn, SUPPORTED_EXTENSIONS))
         return
     out_fn = _os.path.join(out_folder, basename + out_ext)
-    errors = None
+    errors = ""
     if not _os.path.lexists(out_fn):
         with _TemporaryDirectory(prefix=out_folder) as tmp:
             try:
                 extract(fn, dest_dir=tmp)
                 file_list = _collect_paths(tmp)
                 create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
-            except InvalidArchiveError as e:
+                _, missing_files, mismatching_sizes = validate_converted_files_match(
+                    tmp, _os.path.join(out_folder, fn))
+                if missing_files or mismatching_sizes:
+                    errors = str(ConversionError(missing_files, mismatching_sizes))
+            except Exception as e:
                 errors = str(e)
-    return fn, errors
+    return fn, out_fn, errors
 
 
 def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
-    from glob import glob
-    from concurrent.futures import ProcessPoolExecutor, as_completed
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
-    flist = set(glob(in_file))
+    flist = set(_glob(in_file))
     if in_file.endswith('.tar.bz2'):
-        flist = flist - set(glob(in_file.replace('.tar.bz2', out_ext)))
+        flist = flist - set(_glob(in_file.replace('.tar.bz2', out_ext)))
     elif in_file.endswith('.conda'):
-        flist = flist - set(glob(in_file.replace('.conda', out_ext)))
+        flist = flist - set(_glob(in_file.replace('.conda', out_ext)))
 
     failed_files = {}
     with tqdm.tqdm(total=len(flist), leave=False) as t:
-        with ProcessPoolExecutor(max_workers=processes) as executor:
-            futures = (executor.submit(_convert, fn, out_ext, out_folder, **kw) for fn in flist)
-            for future in as_completed(futures):
-                fn, errors = future.result()
+        with _Executor(max_workers=processes) as executor:
+            convert_f = _functools.partial(_convert, out_ext=out_ext,
+                                          out_folder=out_folder, **kw)
+            for fn, out_fn, errors in executor.map(convert_f, flist):
                 t.set_description("Converted: %s" % fn)
                 t.update()
                 if errors:
                     failed_files[fn] = errors
+                    _rm_rf(out_fn)
     return failed_files
 
+
+def verify_conversion(glob_pattern, target_dir, reference_ext,
+                      tmpdir_root=_tempfile.gettempdir(), processes=None):
+    from .validate import validate_converted_files_match
+    if not glob_pattern.endswith(reference_ext):
+        glob_pattern = glob_pattern + reference_ext
+    file_sets_by_ext = {ext: _glob(_os.path.join(target_dir, glob_pattern + ext))
+                        for ext in SUPPORTED_EXTENSIONS}
+    matches = {path.replace(ext, "") for ext, path in file_sets_by_ext[reference_ext]}
+    for ext, paths in file_sets_by_ext.items():
+        if ext == reference_ext:
+            continue
+        matches &= {path.replace(ext, "") for ext, path in paths}
+    other_exts = set(SUPPORTED_EXTENSIONS) - {reference_ext, }
+
+    errors = {}
+    with tqdm.tqdm(total=(len(matches) * len(SUPPORTED_EXTENSIONS) - 1), leave=False) as t:
+        with _Executor(max_workers=processes) as executor:
+            for other_ext in other_exts:
+                verify_fn = lambda fn: validate_converted_files_match(ref_ext=reference_ext,
+                                                                      subject=fn + other_ext)
+                for fn, missing, matching in executor.map(verify_fn, matches):
+                    if missing or mismatching:
+                        errors[fn] = str(ConversionError(missing, mismatching))
+    return errors
 
 def get_pkg_details(in_file):
     """For the new pkg format, we return the size and hashes of the inner pkg part of the file"""
