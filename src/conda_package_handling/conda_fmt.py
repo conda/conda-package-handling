@@ -4,7 +4,11 @@ https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+forma
 import json
 import os
 from tempfile import NamedTemporaryFile
-import zipfile
+try:
+    from zipfile import ZipFile, BadZipFile, ZIP_STORED
+except ImportError:
+    # py27 compat
+    from zipfile import ZipFile, ZIP_STORED, BadZipfile as BadZipFile
 
 from conda_package_handling import utils
 from conda_package_handling.exceptions import InvalidArchiveError
@@ -25,7 +29,7 @@ def _lookup_component_filename(zf, file_id, component_name):
 
 def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
     try:
-        with zipfile.ZipFile(fn, compression=zipfile.ZIP_STORED) as zf:
+        with ZipFile(fn, compression=ZIP_STORED) as zf:
             with utils.TemporaryDirectory() as tmpdir:
                 with utils.tmp_chdir(tmpdir):
                     component_filename = _lookup_component_filename(zf, file_id, component_name)
@@ -35,7 +39,7 @@ def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
                     component_filename = component_filename[0]
                     zf.extract(component_filename)
                     _tar_xf(component_filename, dest_dir)
-    except zipfile.BadZipFile as e:
+    except BadZipFile as e:
         raise InvalidArchiveError(fn, str(e))
 
 
@@ -77,7 +81,7 @@ class CondaFormat_v2(AbstractBaseFormat):
 
             pkg_metadata = {'conda_pkg_format_version': CONDA_PACKAGE_FORMAT_VERSION}
 
-            with zipfile.ZipFile(conda_pkg_fn, 'w', compression=zipfile.ZIP_STORED) as zf:
+            with ZipFile(conda_pkg_fn, 'w', compression=ZIP_STORED) as zf:
                 with NamedTemporaryFile(mode='w', delete=False) as tf:
                     json.dump(pkg_metadata, tf)
                     zf.write(tf.name, 'metadata.json')

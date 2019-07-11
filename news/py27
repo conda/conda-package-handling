@@ -6,7 +6,7 @@ Enhancements:
 Bug fixes:
 ----------
 
-* <news item>
+* fix BadZipFile exception handling on py27
 
 Deprecations:
 -------------
