@@ -1,4 +1,18 @@
 # current developments
+2019-07-11 1.3.11:
+------------------
+
+Bug fixes:
+----------
+
+* fix BadZipFile exception handling on py27
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-06-24 1.3.10:
 ------------------
 
