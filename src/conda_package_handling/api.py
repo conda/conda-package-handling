@@ -1,6 +1,5 @@
 import os as _os
 
-from libarchive.exception import ArchiveError as _LibarchiveArchiveError
 from six import string_types as _string_types
 import tqdm
 
@@ -11,6 +10,14 @@ from .exceptions import InvalidArchiveError
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
+
+libarchive_enabled = False
+try:
+    from libarchive.exception import ArchiveError as _LibarchiveError
+    libarchive_enabled = True
+except:
+    # define the exception as one that the standard library support for bz2 can handle
+    _LibarchiveError = Exception
 
 
 def _collect_paths(prefix):
@@ -47,7 +54,7 @@ def extract(fn, dest_dir=None, components=None):
         if fn.endswith(ext):
             try:
                 SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
-            except _LibarchiveArchiveError as e:
+            except _LibarchiveError as e:
                 raise InvalidArchiveError(fn, str(e))
             break
     else:

@@ -7,6 +7,7 @@ import pytest
 import libarchive
 
 from conda_package_handling import api
+import conda_package_handling.tarball
 
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
@@ -41,17 +42,28 @@ def test_api_extract_tarball_explicit_path(testing_workdir):
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
 
 
+def test_api_extract_tarball_with_libarchive_import_error(testing_workdir, mocker):
+    try:
+        api.libarchive_enabled = False
+        conda_package_handling.tarball.libarchive_enabled = False
+        tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
+        api.extract(tarfile, 'manual_path')
+        assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
+    finally:
+        api.libarchive_enabled = True
+        conda_package_handling.tarball.libarchive_enabled = True
+
+
 def test_api_extract_conda_v2_implicit_path(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
     api.extract(condafile)
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
 
 
-def test_api_extract_conda_v2_explicit_path(testing_workdir):
+def test_api_extract_conda_v2_explicit_path(testing_workdir, mocker):
     tarfile = os.path.join(data_dir, test_package_name + '.conda')
     api.extract(tarfile, 'manual_path')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
-
 
 def test_api_extract_info_conda_v2(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
@@ -154,9 +166,10 @@ def test_secure_refusal_to_extract_abs_paths(testing_workdir):
 
 
 def tests_secure_refusal_to_extract_dotdot(testing_workdir):
-    with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
-        open('thebrain', 'w').close()
+    with tarfile.open(os.path.join(testing_workdir, 'pinkie.tar.bz2'), 'w:bz2') as tf:
+        with open(os.path.join(testing_workdir, 'thebrain'), 'w') as f:
+            f.write('weeee')
         tf.add(os.path.join(testing_workdir, 'thebrain'), '../naughty/abs_path')
 
     with pytest.raises(api.InvalidArchiveError):
-        api.extract('pinkie.tar.bz2')
+        api.extract('pinkie.tar.bz2', dest_dir=testing_workdir)

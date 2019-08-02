@@ -2,12 +2,18 @@ import os
 import re
 import subprocess
 import sys
+import tarfile
 from tempfile import NamedTemporaryFile
 
-import libarchive
+try:
+    import libarchive
+    libarchive_enabled = True
+except ImportError:
+    libarchive_enabled = False
 
 from conda_package_handling import utils
 from conda_package_handling.interface import AbstractBaseFormat
+from conda_package_handling.exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 
 
 def _sort_file_order(prefix, files):
@@ -46,6 +52,15 @@ def _sort_file_order(prefix, files):
         files_list = list(f for f in sorted(files, key=order))
     return files_list
 
+def _create_no_libarchive(fullpath, files):
+    with tarfile.open(fullpath, 'w:bz2') as t:
+        for f in files:
+            t.add(f)
+
+def _create_libarchive(fullpath, files, compression_filter, filter_opts):
+        with libarchive.file_writer(fullpath, 'gnutar', filter_name=compression_filter,
+                                    options=filter_opts) as archive:
+            archive.add_files(*files)
 
 def create_compressed_tarball(prefix, files, tmpdir, basename,
                               ext, compression_filter, filter_opts=''):
@@ -57,9 +72,10 @@ def create_compressed_tarball(prefix, files, tmpdir, basename,
     # possible large binary or data files
     fullpath = tmp_path + ext
     with utils.tmp_chdir(prefix):
-        with libarchive.file_writer(fullpath, 'gnutar', filter_name=compression_filter,
-                                    options=filter_opts) as archive:
-            archive.add_files(*files)
+        if libarchive_enabled:
+            _create_libarchive(fullpath, files, compression_filter, filter_opts)
+        else:
+            _create_no_libarchive(fullpath, files)
     return fullpath
 
 
@@ -77,6 +93,38 @@ def _tar_xf(tarball, dir_path):
         libarchive.extract_file(tarball, flags)
 
 
+def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
+    if destination_directory is None:
+        destination_directory = tarball_full_path[:-8]
+
+    with open(tarball_full_path, 'rb') as fileobj:
+        with tarfile.open(fileobj=fileobj) as tar_file:
+            for member in tar_file.getmembers():
+                if (os.path.isabs(member.name) or
+                        not os.path.realpath(member.name).startswith(os.getcwd())):
+                    raise InvalidArchiveError(tarball_full_path,
+                                              "contains unsafe path: {}".format(member.name))
+            try:
+                tar_file.extractall(path=destination_directory)
+            except IOError as e:
+                if e.errno == ELOOP:
+                    raise CaseInsensitiveFileSystemError(
+                        package_location=tarball_full_path,
+                        extract_location=destination_directory,
+                        caused_by=e,
+                    )
+                else:
+                    raise
+
+    if sys.platform.startswith('linux') and os.getuid() == 0:
+        # When extracting as root, tarfile will by restore ownership
+        # of extracted files.  However, we want root to be the owner
+        # (our implementation of --no-same-owner).
+        for root, dirs, files in os.walk(destination_directory):
+            for fn in files:
+                p = join(root, fn)
+                os.lchown(p, 0, 0)
+
 class CondaTarBZ2(AbstractBaseFormat):
 
     @staticmethod
@@ -85,7 +133,11 @@ class CondaTarBZ2(AbstractBaseFormat):
             os.makedirs(dest_dir)
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
-        _tar_xf(fn, dest_dir)
+
+        if libarchive_enabled:
+            _tar_xf(fn, dest_dir)
+        else:
+            _tar_xf_no_libarchive(fn, dest_dir)
 
     @staticmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
