@@ -60,7 +60,7 @@ def test_api_extract_conda_v2_implicit_path(testing_workdir):
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
 
 
-def test_api_extract_conda_v2_explicit_path(testing_workdir, mocker):
+def test_api_extract_conda_v2_explicit_path(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.conda')
     api.extract(tarfile, 'manual_path')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
@@ -166,10 +166,9 @@ def test_secure_refusal_to_extract_abs_paths(testing_workdir):
 
 
 def tests_secure_refusal_to_extract_dotdot(testing_workdir):
-    with tarfile.open(os.path.join(testing_workdir, 'pinkie.tar.bz2'), 'w:bz2') as tf:
-        with open(os.path.join(testing_workdir, 'thebrain'), 'w') as f:
-            f.write('weeee')
+    with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
+        open('thebrain', 'w').close()
         tf.add(os.path.join(testing_workdir, 'thebrain'), '../naughty/abs_path')
 
     with pytest.raises(api.InvalidArchiveError):
-        api.extract('pinkie.tar.bz2', dest_dir=testing_workdir)
+        api.extract('pinkie.tar.bz2')

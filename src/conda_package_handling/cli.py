@@ -1,5 +1,5 @@
 import argparse
-from conda_package_handling import api, __version__
+from . import api, __version__
 
 
 def parse_args(parse_this=None):

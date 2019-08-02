@@ -11,9 +11,9 @@ try:
 except ImportError:
     libarchive_enabled = False
 
-from conda_package_handling import utils
-from conda_package_handling.interface import AbstractBaseFormat
-from conda_package_handling.exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
+from . import utils
+from .interface import AbstractBaseFormat
+from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 
 
 def _sort_file_order(prefix, files):
@@ -90,7 +90,10 @@ def _tar_xf(tarball, dir_path):
     if not os.path.isabs(tarball):
         tarball = os.path.join(os.getcwd(), tarball)
     with utils.tmp_chdir(dir_path):
-        libarchive.extract_file(tarball, flags)
+        try:
+            libarchive.extract_file(tarball, flags)
+        except libarchive.ArchiveError as e:
+            raise InvalidArchiveError(tarball, str(e))
 
 
 def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
@@ -114,7 +117,8 @@ def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
                         caused_by=e,
                     )
                 else:
-                    raise
+                    raise InvalidArchiveError(tarball_full_path,
+                                              "failed with error: {}" % str(e))
 
     if sys.platform.startswith('linux') and os.getuid() == 0:
         # When extracting as root, tarfile will by restore ownership

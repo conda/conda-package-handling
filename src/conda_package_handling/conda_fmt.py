@@ -10,10 +10,10 @@ except ImportError:
     # py27 compat
     from zipfile import ZipFile, ZIP_STORED, BadZipfile as BadZipFile
 
-from conda_package_handling import utils
-from conda_package_handling.exceptions import InvalidArchiveError
-from conda_package_handling.interface import AbstractBaseFormat
-from conda_package_handling.tarball import create_compressed_tarball, _tar_xf
+from . import utils
+from .exceptions import InvalidArchiveError
+from .interface import AbstractBaseFormat
+from .tarball import create_compressed_tarball, _tar_xf
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = ('.tar.zst', 'zstd', 'zstd:compression-level=22')
