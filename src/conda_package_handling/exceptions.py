@@ -29,3 +29,17 @@ class CaseInsensitiveFileSystemError(Exception):
             extract_location=extract_location,
             **kwargs
         )
+
+
+class ConversionError(Exception):
+    def __init__(self, missing_files, mismatching_sizes, *args, **kw):
+        self.missing_files = missing_files
+        self.mismatching_sizes = mismatching_sizes
+        super(ConversionError, self).__init__(msg)
+
+    def __str__(self):
+        errors = ""
+        errors = "Missing files in converted package: %s\n" % self.missing_files
+        errors = (errors + "Mismatching sizes (corruption) in converted package: %s" %
+                  self.mismatching_sizes)
+        return errors

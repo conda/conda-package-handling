@@ -1,4 +1,6 @@
+import os
 import argparse
+from pprint import pprint
 from . import api, __version__
 
 
@@ -34,6 +36,21 @@ def parse_args(parse_this=None):
                                "lists all files in the prefix.")
     create_parser.add_argument("--out-folder", help="Folder to dump final archive to")
 
+    verify_parser = sp.add_parser('verify',
+                                  help='verify converted files against their reference',
+                                  aliases=['v'])
+    verify_parser.add_argument("glob", help="filename glob pattern to match pairs and verify.  Use"
+                               "the --reference-ext argument to change which extension is used "
+                               "as the ground truth, and which is considered corrupt in any "
+                               "mismatch")
+    verify_parser.add_argument("--target-dir", help="folder for finding pairs of files.  Defaults "
+                               "to cwd.", default=os.getcwd())
+    verify_parser.add_argument("--reference-ext", "-r", help="file extension to consider as "
+                               "'ground truth' in comparison.  Use this with the --all flag.",
+                               default=".tar.bz2")
+    verify_parser.add_argument("--processes", help="Max number of processes to use.  If "
+                               "not set, defaults to your CPU count.")
+
     convert_parser = sp.add_parser('transmute', help='convert from one package type to another',
                                    aliases=['t'])
     convert_parser.add_argument('in_file', help="existing file to convert from.  Glob patterns "
@@ -59,7 +76,14 @@ def main(args=None):
         failed_files = api.transmute(args.in_file, args.out_ext, args.out_folder, args.processes)
         if failed_files:
             print("failed files:")
-            print(failed_files)
+            pprint(failed_files)
+            sys.exit(1)
+    elif args.subparser_name in ('verify', 'v'):
+        failed_files = api.verify_conversion(args.glob, args.target_dir, args.reference_ext)
+        if failed_files:
+            print("failed files:")
+            pprint(failed_files)
+            sys.exit(1)
     else:
         raise NotImplementedError("Command {} is not implemented".format(args.subparser_name))
 
