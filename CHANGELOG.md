@@ -1,4 +1,19 @@
 # current developments
+2019-08-02 1.4.0:
+------------------
+
+Bug fixes:
+----------
+
+* provide fallback to built-in tarfile if libarchive fails to import.  Won't support new .conda format (obviously)
+* tmpdir created in output folder (defaults to cwd, but not always cwd)
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-07-11 1.3.11:
 ------------------
 
