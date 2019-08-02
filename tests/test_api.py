@@ -65,6 +65,7 @@ def test_api_extract_conda_v2_explicit_path(testing_workdir):
     api.extract(tarfile, 'manual_path')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
 
+
 def test_api_extract_info_conda_v2(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
     api.extract(condafile, 'manual_path', components='info')

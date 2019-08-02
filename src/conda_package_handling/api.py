@@ -5,7 +5,7 @@ import tqdm
 
 from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled
 from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
-from .utils import TemporaryDirectory as _TemporaryDirectory
+from .utils import TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf
 from .exceptions import InvalidArchiveError
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
@@ -73,7 +73,12 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
     for ext in SUPPORTED_EXTENSIONS:
         if out_fn.endswith(ext):
-            out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
+            try:
+                out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
+            except:
+                # don't leave broken files around
+                if os.path.isfile(out):
+                    _rm_rf(out)
     return out
 
 
