@@ -30,7 +30,7 @@ def _lookup_component_filename(zf, file_id, component_name):
 def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
     try:
         with ZipFile(fn, compression=ZIP_STORED) as zf:
-            with utils.TemporaryDirectory() as tmpdir:
+            with utils.TemporaryDirectory(prefix=dest_dir) as tmpdir:
                 with utils.tmp_chdir(tmpdir):
                     component_filename = _lookup_component_filename(zf, file_id, component_name)
                     if not component_filename:
@@ -73,7 +73,7 @@ class CondaFormat_v2(AbstractBaseFormat):
         info_files = set(file_list) - set(pkg_files)
         ext, comp_filter, filter_opts = kw.get('compression_tuple') or DEFAULT_COMPRESSION_TUPLE
 
-        with utils.TemporaryDirectory() as tmpdir:
+        with utils.TemporaryDirectory(prefix=out_folder) as tmpdir:
             info_tarball = create_compressed_tarball(prefix, info_files, tmpdir, 'info-' + out_fn,
                                                     ext, comp_filter, filter_opts)
             pkg_tarball = create_compressed_tarball(prefix, pkg_files, tmpdir, 'pkg-' + out_fn,
