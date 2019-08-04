@@ -1,4 +1,18 @@
 # current developments
+2019-08-04 1.4.1:
+------------------
+
+Enhancements:
+-------------
+
+* several small error fixes from bad copypasta
+
+Contributors:
+-------------
+
+* @msarahan
+
+
 2019-08-02 1.4.0:
 ------------------
 
