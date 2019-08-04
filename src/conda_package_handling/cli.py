@@ -1,6 +1,8 @@
-import os
 import argparse
+import os
 from pprint import pprint
+import sys
+
 from . import api, __version__
 
 

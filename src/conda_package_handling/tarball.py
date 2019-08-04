@@ -1,9 +1,11 @@
+from errno import ELOOP
 import os
 import re
 import subprocess
 import sys
 import tarfile
 from tempfile import NamedTemporaryFile
+
 
 try:
     import libarchive
@@ -52,15 +54,18 @@ def _sort_file_order(prefix, files):
         files_list = list(f for f in sorted(files, key=order))
     return files_list
 
+
 def _create_no_libarchive(fullpath, files):
     with tarfile.open(fullpath, 'w:bz2') as t:
         for f in files:
             t.add(f)
 
+
 def _create_libarchive(fullpath, files, compression_filter, filter_opts):
-        with libarchive.file_writer(fullpath, 'gnutar', filter_name=compression_filter,
-                                    options=filter_opts) as archive:
-            archive.add_files(*files)
+    with libarchive.file_writer(fullpath, 'gnutar', filter_name=compression_filter,
+                                options=filter_opts) as archive:
+        archive.add_files(*files)
+
 
 def create_compressed_tarball(prefix, files, tmpdir, basename,
                               ext, compression_filter, filter_opts=''):
@@ -103,8 +108,8 @@ def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
     with open(tarball_full_path, 'rb') as fileobj:
         with tarfile.open(fileobj=fileobj) as tar_file:
             for member in tar_file.getmembers():
-                if (os.path.isabs(member.name) or
-                        not os.path.realpath(member.name).startswith(os.getcwd())):
+                if (os.path.isabs(member.name) or not os.path.realpath(
+                        member.name).startswith(os.getcwd())):
                     raise InvalidArchiveError(tarball_full_path,
                                               "contains unsafe path: {}".format(member.name))
             try:
@@ -126,8 +131,9 @@ def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
         # (our implementation of --no-same-owner).
         for root, dirs, files in os.walk(destination_directory):
             for fn in files:
-                p = join(root, fn)
+                p = os.path.join(root, fn)
                 os.lchown(p, 0, 0)
+
 
 class CondaTarBZ2(AbstractBaseFormat):
 

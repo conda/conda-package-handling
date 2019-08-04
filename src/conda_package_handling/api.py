@@ -5,12 +5,13 @@ from concurrent.futures import ProcessPoolExecutor as _Executor
 import tempfile as _tempfile
 
 from six import string_types as _string_types
-import tqdm
+import tqdm as _tqdm
 
+# expose these two exceptions as part of the API.  Everything else should feed into these.
+from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled
 from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 from .utils import TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf
-from .exceptions import InvalidArchiveError
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -81,7 +82,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
             except:
                 # don't leave broken files around
-                if os.path.isfile(out):
+                if _os.path.isfile(out):
                     _rm_rf(out)
     return out
 
@@ -121,7 +122,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
         flist = flist - set(_glob(in_file.replace('.conda', out_ext)))
 
     failed_files = {}
-    with tqdm.tqdm(total=len(flist), leave=False) as t:
+    with _tqdm.tqdm(total=len(flist), leave=False) as t:
         with _Executor(max_workers=processes) as executor:
             convert_f = _functools.partial(_convert, out_ext=out_ext,
                                           out_folder=out_folder, **kw)
@@ -149,15 +150,18 @@ def verify_conversion(glob_pattern, target_dir, reference_ext,
     other_exts = set(SUPPORTED_EXTENSIONS) - {reference_ext, }
 
     errors = {}
-    with tqdm.tqdm(total=(len(matches) * len(SUPPORTED_EXTENSIONS) - 1), leave=False) as t:
+    with _tqdm.tqdm(total=(len(matches) * len(SUPPORTED_EXTENSIONS) - 1), leave=False) as t:
         with _Executor(max_workers=processes) as executor:
             for other_ext in other_exts:
                 verify_fn = lambda fn: validate_converted_files_match(ref_ext=reference_ext,
                                                                       subject=fn + other_ext)
-                for fn, missing, matching in executor.map(verify_fn, matches):
+                for fn, missing, mismatching in executor.map(verify_fn, matches):
+                    t.set_description("Validating %s" % fn)
+                    t.update()
                     if missing or mismatching:
                         errors[fn] = str(ConversionError(missing, mismatching))
     return errors
+
 
 def get_pkg_details(in_file):
     """For the new pkg format, we return the size and hashes of the inner pkg part of the file"""
