@@ -9,18 +9,12 @@ import tqdm as _tqdm
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
-from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled
+from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled  # NOQA
 from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 from .utils import TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
-
-if libarchive_enabled:
-    from libarchive.exception import ArchiveError as _LibarchiveError
-else:
-    # define the exception as one that the standard library support for bz2 can handle
-    _LibarchiveError = Exception
 
 
 def _collect_paths(prefix):

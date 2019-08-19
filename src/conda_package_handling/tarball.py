@@ -6,9 +6,8 @@ import sys
 import tarfile
 from tempfile import NamedTemporaryFile
 
-
 try:
-    import libarchive
+    from . import archive_utils
     libarchive_enabled = True
 except ImportError:
     libarchive_enabled = False
@@ -62,9 +61,7 @@ def _create_no_libarchive(fullpath, files):
 
 
 def _create_libarchive(fullpath, files, compression_filter, filter_opts):
-    with libarchive.file_writer(fullpath, 'gnutar', filter_name=compression_filter,
-                                options=filter_opts) as archive:
-        archive.add_files(*files)
+    archive_utils.create_archive(fullpath, files, compression_filter, filter_opts)
 
 
 def create_compressed_tarball(prefix, files, tmpdir, basename,
@@ -85,20 +82,10 @@ def create_compressed_tarball(prefix, files, tmpdir, basename,
 
 
 def _tar_xf(tarball, dir_path):
-    flags = libarchive.extract.EXTRACT_TIME | \
-            libarchive.extract.EXTRACT_PERM | \
-            libarchive.extract.EXTRACT_SECURE_NODOTDOT | \
-            libarchive.extract.EXTRACT_SECURE_SYMLINKS | \
-            libarchive.extract.EXTRACT_SECURE_NOABSOLUTEPATHS | \
-            libarchive.extract.EXTRACT_SPARSE | \
-            libarchive.extract.EXTRACT_UNLINK
     if not os.path.isabs(tarball):
         tarball = os.path.join(os.getcwd(), tarball)
     with utils.tmp_chdir(dir_path):
-        try:
-            libarchive.extract_file(tarball, flags)
-        except libarchive.ArchiveError as e:
-            raise InvalidArchiveError(tarball, str(e))
+        archive_utils.extract_file(tarball)
 
 
 def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
