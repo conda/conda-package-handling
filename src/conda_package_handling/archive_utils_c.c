@@ -8,12 +8,12 @@
 struct archive * prepare_gnutar_archive(
     const char *outname, const char *filtername, const char *opts, const char **err_str)
 {
-	struct archive *a;
-	a = archive_write_new();
+    struct archive *a;
+    a = archive_write_new();
     if (a == NULL) {
         return a;
     }
-	if (archive_write_set_format_gnutar(a) < ARCHIVE_OK) {
+    if (archive_write_set_format_gnutar(a) < ARCHIVE_OK) {
         *err_str = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
@@ -31,22 +31,22 @@ struct archive * prepare_gnutar_archive(
         archive_write_free(a);
         return NULL;
     }
-	if (archive_write_open_filename(a, outname) < ARCHIVE_OK) {
+    if (archive_write_open_filename(a, outname) < ARCHIVE_OK) {
         *err_str = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
-	return a;
+    return a;
 }
 
 void close_archive(struct archive *a) {
-	archive_write_close(a);
-	archive_write_free(a);
+    archive_write_close(a);
+    archive_write_free(a);
 }
 
 struct archive_entry * prepare_entry(void) {
-	struct archive_entry *entry;
+    struct archive_entry *entry;
     entry = archive_entry_new();
     return entry;
 }
@@ -59,9 +59,9 @@ static int add_file(
     struct archive *a, struct archive_entry *entry, const char *filename, const char **err_str)
 {
     struct archive *disk;
-	char buff[8192];
-	int len;
-	int fd;
+    char buff[8192];
+    int len;
+    int fd;
     int flags;
     flags = 0;
 
