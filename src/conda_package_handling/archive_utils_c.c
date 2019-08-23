@@ -9,6 +9,9 @@ struct archive * prepare_gnutar_archive(
     const char *outname, const char *filtername, const char *opts, const char **err_str)
 {
     struct archive *a;
+    if (!err_str) {
+        return NULL;
+    }
     a = archive_write_new();
     if (a == NULL) {
         return a;
@@ -133,6 +136,9 @@ static int extract_file_c(const char *filename, const char **err_str) {
     int flags;
     int r;
 
+    if (!err_str) {
+        return NULL;
+    }
     /* attributes we want to restore. */
     flags = ARCHIVE_EXTRACT_TIME;
     flags |= ARCHIVE_EXTRACT_PERM;
