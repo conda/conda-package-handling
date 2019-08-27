@@ -38,6 +38,11 @@ install:
   - conda config --set auto_update_conda no
   - conda update -q --all
   - conda install -q pytest pytest-cov pytest-mock conda-build anaconda-client
+
+  # Needed for building python2.7 x64 extensions with conda-build
+  - conda install -c defaults -c conda-forge vs2008_express_vc_python_patch
+  - call setup_x64
+
   - conda info
   # this is to ensure dependencies
   - conda build conda.recipe --no-test

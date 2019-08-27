@@ -4,7 +4,6 @@ import sys
 import tarfile
 
 import pytest
-import libarchive
 
 from conda_package_handling import api
 import conda_package_handling.tarball
@@ -162,7 +161,7 @@ def test_secure_refusal_to_extract_abs_paths(testing_workdir):
         open('thebrain', 'w').close()
         tf.add(os.path.join(testing_workdir, 'thebrain'), '/naughty/abs_path')
 
-    with pytest.raises(libarchive.exception.ArchiveError):
+    with pytest.raises(api.InvalidArchiveError):
         api.extract('pinkie.tar.bz2')
 
 

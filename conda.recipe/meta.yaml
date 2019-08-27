@@ -1,5 +1,3 @@
-{% set data = load_setup_py_data() %}
-
 package:
   name: conda-package-handling
   version: {{ GIT_DESCRIBE_TAG }}.{{ GIT_BUILD_STR }}
@@ -9,20 +7,24 @@ source:
 
 build:
   script: python setup.py install --single-version-externally-managed --record=record.txt
-  noarch: python
   entry_points:
     - cph = conda_package_handling.cli:main
 
 requirements:
+  build:
+    - {{ compiler('c') }}
   host:
     - python
     - setuptools
+    - cython
+    - libarchive
+    - msinttypes  # [win and vc<14]
   run:
     - futures   # [py27]
     - python
-    - python-libarchive-c
     - six
     - tqdm
+    - libarchive
 
 test:
   source_files:
@@ -30,6 +32,7 @@ test:
   requires:
     - pytest
     - pytest-cov
+    - pytest-mock
   commands:
     - pytest tests
 

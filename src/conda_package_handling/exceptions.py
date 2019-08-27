@@ -10,6 +10,11 @@ class InvalidArchiveError(Exception):
         super(InvalidArchiveError, self).__init__(msg)
 
 
+class ArchiveCreationError(Exception):
+    """Raised when an archive fails during creation"""
+    pass
+
+
 class CaseInsensitiveFileSystemError(Exception):
     def __init__(self, package_location, extract_location, **kwargs):
         message = ("""

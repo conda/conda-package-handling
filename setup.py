@@ -2,6 +2,15 @@ from setuptools import setup, find_packages
 import versioneer
 import sys
 
+from setuptools.extension import Extension
+from Cython.Build import cythonize
+
+cyarchive_extension = Extension(
+    name="conda_package_handling.archive_utils_cy",
+    sources=["src/conda_package_handling/archive_utils_cy.pyx"],
+    libraries=["archive"],
+)
+
 requirements = [
     # package requirements go here
     "six",
@@ -18,6 +27,7 @@ setup(
     author="Anaconda, Inc.",
     author_email='conda@anaconda.com',
     url='https://github.com/conda/conda-package-handling',
+    ext_modules=cythonize([cyarchive_extension]),
     packages=find_packages("src", exclude=["tests"]),
     package_dir={"": "src"},
     entry_points={
@@ -30,5 +40,6 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ]
 )
