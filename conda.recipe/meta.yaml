@@ -18,6 +18,7 @@ requirements:
     - setuptools
     - cython
     - libarchive
+    - msinttypes  # [win and vc<14]
   run:
     - futures   # [py27]
     - python
