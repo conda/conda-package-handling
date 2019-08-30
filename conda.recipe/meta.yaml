@@ -32,6 +32,9 @@ test:
     - pytest
     - pytest-cov
     - pytest-mock
+  imports:
+    - conda_package_handling
+    - conda_package_handling.archive_utils_cy
   commands:
     - pytest tests
 
