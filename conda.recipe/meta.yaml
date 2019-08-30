@@ -17,14 +17,13 @@ requirements:
     - python
     - setuptools
     - cython
-    - libarchive
+    - libarchive-cph-static
     - msinttypes  # [win and vc<14]
   run:
     - futures   # [py27]
     - python
     - six
     - tqdm
-    - libarchive
 
 test:
   source_files:
