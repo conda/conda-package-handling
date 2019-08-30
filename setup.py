@@ -5,10 +5,14 @@ import sys
 from setuptools.extension import Extension
 from Cython.Build import cythonize
 
+_libraries = ["archive_and_deps"]
+if sys.platform == 'win32':
+    _libraries.append('advapi32')
+    _libraries.append('user32')
 archive_utils_cy_extension = Extension(
     name="conda_package_handling.archive_utils_cy",
     sources=["src/conda_package_handling/archive_utils_cy.pyx"],
-    libraries=["archive_and_deps"],
+    libraries=_libraries,
 )
 
 requirements = [
