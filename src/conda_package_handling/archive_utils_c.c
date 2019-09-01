@@ -1,5 +1,6 @@
 // Utilities for creating and extracting files from archives using libarchive
 // for use in conda-packaging-handling
+#define LIBARCHIVE_STATIC
 
 #include <fcntl.h>
 #include <archive.h>

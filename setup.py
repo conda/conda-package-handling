@@ -5,16 +5,19 @@ import sys
 from setuptools.extension import Extension
 from Cython.Build import cythonize
 
-cyarchive_extension = Extension(
+_libraries = ["archive_and_deps"]
+if sys.platform == 'win32':
+    _libraries.append('advapi32')
+    _libraries.append('user32')
+archive_utils_cy_extension = Extension(
     name="conda_package_handling.archive_utils_cy",
     sources=["src/conda_package_handling/archive_utils_cy.pyx"],
-    libraries=["archive"],
+    libraries=_libraries,
 )
 
 requirements = [
     # package requirements go here
     "six",
-    # "python-libarchive-c"
 ]
 if sys.version_info.major == 2:
     requirements.append('futures')
@@ -27,7 +30,7 @@ setup(
     author="Anaconda, Inc.",
     author_email='conda@anaconda.com',
     url='https://github.com/conda/conda-package-handling',
-    ext_modules=cythonize([cyarchive_extension]),
+    ext_modules=cythonize([archive_utils_cy_extension]),
     packages=find_packages("src", exclude=["tests"]),
     package_dir={"": "src"},
     entry_points={
