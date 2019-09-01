@@ -1,43 +1,90 @@
+# libarchive 3.4.0 breaks some symlink stuff on macos.  Holding back for now.
+{% set libarchive_version = "3.3.3" %}
+
 package:
-  name: conda-package-handling
+  name: conda-package-handling-with-static-libarchive
   version: {{ GIT_DESCRIBE_TAG }}.{{ GIT_BUILD_STR }}
 
 source:
-  path: ..
+  - path: ..
+  - url: https://github.com/libarchive/libarchive/releases/download/v{{ libarchive_version }}/libarchive-{{ libarchive_version }}.tar.gz
+    sha256: ba7eb1781c9fbbae178c4c6bad1c6eb08edab9a1496c64833d1715d022b30e2e
+    patches:
+      - libarchive-patches/0001-Add-lib-to-CMAKE_FIND_LIBRARY_PREFIXES-for-lzma.patch
+      - libarchive-patches/0002-xar-fix-bad-seek-in-move_reading_point.patch
+      - libarchive-patches/0003-VC9-compatibility-test-for-BCryptDeriveKeyPBKDF2.patch
+      - libarchive-patches/0004-VC9-compatibility-define-BCRYPT_SUCCESS.patch
+      # This should not be applied in general. It exists so I can build it for
+      # debugging Visual Studio where warnings are errors for some reason.
+      # Hiding warnings is poor practice.
+      # - libarchive-patches/0005-VC9-compatibility-ignore-some-warnings.patch
+      # These warnings are errors when compiling lz-4 support
+      - libarchive-patches/0007-CMake-VC9-compatibility-ignore-some-warnings.patch
+      - libarchive-patches/0008-VC9-compatibility-remove-C99.patch
+      - libarchive-patches/0009-CMake-Force-Multi-threaded-DLL-runtime.patch
+      # 3.4.0 added official support for symlinks on win
+      - libarchive-patches/0010-Use-CreateSymbolicLinkW-on-Windows-for-symlinks-WIP.patch
 
-build:
-  script: python setup.py install --single-version-externally-managed --record=record.txt
-  entry_points:
-    - cph = conda_package_handling.cli:main
-
-requirements:
-  build:
-    - {{ compiler('c') }}
-  host:
-    - python
-    - setuptools
-    - cython
-    - libarchive-cph-static
-    - msinttypes  # [win and vc<14]
-  run:
-    - futures   # [py27]
-    - python
-    - six
-    - tqdm
-
-test:
-  source_files:
-    - tests
-  requires:
-    - pytest
-    - pytest-cov
-    - pytest-mock
-  imports:
-    - conda_package_handling
-    - conda_package_handling.archive_utils_cy
-  commands:
-    - pytest tests
-
-about:
-  home: https://github.com/conda/conda-package-handling
-  summary: Create and extract conda packages of various formats
+outputs:
+  - name: _libarchive_static_for_cph
+    version: {{ libarchive_version }}
+    script: static_bld.bat  # [win]
+    script: static_build.sh  # [not win]
+    requirements:
+      build:
+        - {{ compiler('c') }}
+        # Does not work in this recips at present
+        # we manually convert C99 to C89 instead.
+        # - c99-to-c89  # [win and vc<14]
+        - msinttypes  # [win and vc<14]
+        - autoconf    # [unix]
+        - automake    # [unix]
+        - libtool     # [unix]
+        - pkg-config  # [unix]
+        - cmake       # [win]
+        - make        # [unix]
+        - ninja       # [win]
+        - m2-patch    # [win]
+      host:
+        - msinttypes  # [win and vc<14]
+        - bzip2
+        - libiconv    # [osx]
+        - zlib
+        - zstd
+    about:
+      summary: a static build of libarchive containing only conda-related parts
+      home: https://github.com/conda/conda-package-handling
+  - name: conda-package-handling
+    build:
+      script: python setup.py install --single-version-externally-managed --record=record.txt
+      entry_points:
+        - cph = conda_package_handling.cli:main
+    requirements:
+      build:
+        - {{ compiler('c') }}
+      host:
+        - python
+        - setuptools
+        - cython
+        - {{ pin_subpackage('_libarchive_static_for_cph', exact=True) }}
+        - msinttypes  # [win and vc<14]
+      run:
+        - futures   # [py27]
+        - python
+        - six
+        - tqdm
+    test:
+      source_files:
+        - tests
+      requires:
+        - pytest
+        - pytest-cov
+        - pytest-mock
+      imports:
+        - conda_package_handling
+        - conda_package_handling.archive_utils_cy
+      commands:
+        - pytest tests
+    about:
+      home: https://github.com/conda/conda-package-handling
+      summary: Create and extract conda packages of various formats
