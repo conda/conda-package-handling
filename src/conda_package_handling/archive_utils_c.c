@@ -35,7 +35,7 @@ struct archive * prepare_gnutar_archive(
         archive_write_free(a);
         return NULL;
     }
-    if (archive_write_open_filename(a, outname) < ARCHIVE_OK) {
+    if (archive_write_open_filename_w(a, outname) < ARCHIVE_OK) {
         *err_str = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
@@ -155,7 +155,7 @@ static int extract_file_c(const char *filename, const char **err_str) {
     ext = archive_write_disk_new();
     archive_write_disk_set_options(ext, flags);
     archive_write_disk_set_standard_lookup(ext);
-    if ((r = archive_read_open_filename(a, filename, 10240))) {
+    if ((r = archive_read_open_filename_w(a, filename, 10240))) {
         *err_str = archive_error_string(a);
         return 1;
     }
