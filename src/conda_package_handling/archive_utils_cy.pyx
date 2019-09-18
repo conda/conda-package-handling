@@ -29,7 +29,8 @@ def return_utf(s):
 def extract_file(tarball):
     """Extract a tarball into the current directory."""
     cdef const char *err_str_u8 = NULL
-    result = extract_file_c(return_utf(tarball), &err_str_u8)
+    tb_utf8 = return_utf8(tarball)
+    result = extract_file_c(tb_utf8, &err_str_u8)
     if result:
         assert err_str != NULL
         return 1, <bytes> err_str_u8
@@ -48,7 +49,8 @@ def create_archive(fullpath, files, compression_filter, compression_opts):
     if entry == NULL:
         return 1, b'archive entry creation failed', b''
     for f in files:
-        result = add_file(a, entry, return_utf(f), &err_str)
+        f_utf8 = return_utf8(f)
+        result = add_file(a, entry, f_utf8, &err_str)
         if result:
             return 1, <bytes> err_str, f
     close_entry(entry)
