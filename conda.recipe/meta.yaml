@@ -1,5 +1,6 @@
 # libarchive 3.4.0 breaks some symlink stuff on macos.  Holding back for now.
 {% set libarchive_version = "3.3.3" %}
+{% set build_num = "2" %}
 
 package:
   name: conda-package-handling
@@ -9,6 +10,7 @@ source:
   - path: ..
 
     build:
+      number: {{ build_num }}
       ignore_run_exports:
         - zstd
         - zlib
@@ -17,6 +19,7 @@ source:
         - m2-patch  # [win]
         - patch     # [not win]
 build:
+      number: {{ build_num }}
   script: python setup.py install --single-version-externally-managed --record=record.txt
   entry_points:
     - cph = conda_package_handling.cli:main
