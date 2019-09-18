@@ -11,11 +11,11 @@
 #endif
 
 struct archive * prepare_gnutar_archive(
-    const char *outname_u8, const char *filtername, const char *opts, const char **err_str)
+    const char *outname_u8, const char *filtername, const char *opts, const char ** err_str_u8)
 {
     wchar_t woutname[8192];
     struct archive *a;
-    if (!err_str) {
+    if (!err_str_u8) {
         return NULL;
     }
     a = archive_write_new();
@@ -23,32 +23,33 @@ struct archive * prepare_gnutar_archive(
         return a;
     }
     if (archive_write_set_format_gnutar(a) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
     if (archive_write_add_filter_by_name(a, filtername) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
     if (archive_write_set_options(a, opts) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
     woutname[(sizeof(woutname)/sizeof(woutname[0]))-1] = L'\0';
 #ifdef _WIN32
-    MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, outname_u8, -1,
-                                    &woutname[0], sizeof(woutname)/sizeof(woutname[0]));
+    MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, outname_u8, -1,
+                        woutname[0], sizeof(woutname)/sizeof(woutname[0]));
 #else
+    *err_str_u8 = NULL;
     mbstowcs(&woutname, outname_u8, sizeof(woutname)/sizeof(woutname[0]));
 #endif
     if (archive_write_open_filename_w(a, woutname) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
@@ -72,7 +73,7 @@ void close_entry(struct archive_entry *entry) {
 }
 
 static int add_file(
-    struct archive *a, struct archive_entry *entry, const char *filename, const char **err_str)
+    struct archive *a, struct archive_entry *entry, const char *filename, const char ** err_str_u8)
 {
     struct archive *disk;
     char buff[8192];
@@ -84,8 +85,8 @@ static int add_file(
 
     wfilename[(sizeof(wfilename)/sizeof(wfilename[0]))-1] = L'\0';
 #ifdef _WIN32
-    MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1,
-                                    &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
+    MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1,
+                        wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
 #else
     mbstowcs(&wfilename[0], filename, sizeof(wfilename)/sizeof(wfilename[0]));
 #endif
@@ -95,23 +96,23 @@ static int add_file(
         return 1;
     }
     if (archive_read_disk_set_behavior(disk, flags) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str_u8 = archive_error_string(disk);
         return 1;
     }
     if (archive_read_disk_open_w(disk, wfilename) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str_u8 = archive_error_string(disk);
         return 1;
     }
     if (archive_read_next_header2(disk, entry) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str_u8 = archive_error_string(disk);
         return 1;
     }
     if (archive_read_disk_descend(disk) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str_u8 = archive_error_string(disk);
         return 1;
     }
     if (archive_write_header(a, entry) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         return 1;
     }
  #ifdef _WIN32
@@ -126,7 +127,7 @@ static int add_file(
     }
     close(fd);
     if (archive_write_finish_entry(a) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         return 1;
     }
     archive_read_close(disk);
@@ -165,14 +166,14 @@ static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
 
     wfilename[(sizeof(wfilename)/sizeof(wfilename[0]))-1] = L'\0';
 #ifdef _WIN32
-    MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, filename_u8, -1,
-                                    &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
+    MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename_u8, -1,
+                        wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
 #else
     mbstowcs(&wfilename, filename_u8, sizeof(wfilename)/sizeof(wfilename[0]));
 #endif
 
 
-    if (!err_str) {
+    if (!err_str_u8) {
         return 0;
     }
     /* attributes we want to restore. */
@@ -191,7 +192,7 @@ static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
     archive_write_disk_set_options(ext, flags);
     archive_write_disk_set_standard_lookup(ext);
     if ((r = archive_read_open_filename_w(a, wfilename, 10240))) {
-        *err_str = archive_error_string(a);
+        *err_str_u8 = archive_error_string(a);
         return 1;
     }
     for (;;) {
@@ -199,24 +200,24 @@ static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
         if (r == ARCHIVE_EOF)
             break;
         if (r < ARCHIVE_WARN) {
-            *err_str = archive_error_string(a);
+            *err_str_u8 = archive_error_string(a);
             return 1;
         }
         r = archive_write_header(ext, entry);
         if (r < ARCHIVE_OK) {
-            *err_str = archive_error_string(ext);
+            *err_str_u8 = archive_error_string(ext);
             return 1;
         }
         else if (archive_entry_size(entry) > 0) {
             r = copy_data(a, ext);
             if (r < ARCHIVE_WARN) {
-                *err_str = archive_error_string(ext);
+                *err_str_u8 = archive_error_string(ext);
                 return 1;
             }
         }
         r = archive_write_finish_entry(ext);
         if (r < ARCHIVE_WARN) {
-            *err_str = archive_error_string(ext);
+            *err_str_u8 = archive_error_string(ext);
             return 1;
         }
     }
