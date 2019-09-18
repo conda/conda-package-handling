@@ -3,12 +3,12 @@
 
 cdef extern from "archive_utils_c.c":
     void * prepare_gnutar_archive(
-        const wchar *outname, const char *filtername, const char *opts, const char **err_str)
+        const char *outname_u8, const char *filtername, const char *opts, const char **err_str)
     void close_archive(void *a)
     void * prepare_entry()
     void close_entry(void *entry)
-    int add_file(void *a, void *entry, const wchar *filename, wconst char **err_str)
-    int extract_file_c(const wchar *filename, const wchar **err_str)
+    int add_file(void *a, void *entry, const char *filename_u8, const char **err_str_u8)
+    int extract_file_c(const char *filename_u8, const char **err_str_u8)
 
 
 def extract_file(tarball):

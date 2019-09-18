@@ -8,6 +8,11 @@ package:
 source:
   - path: ..
 
+    build:
+      ignore_run_exports:
+        - zstd
+        - zlib
+        - bzip2
         - git       # [win]
         - m2-patch  # [win]
         - patch     # [not win]

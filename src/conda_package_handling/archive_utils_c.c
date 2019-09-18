@@ -5,14 +5,19 @@
 #include <fcntl.h>
 #include <archive.h>
 #include <archive_entry.h>
+#ifdef _WIN32
+    #include <wchar.h>
+    #include <stringapiset.h>
+#endif
 
 #ifndef O_BINARY
 #define O_BINARY    0
 #endif
 
 struct archive * prepare_gnutar_archive(
-    const char *outname, const char *filtername, const char *opts, const char **err_str)
+    const char *outname_u8, const char *filtername, const char *opts, const char **err_str)
 {
+    wchar_t woutname[8192];
     struct archive *a;
     if (!err_str) {
         return NULL;
@@ -39,7 +44,14 @@ struct archive * prepare_gnutar_archive(
         archive_write_free(a);
         return NULL;
     }
-    if (archive_write_open_filename_w(a, outname) < ARCHIVE_OK) {
+    woutname[(sizeof(woutname)/sizeof(woutname[0]))-1] = L'\0';
+#ifdef _WIN32
+    MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, outname_u8, -1,
+                                    &woutname[0], sizeof(woutname)/sizeof(woutname[0]));
+#else
+    mbstowcs(&woutname, outname_u8, sizeof(woutname)/sizeof(woutname[0]));
+#endif
+    if (archive_write_open_filename_w(a, woutname) < ARCHIVE_OK) {
         *err_str = archive_error_string(a);
         archive_write_close(a);
         archive_write_free(a);
@@ -79,7 +91,7 @@ static int add_file(
     MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1,
                                     &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
 #else
-    mbstowcs(&wfilename, filename, sizeof(wfilename)/sizeof(wfilename[0]));
+    mbstowcs(&wfilename[0], filename, sizeof(wfilename)/sizeof(wfilename[0]));
 #endif
 
     disk = archive_read_disk_new();
@@ -90,7 +102,7 @@ static int add_file(
         *err_str = archive_error_string(disk);
         return 1;
     }
-    if (archive_read_disk_open(disk, filename) < ARCHIVE_OK) {
+    if (archive_read_disk_open_w(disk, wfilename) < ARCHIVE_OK) {
         *err_str = archive_error_string(disk);
         return 1;
     }
@@ -106,7 +118,11 @@ static int add_file(
         *err_str = archive_error_string(a);
         return 1;
     }
-    fd = open(filename, O_RDONLY | O_BINARY);
+ #ifdef _WIN32
+    fd = _wopen(&wfilename[0], O_RDONLY | O_BINARY);
+ #else
+    fd = open(&filename[0], O_RDONLY | O_BINARY);
+ #endif
     len = read(fd, buff, sizeof(buff));
     while ( len > 0 ) {
         archive_write_data(a, buff, len);
@@ -143,12 +159,22 @@ static int copy_data(struct archive *ar, struct archive *aw)
   }
 }
 
-static int extract_file_c(const char *filename, const char **err_str) {
+static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
     struct archive *a;
     struct archive *ext;
     struct archive_entry *entry;
     int flags;
     int r;
+    wchar_t wfilename[8192];
+
+    wfilename[(sizeof(wfilename)/sizeof(wfilename[0]))-1] = L'\0';
+#ifdef _WIN32
+    MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, filename_u8, -1,
+                                    &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
+#else
+    mbstowcs(&wfilename, filename_u8, sizeof(wfilename)/sizeof(wfilename[0]));
+#endif
+
 
     if (!err_str) {
         return 0;
@@ -168,7 +194,7 @@ static int extract_file_c(const char *filename, const char **err_str) {
     ext = archive_write_disk_new();
     archive_write_disk_set_options(ext, flags);
     archive_write_disk_set_standard_lookup(ext);
-    if ((r = archive_read_open_filename_w(a, filename, 10240))) {
+    if ((r = archive_read_open_filename_w(a, wfilename, 10240))) {
         *err_str = archive_error_string(a);
         return 1;
     }
