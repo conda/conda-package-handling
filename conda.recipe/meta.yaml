@@ -32,6 +32,9 @@ outputs:
     script: static_build.sh  # [not win]
     requirements:
       build:
+        - git       # [win]
+        - m2-patch  # [win]
+        - patch     # [not win]
         - {{ compiler('c') }}
         # Does not work in this recips at present
         # we manually convert C99 to C89 instead.
@@ -44,7 +47,6 @@ outputs:
         - cmake       # [win]
         - make        # [unix]
         - ninja       # [win]
-        - m2-patch    # [win]
       host:
         - msinttypes  # [win and vc<14]
         - bzip2
