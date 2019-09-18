@@ -9,17 +9,7 @@ package:
 source:
   - path: ..
 
-    build:
-      number: {{ build_num }}
-      ignore_run_exports:
-        - zstd
-        - zlib
-        - bzip2
-        - git       # [win]
-        - m2-patch  # [win]
-        - patch     # [not win]
 build:
-      number: {{ build_num }}
   script: python setup.py install --single-version-externally-managed --record=record.txt
   entry_points:
     - cph = conda_package_handling.cli:main
