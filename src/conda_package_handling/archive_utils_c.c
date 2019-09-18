@@ -173,7 +173,7 @@ static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
 
 
     if (!err_str) {
-        return NULL;
+        return 0;
     }
     /* attributes we want to restore. */
     flags = ARCHIVE_EXTRACT_TIME;
