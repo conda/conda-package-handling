@@ -10,7 +10,7 @@ cdef extern from "archive_utils_c.c":
     int add_file(void *a, void *entry, const char *filename_u8, const char ** err_str_u8)
     int extract_file_c(const char *filename_u8, const char ** err_str_u8)
 
-def return_utf(s):
+def return_utf8(s):
     if isinstance(s, str):
         return s.encode('utf-8')
     if isinstance(s, (int, float, complex)):
