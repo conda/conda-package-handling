@@ -24,6 +24,7 @@ def return_utf8(s):
             return s
     except AttributeError:
         return s
+    return s # assume it was already utf-8
 
 def extract_file(tarball):
     """Extract a tarball into the current directory."""
