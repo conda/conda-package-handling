@@ -7,7 +7,7 @@
 #include <archive_entry.h>
 #ifdef _WIN32
     #include <wchar.h>
-    #include <stringapiset.h>
+    #include <windows.h>
 #endif
 
 struct archive * prepare_gnutar_archive(
