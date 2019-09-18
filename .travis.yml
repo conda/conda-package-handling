@@ -7,26 +7,22 @@ python:
   - "3.7"
 
 install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
+  - wget https://repo.anaconda.com/pkgs/misc/conda-execs/conda-4.7.5-linux-64.exe -O conda.exe
+  - chmod +x conda.exe
+  - export CONDA_ALWAYS_YES=1
+  - ./conda.exe create -p $HOME/miniconda python=$TRAVIS_PYTHON_VERSION conda conda-build pytest six pytest-cov pytest-mock
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
-  - conda config --set always_yes yes
-  - conda update -q conda -c conda-canary
-  - conda config --set auto_update_conda no
-  - conda install conda-build anaconda-client pytest pytest-cov pytest-mock six python-libarchive-c
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      conda install -q futures;
+      conda install futures;
     fi
   - conda build conda.recipe --no-test
   - conda install --use-local conda-package-handling
   - conda info -a
 script:
+  # rebuilding the recipe with our new CPH installed tests it a bit deeper than the test suite.
+  - conda build conda.recipe
   - pytest -v --color=yes --cov=conda_package_handling tests
 after_success:
-  - conda install -c conda-forge codecov
+  - conda install codecov
   - codecov
