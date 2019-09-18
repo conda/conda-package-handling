@@ -38,6 +38,8 @@ install:
   - conda config --set auto_update_conda no
   - conda update -q --all
   - conda install -q pytest pytest-cov pytest-mock conda-build anaconda-client
+  # 1.5.0 on windows has a unicode problem
+  - conda install "conda-package-handling!=1.5.0"
 
   # Needed for building python2.7 x64 extensions with conda-build
   - conda install -c defaults -c conda-forge vs2008_express_vc_python_patch
@@ -53,6 +55,8 @@ install:
 build: false
 
 test_script:
+  # rebuilding the recipe with our new CPH installed tests the unicode issue that occurred in 1.5.0
+  - conda build conda.recipe
   - py.test --color=yes -v --cov conda_package_handling --cov-report xml tests
 
 on_success:
