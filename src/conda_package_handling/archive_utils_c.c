@@ -68,10 +68,19 @@ static int add_file(
 {
     struct archive *disk;
     char buff[8192];
+    wchar_t wfilename[8192];
     int len;
     int fd;
     int flags;
     flags = 0;
+
+    wfilename[(sizeof(wfilename)/sizeof(wfilename[0]))-1] = L'\0';
+#ifdef _WIN32
+    MultiByteStringToWideCharString(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1,
+                                    &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
+#else
+    mbstowcs(&wfilename, filename, sizeof(wfilename)/sizeof(wfilename[0]));
+#endif
 
     disk = archive_read_disk_new();
     if (disk == NULL) {
