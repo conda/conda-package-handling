@@ -30,6 +30,11 @@ outputs:
     version: {{ libarchive_version }}
     script: static_bld.bat  # [win]
     script: static_build.sh  # [not win]
+    build:
+      ignore_run_exports:
+        - zstd
+        - zlib
+        - bzip2
     requirements:
       build:
         - git       # [win]
