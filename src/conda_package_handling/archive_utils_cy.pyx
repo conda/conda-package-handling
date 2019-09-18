@@ -41,7 +41,9 @@ def create_archive(fullpath, files, compression_filter, compression_opts):
     cdef void *a
     cdef void *entry
     cdef const char *err_str = NULL
-    a = prepare_gnutar_archive(return_utf(fullpath), return_utf(compression_filter), return_utf(compression_opts), &err_str)
+    a = prepare_gnutar_archive(return_utf8(fullpath),
+                               return_utf8(compression_filter),
+                               return_utf8(compression_opts), &err_str)
     if a == NULL:
         return 1, <bytes> err_str, b''
     entry = prepare_entry()
