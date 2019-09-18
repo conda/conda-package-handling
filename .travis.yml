@@ -10,7 +10,7 @@ install:
   - wget https://repo.anaconda.com/pkgs/misc/conda-execs/conda-4.7.5-linux-64.exe -O conda.exe
   - chmod +x conda.exe
   - export CONDA_ALWAYS_YES=1
-  - ./conda.exe create -p $HOME/miniconda conda conda-build pytest six pytest-cov pytest-mock
+  - ./conda.exe create -p $HOME/miniconda python=$TRAVIS_PYTHON_VERSION conda conda-build pytest six pytest-cov pytest-mock
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
