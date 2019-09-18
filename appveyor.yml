@@ -1,22 +1,7 @@
 environment:
-  global:
-    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-    # /E:ON and /V:ON options are not enabled in the batch script intepreter
-    # See: http://stackoverflow.com/a/13751649/163740
-    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\tools\\appveyor\\run_with_env.cmd"
-
   matrix:
-    - PYTHON: "C:\\Miniconda36-x64"
-      PYTHON_VERSION: "3.6"
-      PYTHON_ARCH: "64"
-
-    - PYTHON: "C:\\Miniconda-x64"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-
-init:
-  - ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH% %HOME%
-
+    - PYTHON_VERSION: "3.6"
+    - PYTHON_VERSION: "2.7"
 
 install:
   # If there is a newer build queued for the same PR, cancel this one.
@@ -28,18 +13,15 @@ install:
       https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/history?recordsNumber=50).builds | `
       Where-Object pullRequestId -eq $env:APPVEYOR_PULL_REQUEST_NUMBER)[0].buildNumber) { `
         throw "There are newer queued builds for this pull request, failing early." }
+
+  - appveyor DownloadFile https://repo.anaconda.com/pkgs/misc/conda-execs/conda-4.7.5-win-64.exe -FileName loner_conda.exe
+  - set "CONDA_PKGS_DIRS=C:\condacache\pkgs"
+  - set "CONDA_ALWAYS_YES=true"
+  - set "CONDA_AUTO_UPDATE_CONDA=false"
+  - loner_conda.exe create -p C:\test_conda python=%PYTHON_VERSION% conda conda-build pytest six pytest-cov pytest-mock "conda-package-handling!=1.5.0"
   # these correspond to folder naming of miniconda installs on appveyor.  See
   # https://www.appveyor.com/docs/installed-software#python
-  - if "%PYTHON_VERSION%" == "3.6" set "BASE_PYTHON_VERSION=36"
-  - if "%PYTHON_ARCH%" == "64" set "ARCH_LABEL=-x64"
-  - call "C:\Miniconda%BASE_PYTHON_VERSION%%ARCH_LABEL%\Scripts\activate.bat"
-  - conda config --set always_yes yes
-  - conda update -q conda -c conda-canary
-  - conda config --set auto_update_conda no
-  - conda update -q --all
-  - conda install -q pytest pytest-cov pytest-mock conda-build anaconda-client
-  # 1.5.0 on windows has a unicode problem
-  - conda install "conda-package-handling!=1.5.0"
+  - call "C:\test_conda\Scripts\activate.bat"
 
   # Needed for building python2.7 x64 extensions with conda-build
   - conda install -c defaults -c conda-forge vs2008_express_vc_python_patch
@@ -50,7 +32,6 @@ install:
   - conda build conda.recipe --no-test
   - conda install --use-local conda-package-handling
 
-
 # Not a .NET project, we build package in the install step instead
 build: false
 
@@ -60,5 +41,5 @@ test_script:
   - py.test --color=yes -v --cov conda_package_handling --cov-report xml tests
 
 on_success:
-  - conda install -c conda-forge codecov
+  - conda install codecov
   - codecov --env PYTHON_VERSION --file C:\projects\conda-package-handling\coverage.xml
