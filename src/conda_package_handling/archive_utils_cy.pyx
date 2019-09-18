@@ -10,11 +10,26 @@ cdef extern from "archive_utils_c.c":
     int add_file(void *a, void *entry, const char *filename_u8, const char ** err_str_u8)
     int extract_file_c(const char *filename_u8, const char ** err_str_u8)
 
+def return_utf(s):
+    if isinstance(s, str):
+        return s.encode('utf-8')
+    if isinstance(s, (int, float, complex)):
+        return str(s).encode('utf-8')
+    try:
+        return s.encode('utf-8')
+    except TypeError:
+        try:
+            return str(s).encode('utf-8')
+        except AttributeError:
+            return s
+    except AttributeError:
+        return s
+    return s # assume it was already utf-8
 
 def extract_file(tarball):
     """Extract a tarball into the current directory."""
     cdef const char *err_str_u8 = NULL
-    result = extract_file_c(tarball, &err_str_u8)
+    result = extract_file_c(return_utf(tarball), &err_str_u8)
     if result:
         assert err_str != NULL
         return 1, <bytes> err_str_u8
@@ -26,14 +41,14 @@ def create_archive(fullpath, files, compression_filter, compression_opts):
     cdef void *a
     cdef void *entry
     cdef const char *err_str = NULL
-    a = prepare_gnutar_archive(fullpath, compression_filter, compression_opts, &err_str)
+    a = prepare_gnutar_archive(return_utf(fullpath), return_utf(compression_filter), return_utf(compression_opts), &err_str)
     if a == NULL:
         return 1, <bytes> err_str, b''
     entry = prepare_entry()
     if entry == NULL:
         return 1, b'archive entry creation failed', b''
     for f in files:
-        result = add_file(a, entry, f, &err_str)
+        result = add_file(a, entry, return_utf(f), &err_str)
         if result:
             return 1, <bytes> err_str, f
     close_entry(entry)
