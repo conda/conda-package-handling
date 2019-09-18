@@ -47,10 +47,10 @@ struct archive * prepare_gnutar_archive(
     woutname[(sizeof(woutname)/sizeof(woutname[0]))-1] = L'\0';
 #ifdef _WIN32
     MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, outname_u8, -1,
-                        woutname[0], sizeof(woutname)/sizeof(woutname[0]));
+                        &woutname[0], sizeof(woutname)/sizeof(woutname[0]));
 #else
     *err_str_u8 = NULL;
-    mbstowcs(&woutname, outname_u8, sizeof(woutname)/sizeof(woutname[0]));
+    mbstowcs(&woutname[0], outname_u8, sizeof(woutname)/sizeof(woutname[0]));
 #endif
     if (archive_write_open_filename_w(a, woutname) < ARCHIVE_OK) {
         *err_str_u8 = archive_error_string(a);
@@ -90,7 +90,7 @@ static int add_file(
     wfilename[(sizeof(wfilename)/sizeof(wfilename[0]))-1] = L'\0';
 #ifdef _WIN32
     MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1,
-                        wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
+                        &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
 #else
     mbstowcs(&wfilename[0], filename, sizeof(wfilename)/sizeof(wfilename[0]));
 #endif
@@ -171,9 +171,9 @@ static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
     wfilename[(sizeof(wfilename)/sizeof(wfilename[0]))-1] = L'\0';
 #ifdef _WIN32
     MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename_u8, -1,
-                        wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
+                        &wfilename[0], sizeof(wfilename)/sizeof(wfilename[0]));
 #else
-    mbstowcs(&wfilename, filename_u8, sizeof(wfilename)/sizeof(wfilename[0]));
+    mbstowcs(&wfilename[0], filename_u8, sizeof(wfilename)/sizeof(wfilename[0]));
 #endif
 
 
