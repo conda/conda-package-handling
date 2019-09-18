@@ -89,6 +89,21 @@ def test_warning_when_bundling_no_metadata(testing_workdir):
     pass
 
 
+def test_create_with_unicode_file(testing_workdir):
+    os.makedirs('src')
+    with open('src/unicode_file', mode='w', encoding='utf-8') as f:
+        f.write('blah')
+    api.create('src', None, 'testfile.tar.bz2')
+    api.create('src', None, 'testfile.conda')
+    api.extract('testfile.tar.bz2', dest_dir='tar_bz2')
+    with open(os.path.join('tar_bz2', 'unicode_file')) as f:
+        assert f.read() == 'blah'
+    api.extract('testfile.conda', dest_dir='conda')
+    with open(os.path.join('conda', 'unicode_file')) as f:
+        assert f.read() == 'blah'
+
+
+
 @pytest.mark.skipif(sys.platform=="win32", reason="windows and symlinks are not great")
 def test_create_package_with_uncommon_conditions_captures_all_content(testing_workdir):
     os.makedirs('src/a_folder')
