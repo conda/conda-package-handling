@@ -64,8 +64,9 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
     elif isinstance(file_list, _string_types):
         try:
-            with open(file_list) as f:
-                data = f.readlines()
+            import codecs
+            with codecs.open(file_list, mode='rb', encoding='utf-8') as f:
+                data = f.read().replace('\r\n', '\n').splitlines()
             file_list = [_.strip() for _ in data]
         except:
             raise
@@ -76,8 +77,11 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
             except:
                 # don't leave broken files around
-                if _os.path.isfile(out):
-                    _rm_rf(out)
+                out = None
+                out2 = _os.path.join(out_folder, out_fn)
+                if _os.path.isfile(out2):
+                    _rm_rf(out2)
+                raise
     return out
 
 
