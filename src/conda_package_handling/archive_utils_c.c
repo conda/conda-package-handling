@@ -10,6 +10,10 @@
     #include <windows.h>
 #endif
 
+#ifndef O_BINARY
+#define O_BINARY    0
+#endif
+
 struct archive * prepare_gnutar_archive(
     const char *outname_u8, const char *filtername, const char *opts, const char ** err_str_u8)
 {
@@ -116,9 +120,9 @@ static int add_file(
         return 1;
     }
  #ifdef _WIN32
-    fd = _wopen(&wfilename[0], O_RDONLY);
+    fd = _wopen(&wfilename[0], O_RDONLY | O_BINARY);
  #else
-    fd = open(&filename[0], O_RDONLY);
+    fd = open(&filename[0], O_RDONLY | O_BINARY);
  #endif
     len = read(fd, buff, sizeof(buff));
     while ( len > 0 ) {
