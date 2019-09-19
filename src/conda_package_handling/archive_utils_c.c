@@ -6,6 +6,10 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#ifndef O_BINARY
+#define O_BINARY    0
+#endif
+
 struct archive * prepare_gnutar_archive(
     const char *outname, const char *filtername, const char *opts, const char **err_str)
 {
@@ -93,7 +97,7 @@ static int add_file(
         *err_str = archive_error_string(a);
         return 1;
     }
-    fd = open(filename, O_RDONLY);
+    fd = open(filename, O_RDONLY | O_BINARY);
     len = read(fd, buff, sizeof(buff));
     while ( len > 0 ) {
         archive_write_data(a, buff, len);
