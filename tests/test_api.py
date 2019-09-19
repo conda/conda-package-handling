@@ -11,12 +11,37 @@ import conda_package_handling.tarball
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
 test_package_name = "mock-2.0.0-py37_1000"
+test_unicode_name = "pkg_with_unicode"
 
 
 def test_api_extract_tarball_implicit_path(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
     api.extract(tarfile)
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
+
+
+def test_api_extract_tarball_with_unicode_files(testing_workdir):
+    tarfile = os.path.join(data_dir, test_unicode_name + '.tar.bz2')
+    api.extract(tarfile)
+    root_dir = os.path.join(testing_workdir, test_unicode_name)
+    assert os.path.isfile(os.path.join(root_dir, 'simple_file'))
+    assert os.path.isfile(os.path.join(root_dir, '❤'))
+    assert os.path.isfile(os.path.join(root_dir, '❤.bat'))
+    assert os.path.isfile(os.path.join(root_dir, 'dir_with_λ_unicode', 'a_file'))
+    assert os.path.isfile(os.path.join(root_dir, 'λλλ_another_dir_λλλ', 'another_λ'))
+    assert os.path.isfile(os.path.join(root_dir, 'λλλ_another_dir_λλλ', 'λλλ_third'))
+
+
+def test_api_extract_conda_v2_with_unicode_files(testing_workdir):
+    tarfile = os.path.join(data_dir, test_unicode_name + '.conda')
+    api.extract(tarfile)
+    root_dir = os.path.join(testing_workdir, test_unicode_name)
+    assert os.path.isfile(os.path.join(root_dir, 'simple_file'))
+    assert os.path.isfile(os.path.join(root_dir, '❤'))
+    assert os.path.isfile(os.path.join(root_dir, '❤.bat'))
+    assert os.path.isfile(os.path.join(root_dir, 'dir_with_λ_unicode', 'a_file'))
+    assert os.path.isfile(os.path.join(root_dir, 'λλλ_another_dir_λλλ', 'another_λ'))
+    assert os.path.isfile(os.path.join(root_dir, 'λλλ_another_dir_λλλ', 'λλλ_third'))
 
 
 def test_api_tarball_details(testing_workdir):
