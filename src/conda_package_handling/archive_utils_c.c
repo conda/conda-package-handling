@@ -120,7 +120,7 @@ static int add_file(
         return 1;
     }
  #ifdef _WIN32
-    fd = _wopen(&wfilename[0], O_RDONLY | O_BINARY);
+    fd = _wopen(&wfilename[0], _O_RDONLY|_O_BINARY);
  #else
     fd = open(&filename[0], O_RDONLY | O_BINARY);
  #endif
