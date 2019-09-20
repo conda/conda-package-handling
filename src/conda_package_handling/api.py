@@ -34,7 +34,7 @@ def get_default_extracted_folder(in_file, abspath=True):
         if in_file.endswith(ext):
             dirname = in_file[:-len(ext)]
     if dirname and not abspath:
-        dirname = os.path.basename(dirname)
+        dirname = _os.path.basename(dirname)
     return dirname
 
 
