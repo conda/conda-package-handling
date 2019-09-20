@@ -40,7 +40,7 @@ def get_default_extracted_folder(in_file, abspath=True):
 
 
 def extract(fn, dest_dir=None, components=None, prefix=None):
-    if os.path.isabs(dest_dir) and prefix:
+    if _os.path.isabs(dest_dir) and prefix:
         raise ValueError("dest_dir and prefix both provided as abs paths.  If providing both, "
                          "prefix can be abspath, but dest dir must be relative (relative to "
                          "prefix)")
@@ -48,7 +48,7 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
         if not _os.path.isabs(dest_dir):
             dest_dir = _os.path.normpath(_os.path.join(prefix or _os.getcwd(), dest_dir))
     else:
-        dest_dir = os.path.join(prefix or os.getcwd(), get_default_extracted_folder(fn, abspath=False))
+        dest_dir = _os.path.join(prefix or _os.getcwd(), get_default_extracted_folder(fn, abspath=False))
 
     if not _os.path.isdir(dest_dir):
         _os.makedirs(dest_dir)
