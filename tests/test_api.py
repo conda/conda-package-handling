@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import shutil
 import sys
 import tarfile
 
@@ -15,7 +16,9 @@ test_package_name = "mock-2.0.0-py37_1000"
 
 def test_api_extract_tarball_implicit_path(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
-    api.extract(tarfile)
+    local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
+    shutil.copy2(tarfile, local_tarfile)
+    api.extract(local_tarfile)
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
 
 
@@ -37,7 +40,10 @@ def test_api_conda_v2_details(testing_workdir):
 
 def test_api_extract_tarball_explicit_path(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
-    api.extract(tarfile, 'manual_path')
+    local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
+    shutil.copy2(tarfile, local_tarfile)
+
+    api.extract(local_tarfile, 'manual_path')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
 
 
@@ -46,7 +52,9 @@ def test_api_extract_tarball_with_libarchive_import_error(testing_workdir, mocke
         api.libarchive_enabled = False
         conda_package_handling.tarball.libarchive_enabled = False
         tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
-        api.extract(tarfile, 'manual_path')
+        local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
+        shutil.copy2(tarfile, local_tarfile)
+        api.extract(local_tarfile, 'manual_path')
         assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
     finally:
         api.libarchive_enabled = True
@@ -55,12 +63,17 @@ def test_api_extract_tarball_with_libarchive_import_error(testing_workdir, mocke
 
 def test_api_extract_conda_v2_implicit_path(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
-    api.extract(condafile)
+    local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
+    shutil.copy2(condafile, local_condafile)
+    api.extract(local_condafile)
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
 
 
 def test_api_extract_conda_v2_explicit_path(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.conda')
+    local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
+    shutil.copy2(tarfile, local_tarfile)
+
     api.extract(tarfile, 'manual_path')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
 
@@ -80,7 +93,9 @@ def test_api_extract_dest_dir_and_prefix_both_abs_raises():
 
 def test_api_extract_info_conda_v2(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
-    api.extract(condafile, 'manual_path', components='info')
+    local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
+    shutil.copy2(condafile, local_condafile)
+    api.extract(local_condafile, 'manual_path', components='info')
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
     assert not os.path.isdir(os.path.join(testing_workdir, 'manual_path', 'lib'))
 

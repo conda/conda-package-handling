@@ -1,4 +1,5 @@
 import contextlib
+from concurrent.futures import ProcessPoolExecutor, Executor
 from errno import ENOENT, EACCES, EPERM, EROFS
 import fnmatch
 import hashlib
@@ -48,6 +49,17 @@ def make_writable(path):
         else:
             log.warn("Error making path writable: %s\n%r", path, e)
             raise
+
+
+class DummyExecutor(Executor):
+    def map(self, func, *iterables):
+        for iterable in iterables:
+            for thing in iterable:
+                yield func(thing)
+
+
+def get_executor(processes):
+    return DummyExecutor() if processes == 1 else ProcessPoolExecutor(max_workers=processes)
 
 
 def recursive_make_writable(path):

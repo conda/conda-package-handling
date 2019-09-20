@@ -1,7 +1,6 @@
 import os as _os
 from glob import glob as _glob
 import functools as _functools
-from concurrent.futures import ProcessPoolExecutor as _Executor
 import tempfile as _tempfile
 
 from six import string_types as _string_types
@@ -11,7 +10,8 @@ import tqdm as _tqdm
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled  # NOQA
 from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
-from .utils import TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf
+from .utils import (TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf,
+                    get_executor as _get_executor)
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -88,7 +88,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 
 def _convert(fn, out_ext, out_folder, **kw):
-    basename = get_default_extracted_folder(fn)
+    basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match
     if not basename:
         print("Input file %s doesn't have a supported extension (%s), skipping it"
@@ -101,6 +101,7 @@ def _convert(fn, out_ext, out_folder, **kw):
             try:
                 extract(fn, dest_dir=tmp)
                 file_list = _collect_paths(tmp)
+
                 create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
                 _, missing_files, mismatching_sizes = validate_converted_files_match(
                     tmp, _os.path.join(out_folder, fn))
@@ -111,7 +112,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     return fn, out_fn, errors
 
 
-def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
+def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
@@ -123,7 +124,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
 
     failed_files = {}
     with _tqdm.tqdm(total=len(flist), leave=False) as t:
-        with _Executor(max_workers=processes) as executor:
+        with _get_executor(processes) as executor:
             convert_f = _functools.partial(_convert, out_ext=out_ext,
                                           out_folder=out_folder, **kw)
             for fn, out_fn, errors in executor.map(convert_f, flist):
