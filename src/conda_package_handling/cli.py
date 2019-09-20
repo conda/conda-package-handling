@@ -18,8 +18,13 @@ def parse_args(parse_this=None):
 
     extract_parser = sp.add_parser('extract', help='extract package contents', aliases=['x'])
     extract_parser.add_argument('archive_path', help='path to archive to extract')
-    extract_parser.add_argument('--dest', help='destination to extract to.  If not set, defaults to'
-                                ' package filename minus extension in cwd.')
+    extract_parser.add_argument('--dest', help='destination folder to extract to.  If not set, defaults to'
+                                ' package filename minus extension in the same folder as the input archive.'
+                                ' May be relative path used in tandem with the --prefix flag.')
+    extract_parser.add_argument('--prefix', help='base directory to extract to. Use this to set the base'
+                                ' directory, while allowing the folder name to be automatically determined '
+                                'by the input filename. An abspath --prefix with an unset --dest will '
+                                'achieve this.')
     extract_parser.add_argument('--info', help='If the archive supports separate metadata, this'
                                 ' flag extracts only the metadata in the info folder from the '
                                 'package.  If the archive does not support separate metadata, this '
@@ -69,9 +74,9 @@ def main(args=None):
     args = parse_args(args)
     if args.subparser_name in ('extract', 'x'):
         if args.info:
-            api.extract(args.archive_path, args.dest, components='info')
+            api.extract(args.archive_path, args.dest, components='info', prefix=args.prefix)
         else:
-            api.extract(args.archive_path, args.dest)
+            api.extract(args.archive_path, args.dest, prefix=args.prefix)
     elif args.subparser_name in ('create', 'c'):
         api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
     elif args.subparser_name in ('transmute', 't'):
