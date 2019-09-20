@@ -1,4 +1,26 @@
 # current developments
+2019-09-20 1.6.0:
+------------------
+
+Enhancements:
+-------------
+
+* add a "prefix" keyword argument to the api.extract function.  When combined with dest_dir, the prefix is the base directory, and the dest_dir is the folder name.  dest_dir alone as an abspath is both the base directory and the folder name.
+
+Bug fixes:
+----------
+
+* provide a non-ProcessPoolExecutor path when number of processes is 1
+* open files to be added to archives in binary mode.  On Windows, the implicit default was text mode, which was corrupting newline data and putting in null characters.
+* extraction prefix defaults to the folder containing the specified archive.  This is a behavior change from 1.3.x, which extracted into the CWD by default.
+
+Contributors:
+-------------
+
+* @msarahan
+* @jjhelmus
+
+
 2019-08-31 1.5.0:
 ------------------
 
