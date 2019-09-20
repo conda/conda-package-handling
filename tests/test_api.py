@@ -65,6 +65,19 @@ def test_api_extract_conda_v2_explicit_path(testing_workdir):
     assert os.path.isfile(os.path.join(testing_workdir, 'manual_path', 'info', 'index.json'))
 
 
+def test_api_extract_conda_v2_explicit_path_prefix(testing_workdir):
+    tarfile = os.path.join(data_dir, test_package_name + '.conda')
+    api.extract(tarfile, prefix=os.path.join(testing_workdir, 'folder'))
+    assert os.path.isfile(os.path.join(testing_workdir, 'folder', test_package_name, 'info', 'index.json'))
+
+    api.extract(tarfile, dest_dir='steve', prefix=os.path.join(testing_workdir, 'folder'))
+    assert os.path.isfile(os.path.join(testing_workdir, 'folder', 'steve', test_package_name, 'info', 'index.json'))
+
+def test_api_extract_dest_dir_and_prefix_both_abs_raises():
+    tarfile = os.path.join(data_dir, test_package_name + '.conda')
+    with pytest.raises(ValueError):
+        api.extract(tarfile, prefix=os.path.dirname(tarfile), dest_dir=os.path.dirname(tarfile))
+
 def test_api_extract_info_conda_v2(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + '.conda')
     api.extract(condafile, 'manual_path', components='info')
