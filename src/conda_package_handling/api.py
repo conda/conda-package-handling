@@ -1,7 +1,6 @@
 import os as _os
 from glob import glob as _glob
 import functools as _functools
-from concurrent.futures import ProcessPoolExecutor as _Executor
 import tempfile as _tempfile
 
 from six import string_types as _string_types
@@ -11,7 +10,8 @@ import tqdm as _tqdm
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled  # NOQA
 from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
-from .utils import TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf
+from .utils import (TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf,
+                    get_executor as _get_executor)
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -28,25 +28,31 @@ def _collect_paths(prefix):
     return file_list
 
 
-def get_default_extracted_folder(in_file):
+def get_default_extracted_folder(in_file, abspath=True):
     dirname = None
     for ext in SUPPORTED_EXTENSIONS:
         if in_file.endswith(ext):
-            dirname = _os.path.basename(in_file)[:-len(ext)]
-
-    if not _os.path.isabs(dirname):
-        dirname = _os.path.normpath(_os.path.join(_os.getcwd(), dirname))
+            dirname = in_file[:-len(ext)]
+    if dirname and not abspath:
+        dirname = _os.path.basename(dirname)
     return dirname
 
 
-def extract(fn, dest_dir=None, components=None):
+def extract(fn, dest_dir=None, components=None, prefix=None):
     if dest_dir:
+        if _os.path.isabs(dest_dir) and prefix:
+            raise ValueError("dest_dir and prefix both provided as abs paths.  If providing both, "
+                            "prefix can be abspath, but dest dir must be relative (relative to "
+                            "prefix)")
         if not _os.path.isabs(dest_dir):
-            dest_dir = _os.path.normpath(_os.path.join(_os.getcwd(), dest_dir))
-        if not _os.path.isdir(dest_dir):
-            _os.makedirs(dest_dir)
+            dest_dir = _os.path.normpath(_os.path.join(prefix or _os.getcwd(), dest_dir))
     else:
-        dest_dir = get_default_extracted_folder(fn)
+        dest_dir = _os.path.join(prefix or _os.path.dirname(fn),
+                                 get_default_extracted_folder(fn, abspath=False))
+
+    if not _os.path.isdir(dest_dir):
+        _os.makedirs(dest_dir)
+
     for ext in SUPPORTED_EXTENSIONS:
         if fn.endswith(ext):
             SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
@@ -82,7 +88,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 
 def _convert(fn, out_ext, out_folder, **kw):
-    basename = get_default_extracted_folder(fn)
+    basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match
     if not basename:
         print("Input file %s doesn't have a supported extension (%s), skipping it"
@@ -95,6 +101,7 @@ def _convert(fn, out_ext, out_folder, **kw):
             try:
                 extract(fn, dest_dir=tmp)
                 file_list = _collect_paths(tmp)
+
                 create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
                 _, missing_files, mismatching_sizes = validate_converted_files_match(
                     tmp, _os.path.join(out_folder, fn))
@@ -105,7 +112,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     return fn, out_fn, errors
 
 
-def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
+def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
@@ -117,7 +124,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=None, **kw):
 
     failed_files = {}
     with _tqdm.tqdm(total=len(flist), leave=False) as t:
-        with _Executor(max_workers=processes) as executor:
+        with _get_executor(processes) as executor:
             convert_f = _functools.partial(_convert, out_ext=out_ext,
                                           out_folder=out_folder, **kw)
             for fn, out_fn, errors in executor.map(convert_f, flist):
