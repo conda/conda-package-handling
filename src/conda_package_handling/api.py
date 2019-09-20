@@ -28,25 +28,31 @@ def _collect_paths(prefix):
     return file_list
 
 
-def get_default_extracted_folder(in_file):
+def get_default_extracted_folder(in_file, abspath=True):
     dirname = None
     for ext in SUPPORTED_EXTENSIONS:
         if in_file.endswith(ext):
             dirname = _os.path.basename(in_file)[:-len(ext)]
 
-    if not _os.path.isabs(dirname):
+    if abspath and not _os.path.isabs(dirname):
         dirname = _os.path.normpath(_os.path.join(_os.getcwd(), dirname))
     return dirname
 
 
-def extract(fn, dest_dir=None, components=None):
+def extract(fn, dest_dir=None, components=None, prefix=None):
+    if os.path.isabs(dest_dir) and prefix:
+        raise ValueError("dest_dir and prefix both provided as abs paths.  If providing both, "
+                         "prefix can be abspath, but dest dir must be relative (relative to "
+                         "prefix)")
     if dest_dir:
         if not _os.path.isabs(dest_dir):
-            dest_dir = _os.path.normpath(_os.path.join(_os.getcwd(), dest_dir))
-        if not _os.path.isdir(dest_dir):
-            _os.makedirs(dest_dir)
+            dest_dir = _os.path.normpath(_os.path.join(prefix or _os.getcwd(), dest_dir))
     else:
-        dest_dir = get_default_extracted_folder(fn)
+        dest_dir = os.path.join(prefix or os.getcwd(), get_default_extracted_folder(fn, abspath=False))
+
+    if not _os.path.isdir(dest_dir):
+        _os.makedirs(dest_dir)
+
     for ext in SUPPORTED_EXTENSIONS:
         if fn.endswith(ext):
             SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
