@@ -32,10 +32,9 @@ def get_default_extracted_folder(in_file, abspath=True):
     dirname = None
     for ext in SUPPORTED_EXTENSIONS:
         if in_file.endswith(ext):
-            dirname = _os.path.basename(in_file)[:-len(ext)]
-
-    if abspath and dirname and not _os.path.isabs(dirname):
-        dirname = _os.path.normpath(_os.path.join(_os.getcwd(), dirname))
+            dirname = in_file[:-len(ext)]
+    if dirname and not abspath:
+        dirname = os.path.basename(dirname)
     return dirname
 
 
