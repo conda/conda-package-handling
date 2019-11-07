@@ -180,6 +180,9 @@ static int extract_file_c(const char *filename, const char **err_str) {
             r = copy_data(a, ext);
             if (r < ARCHIVE_WARN) {
                 *err_str = archive_error_string(ext);
+                if (*err_str == NULL) {
+                  *err_str = archive_error_string(a);
+                }
                 return 1;
             }
         }
