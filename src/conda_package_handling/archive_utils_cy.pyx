@@ -16,6 +16,7 @@ def extract_file(tarball):
     cdef const char *err_str = NULL
     result = extract_file_c(tarball, &err_str)
     if result:
+        assert err_str != NULL
         return 1, <bytes> err_str
     return 0, b''
 
