@@ -32,7 +32,7 @@ def extract_file(tarball):
     tb_utf8 = return_utf8(tarball)
     result = extract_file_c(tb_utf8, &err_str_u8)
     if result:
-        assert err_str != NULL
+        assert err_str_u8 != NULL
         return 1, <bytes> err_str_u8
     return 0, b''
 
