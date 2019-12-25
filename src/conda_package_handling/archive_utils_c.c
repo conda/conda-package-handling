@@ -216,8 +216,8 @@ static int extract_file_c(const char *filename_u8, const char **err_str_u8) {
             r = copy_data(a, ext);
             if (r < ARCHIVE_WARN) {
                 *err_str_u8 = archive_error_string(ext);
-                if (*err_str == NULL) {
-                  *err_str = archive_error_string(a);
+                if (*err_str_u8 == NULL) {
+                  *err_str_u8 = archive_error_string(a);
                 }
                 return 1;
             }
