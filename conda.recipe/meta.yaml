@@ -1,5 +1,6 @@
 # libarchive 3.4.0 breaks some symlink stuff on macos.  Holding back for now.
 {% set libarchive_version = "3.3.3" %}
+{% set build_num = "5" %}
 
 package:
   name: conda-package-handling
@@ -10,6 +11,7 @@ source:
 
 build:
   script: python setup.py install --single-version-externally-managed --record=record.txt
+  number: {{ build_num }}
   entry_points:
     - cph = conda_package_handling.cli:main
 requirements:

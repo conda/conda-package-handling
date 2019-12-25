@@ -16,7 +16,7 @@ def parse_args(parse_this=None):
     )
     sp = parser.add_subparsers(title='subcommands', dest='subparser_name')
 
-    extract_parser = sp.add_parser('extract', help='extract package contents', aliases=['x'])
+    extract_parser = sp.add_parser('extract', help='extract package contents')
     extract_parser.add_argument('archive_path', help='path to archive to extract')
     extract_parser.add_argument('--dest', help='destination folder to extract to.  If not set, defaults to'
                                 ' package filename minus extension in the same folder as the input archive.'
@@ -31,7 +31,7 @@ def parse_args(parse_this=None):
                                 'flag has no effect and all files are extracted.',
                                 action="store_true")
 
-    create_parser = sp.add_parser('create', help='bundle files into a package', aliases=['c'])
+    create_parser = sp.add_parser('create', help='bundle files into a package')
     create_parser.add_argument('prefix', help="folder of files to bundle.  Not strictly required to"
                                " have conda package metadata, but if conda package metadata isn't "
                                "present, you'll see a warning and your file will not work as a "
@@ -44,8 +44,7 @@ def parse_args(parse_this=None):
     create_parser.add_argument("--out-folder", help="Folder to dump final archive to")
 
     verify_parser = sp.add_parser('verify',
-                                  help='verify converted files against their reference',
-                                  aliases=['v'])
+                                  help='verify converted files against their reference')
     verify_parser.add_argument("glob", help="filename glob pattern to match pairs and verify.  Use"
                                "the --reference-ext argument to change which extension is used "
                                "as the ground truth, and which is considered corrupt in any "
@@ -58,8 +57,7 @@ def parse_args(parse_this=None):
     verify_parser.add_argument("--processes", help="Max number of processes to use.  If "
                                "not set, defaults to your CPU count.")
 
-    convert_parser = sp.add_parser('transmute', help='convert from one package type to another',
-                                   aliases=['t'])
+    convert_parser = sp.add_parser('transmute', help='convert from one package type to another')
     convert_parser.add_argument('in_file', help="existing file to convert from.  Glob patterns "
                                 "accepted.")
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
