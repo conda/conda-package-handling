@@ -2,26 +2,44 @@
 
 dist: xenial
 language: python
-python:
-  - "2.7"
-  - "3.7"
-
+matrix:
+  include:
+    - python: 2.7
+    - arch: amd64
+      python: 3.7
+    - arch: arm64
+      python: 3.7
+env:
+  global:
+    - SUDO=""
 install:
-  - wget https://repo.anaconda.com/pkgs/misc/conda-execs/conda-4.7.5-linux-64.exe -O conda.exe
-  - chmod +x conda.exe
-  - export CONDA_ALWAYS_YES=1
-  - ./conda.exe create -p $HOME/miniconda python=$TRAVIS_PYTHON_VERSION conda conda-build pytest six pytest-cov pytest-mock
+  - if [[ "${TRAVIS_CPU_ARCH}" == "arm64" ]]; then
+      SUDO=sudo;
+      wget -q "https://github.com/Archiconda/build-tools/releases/download/0.2.3/Archiconda3-0.2.3-Linux-aarch64.sh" -O archiconda.sh;
+      chmod +x archiconda.sh;
+      export CONDA_ALWAYS_YES=1;
+      bash archiconda.sh -b -p $HOME/miniconda;
+      export PATH="$HOME/miniconda/bin:$PATH";
+      $SUDO cp -r $HOME/miniconda/bin/* /usr/bin/;
+      $SUDO conda install python=3.7 conda conda-build pytest six pytest-cov pytest-mock;
+    else
+      SUDO="";
+      wget https://repo.anaconda.com/pkgs/misc/conda-execs/conda-4.7.5-linux-64.exe -O conda.exe;
+      chmod +x conda.exe;
+      export CONDA_ALWAYS_YES=1;
+      ./conda.exe create -p $HOME/miniconda python=$TRAVIS_PYTHON_VERSION conda conda-build pytest six pytest-cov pytest-mock;
+    fi
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       conda install futures;
     fi
-  - conda build conda.recipe --no-test
-  - conda install --use-local conda-package-handling
-  - conda info -a
+  - $SUDO conda build conda.recipe --no-test
+  - $SUDO conda install --use-local conda-package-handling
+  - $SUDO conda info -a
 script:
   # rebuilding the recipe with our new CPH installed tests it a bit deeper than the test suite.
-  - conda build conda.recipe
+  - $SUDO conda build conda.recipe
   - pytest -v --color=yes --cov=conda_package_handling tests
 after_success:
   - conda install codecov
