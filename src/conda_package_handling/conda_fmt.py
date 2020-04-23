@@ -87,7 +87,8 @@ class CondaFormat_v2(AbstractBaseFormat):
                     zf.write(tf.name, 'metadata.json')
                 for pkg in (info_tarball, pkg_tarball):
                     zf.write(pkg, os.path.basename(pkg))
-                utils.rm_rf(tf.name)
+                if os.path.lexists(tf.name):
+                    utils.rm_rf(tf.name)
         return conda_pkg_fn
 
     @staticmethod
