@@ -4,6 +4,7 @@ https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+forma
 import json
 import os
 from tempfile import NamedTemporaryFile
+
 try:
     from zipfile import ZipFile, BadZipFile, ZIP_STORED
 except ImportError:
@@ -74,21 +75,41 @@ class CondaFormat_v2(AbstractBaseFormat):
         ext, comp_filter, filter_opts = kw.get('compression_tuple') or DEFAULT_COMPRESSION_TUPLE
 
         with utils.TemporaryDirectory(prefix=out_folder) as tmpdir:
-            info_tarball = create_compressed_tarball(prefix, info_files, tmpdir, 'info-' + out_fn,
+            info_fn = 'info-' + out_fn
+            info_tarball = create_compressed_tarball(prefix, info_files, tmpdir, info_fn,
                                                     ext, comp_filter, filter_opts)
-            pkg_tarball = create_compressed_tarball(prefix, pkg_files, tmpdir, 'pkg-' + out_fn,
-                                                    ext, comp_filter, filter_opts)
+            with open(info_tarball, 'rb') as f:
+                info_tarball_sha256 = utils.sha256_checksum(f)
+            info_tarball_size = os.lstat(info_tarball).st_size
 
-            pkg_metadata = {'conda_pkg_format_version': CONDA_PACKAGE_FORMAT_VERSION}
+            pkg_fn = 'pkg-' + out_fn
+            pkg_tarball = create_compressed_tarball(prefix, pkg_files, tmpdir, pkg_fn,
+                                                    ext, comp_filter, filter_opts)
+            with open(pkg_tarball, 'rb') as f:
+                pkg_tarball_sha256 = utils.sha256_checksum(f)
+            pkg_tarball_size = os.lstat(pkg_tarball).st_size
+
+            pkg_metadata = {
+                "conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION,
+                "schema_version": 1,
+                "pkg": {
+                    "fn": pkg_fn,
+                    "sha256": pkg_tarball_sha256,
+                    "size": pkg_tarball_size,
+                },
+                "info": {
+                    "fn": info_fn,
+                    "sha256": info_tarball_sha256,
+                    "size": info_tarball_size,
+                },
+            }
 
             with ZipFile(conda_pkg_fn, 'w', compression=ZIP_STORED) as zf:
-                with NamedTemporaryFile(mode='w', delete=False) as tf:
-                    json.dump(pkg_metadata, tf)
+                with NamedTemporaryFile(mode='w') as tf:
+                    tf.write(utils.json_dumps_compact(pkg_metadata))
                     zf.write(tf.name, 'metadata.json')
-                for pkg in (info_tarball, pkg_tarball):
-                    zf.write(pkg, os.path.basename(pkg))
-                if os.path.lexists(tf.name):
-                    utils.rm_rf(tf.name)
+                    for pkg in (info_tarball, pkg_tarball):
+                        zf.write(pkg, os.path.basename(pkg))
         return conda_pkg_fn
 
     @staticmethod
