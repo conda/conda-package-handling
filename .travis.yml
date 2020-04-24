@@ -21,7 +21,7 @@ install:
       bash archiconda.sh -b -p $HOME/miniconda;
       export PATH="$HOME/miniconda/bin:$PATH";
       $SUDO cp -r $HOME/miniconda/bin/* /usr/bin/;
-      $SUDO conda install python=3.7 conda conda-build pytest six pytest-cov pytest-mock;
+      $SUDO conda install python=3.7 conda conda-build pytest six pytest-cov pytest-mock=1;
     else
       SUDO="";
       wget https://repo.anaconda.com/pkgs/misc/conda-execs/conda-4.7.5-linux-64.exe -O conda.exe;
