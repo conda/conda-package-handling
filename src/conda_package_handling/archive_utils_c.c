@@ -10,6 +10,13 @@
 #define O_BINARY    0
 #endif
 
+const char * checked_strdup(const char * err) {
+    if (err == NULL) {
+        return NULL;
+    }
+    return strdup(err);
+}
+
 struct archive * prepare_gnutar_archive(
     const char *outname, const char *filtername, const char *opts, const char **err_str)
 {
@@ -22,25 +29,25 @@ struct archive * prepare_gnutar_archive(
         return a;
     }
     if (archive_write_set_format_gnutar(a) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
     if (archive_write_add_filter_by_name(a, filtername) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
     if (archive_write_set_options(a, opts) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
     }
     if (archive_write_open_filename(a, outname) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         archive_write_close(a);
         archive_write_free(a);
         return NULL;
@@ -78,23 +85,23 @@ static int add_file(
         return 1;
     }
     if (archive_read_disk_set_behavior(disk, flags) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str = checked_strdup(archive_error_string(disk));
         return 1;
     }
     if (archive_read_disk_open(disk, filename) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str = checked_strdup(archive_error_string(disk));
         return 1;
     }
     if (archive_read_next_header2(disk, entry) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str = checked_strdup(archive_error_string(disk));
         return 1;
     }
     if (archive_read_disk_descend(disk) < ARCHIVE_OK) {
-        *err_str = archive_error_string(disk);
+        *err_str = checked_strdup(archive_error_string(disk));
         return 1;
     }
     if (archive_write_header(a, entry) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         return 1;
     }
     fd = open(filename, O_RDONLY | O_BINARY);
@@ -105,7 +112,7 @@ static int add_file(
     }
     close(fd);
     if (archive_write_finish_entry(a) < ARCHIVE_OK) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         return 1;
     }
     archive_read_close(disk);
@@ -127,7 +134,7 @@ static int copy_data(struct archive *ar, struct archive *aw)
             return (ARCHIVE_OK);
         if (r < ARCHIVE_OK)
             return (r);
-        r = archive_write_data_block(aw, buff, size, offset);
+        r = archive_write_data_block(aw, buff, size, (int)offset);
         if (r < ARCHIVE_OK) {
             return (r);
     }
@@ -160,7 +167,7 @@ static int extract_file_c(const char *filename, const char **err_str) {
     archive_write_disk_set_options(ext, flags);
     archive_write_disk_set_standard_lookup(ext);
     if ((r = archive_read_open_filename(a, filename, 10240))) {
-        *err_str = archive_error_string(a);
+        *err_str = checked_strdup(archive_error_string(a));
         return 1;
     }
     for (;;) {
@@ -168,27 +175,27 @@ static int extract_file_c(const char *filename, const char **err_str) {
         if (r == ARCHIVE_EOF)
             break;
         if (r < ARCHIVE_WARN) {
-            *err_str = archive_error_string(a);
+            *err_str = checked_strdup(archive_error_string(a));
             return 1;
         }
         r = archive_write_header(ext, entry);
         if (r < ARCHIVE_OK) {
-            *err_str = archive_error_string(ext);
+            *err_str = checked_strdup(archive_error_string(ext));
             return 1;
         }
         else if (archive_entry_size(entry) > 0) {
             r = copy_data(a, ext);
             if (r < ARCHIVE_WARN) {
-                *err_str = archive_error_string(ext);
+                *err_str = checked_strdup(archive_error_string(ext));
                 if (*err_str == NULL) {
-                  *err_str = archive_error_string(a);
+                  *err_str = checked_strdup(archive_error_string(a));
                 }
                 return 1;
             }
         }
         r = archive_write_finish_entry(ext);
         if (r < ARCHIVE_WARN) {
-            *err_str = archive_error_string(ext);
+            *err_str = checked_strdup(archive_error_string(ext));
             return 1;
         }
     }
