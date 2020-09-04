@@ -55,7 +55,7 @@ def parse_args(parse_this=None):
     verify_parser.add_argument("--reference-ext", "-r", help="file extension to consider as "
                                "'ground truth' in comparison.  Use this with the --all flag.",
                                default=".tar.bz2")
-    verify_parser.add_argument("--processes", help="Max number of processes to use.  If "
+    verify_parser.add_argument("--processes", type=int, help="Max number of processes to use.  If "
                                "not set, defaults to your CPU count.")
 
     convert_parser = sp.add_parser('transmute', help='convert from one package type to another',
@@ -65,7 +65,7 @@ def parse_args(parse_this=None):
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
                                 "Examples: .tar.bz2, .conda")
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
-    convert_parser.add_argument("--processes", help="Max number of processes to use.  If "
+    convert_parser.add_argument("--processes", type=int, help="Max number of processes to use.  If "
                                 "not set, defaults to your CPU count.")
     return parser.parse_args(parse_this)
 
