@@ -104,7 +104,7 @@ def _convert(fn, out_ext, out_folder, **kw):
 
                 create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
                 _, missing_files, mismatching_sizes = validate_converted_files_match(
-                    tmp, _os.path.join(out_folder, fn))
+                    tmp, out_fn)
                 if missing_files or mismatching_sizes:
                     errors = str(ConversionError(missing_files, mismatching_sizes))
             except Exception as e:
