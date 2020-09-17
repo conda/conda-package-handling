@@ -22,7 +22,7 @@ def validate_converted_files_match(src_file_or_folder, subject, reference_ext=""
                 absfile = os.path.join(root, f)
                 rp = os.path.relpath(absfile, src_folder)
                 destpath = os.path.join(converted_folder, rp)
-                if not os.path.isfile(destpath):
+                if not os.path.isfile(destpath) and not os.path.islink(destpath):
                     missing_files.add(rp)
                 elif os.stat(absfile).st_size != os.stat(destpath).st_size:
                     mismatch_size.add(rp)
