@@ -1,4 +1,0 @@
-Bug fixes:
-----------
-
-* Avoid segfaulting on incomplete archives
