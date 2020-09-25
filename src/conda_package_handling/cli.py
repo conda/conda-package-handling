@@ -65,6 +65,7 @@ def parse_args(parse_this=None):
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
                                 "Examples: .tar.bz2, .conda")
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
+    convert_parser.add_argument("--force",  action='store_true', help="Force overwrite existing package")
     convert_parser.add_argument("--processes", type=int, help="Max number of processes to use.  If "
                                 "not set, defaults to your CPU count.")
     return parser.parse_args(parse_this)
@@ -80,7 +81,7 @@ def main(args=None):
     elif args.subparser_name in ('create', 'c'):
         api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
     elif args.subparser_name in ('transmute', 't'):
-        failed_files = api.transmute(args.in_file, args.out_ext, args.out_folder, args.processes)
+        failed_files = api.transmute(args.in_file, args.out_ext, args.out_folder, args.processes or 1, force=args.force)
         if failed_files:
             print("failed files:")
             pprint(failed_files)
