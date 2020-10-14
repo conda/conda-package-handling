@@ -13,6 +13,11 @@ Bug fixes:
 * Do not report symlinks as missing files
 * Fixes for --process and --out-folder  #68
 
+Contributors:
+-------------
+
+* @mingwandroid
+* @nehaljwani
 
 2019-09-20 1.6.0:
 ------------------
