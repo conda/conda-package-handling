@@ -1,4 +1,19 @@
 # current developments
+
+2020-10-14 1.7.1:
+------------------
+
+Enhancements:
+-------------
+
+* add --force to transmute
+
+Bug fixes:
+----------
+* Do not report symlinks as missing files
+* Fixes for --process and --out-folder  #68
+
+
 2019-09-20 1.6.0:
 ------------------
 

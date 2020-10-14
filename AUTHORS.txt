@@ -3,4 +3,7 @@ Authors are sorted by number of commits.
 
 * Michael Sarahan
 * Jonathan J. Helmus
+* Ray Donnelly
 * Nehal J Wani
+* Alan Du
+* ossdev07

@@ -6,11 +6,11 @@
   - msarahan@anaconda.com
   aliases:
   - Mike Sarahan
-  num_commits: 96
+  num_commits: 98
   first_commit: 2019-01-03 20:00:40
 - name: Nehal J Wani
   email: nehaljw.kkd1@gmail.com
-  num_commits: 2
+  num_commits: 4
   first_commit: 2019-05-01 08:25:27
   github: nehaljwani
 - name: Jonathan J. Helmus
@@ -18,3 +18,17 @@
   num_commits: 10
   first_commit: 2019-08-02 14:19:54
   github: jjhelmus
+- name: Alan Du
+  email: alanhdu@gmail.com
+  num_commits: 4
+  first_commit: 2019-11-07 05:49:27
+  github: alanhdu
+- name: Ray Donnelly
+  email: mingw.android@gmail.com
+  num_commits: 7
+  first_commit: 2020-05-06 10:49:55
+- name: ossdev07
+  email: ossdev@puresoftware.com
+  num_commits: 1
+  first_commit: 2020-01-06 10:18:31
+  github: ossdev07
