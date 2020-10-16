@@ -1,6 +1,6 @@
 # current developments
 
-2020-10-14 1.7.2:
+2020-10-16 1.7.2:
 ------------------
 
 Enhancements:
