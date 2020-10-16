@@ -1,6 +1,6 @@
 # current developments
 
-2020-10-14 1.7.1:
+2020-10-14 1.7.2:
 ------------------
 
 Enhancements:
@@ -10,8 +10,10 @@ Enhancements:
 
 Bug fixes:
 ----------
+
 * Do not report symlinks as missing files
 * Fixes for --process and --out-folder  #68
+* --out-folder: Normalise, expand user-ify and ensure it ends with os.sep
 
 Contributors:
 -------------
