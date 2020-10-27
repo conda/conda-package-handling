@@ -91,7 +91,10 @@ def main(args=None):
         else:
             api.extract(args.archive_path, args.dest, prefix=args.prefix)
     elif args.subparser_name in ('create', 'c'):
-        api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
+        created = api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
+        if not created:
+            print('failed to create package for {}'.format(args.file_list))
+            sys.exit(1)
     elif args.subparser_name in ('transmute', 't'):
         failed_files = api.transmute(args.in_file, args.out_ext, args.out_folder, args.processes or 1, force=args.force)
         if failed_files:

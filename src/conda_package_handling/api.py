@@ -63,6 +63,8 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
 
 
 def create(prefix, file_list, out_fn, out_folder=None, **kw):
+    # Returns None if fails to find a SUPPORTED_EXTENSION
+    out = None
     if not out_folder:
         out_folder = _os.getcwd()
     if file_list is None:
@@ -102,7 +104,10 @@ def _convert(fn, out_ext, out_folder, **kw):
                 extract(fn, dest_dir=tmp)
                 file_list = _collect_paths(tmp)
 
-                create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
+                created = create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
+                if not created:
+                    raise ValueError("Did not find any packages matching {}".format(file_list))
+                print('fuck')
                 _, missing_files, mismatching_sizes = validate_converted_files_match(
                     tmp, out_fn)
                 if missing_files or mismatching_sizes:
