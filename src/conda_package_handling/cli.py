@@ -73,15 +73,28 @@ def parse_args(parse_this=None):
 
 def main(args=None):
     args = parse_args(args)
-    if args.out_folder:
+    # Make inputs more uniform
+    if 'out_folder' in args and args.out_folder:
         args.out_folder = os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder))) + os.sep
+    if 'prefix' in args and args.prefix:
+        args.prefix = os.path.abspath(os.path.normpath(os.path.expanduser(args.prefix))) + os.sep
+    if 'dest' in args and args.dest:
+        d = os.path.normpath(os.path.expanduser(args.prefix))
+        if os.path.isabs(args.dest):
+          args.dest = os.path.abspath(d) + os.sep
+        else:
+          args.dest = d + os.sep
+
     if args.subparser_name in ('extract', 'x'):
         if args.info:
             api.extract(args.archive_path, args.dest, components='info', prefix=args.prefix)
         else:
             api.extract(args.archive_path, args.dest, prefix=args.prefix)
     elif args.subparser_name in ('create', 'c'):
-        api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
+        created = api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
+        if not created:
+            print('failed to create package for {}'.format(args.file_list))
+            sys.exit(1)
     elif args.subparser_name in ('transmute', 't'):
         failed_files = api.transmute(args.in_file, args.out_ext, args.out_folder, args.processes or 1, force=args.force)
         if failed_files:
