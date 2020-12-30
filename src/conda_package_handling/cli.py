@@ -73,7 +73,7 @@ def parse_args(parse_this=None):
 
 def main(args=None):
     args = parse_args(args)
-    if args.out_folder:
+    if hasattr(args, "out_folder") and args.out_folder:
         args.out_folder = os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder))) + os.sep
     if args.subparser_name in ('extract', 'x'):
         if args.info:
