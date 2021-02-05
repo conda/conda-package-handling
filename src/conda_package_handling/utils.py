@@ -4,6 +4,7 @@ from errno import ENOENT, EACCES, EPERM, EROFS
 import fnmatch
 import hashlib
 from itertools import chain
+import json
 import logging
 import os
 from os.path import (isdir, isfile, basename, dirname, join, split, lexists, normpath,
@@ -409,3 +410,14 @@ def sha256_checksum(fd):
 
 def md5_checksum(fd):
     return _checksum(fd, 'md5')
+
+
+def json_dumps_compact(obj):
+    return json.dumps(
+        obj,
+        ensure_ascii=True,
+        indent=None,
+        sort_keys=True,
+        separators=(",", ":"),
+        skipkeys=True,
+    )
