@@ -76,14 +76,21 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
         except:
             raise
 
+    out = None
     for ext in SUPPORTED_EXTENSIONS:
         if out_fn.endswith(ext):
             try:
                 out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
-            except:
+                break
+            except Exception as err:
                 # don't leave broken files around
-                if _os.path.isfile(out):
+                if out and _os.path.isfile(out):
                     _rm_rf(out)
+                raise err
+    else:
+        raise ValueError("Didn't recognize extension for file '{}'.  Supported extensions are: {}"
+                         .format(fn, list(SUPPORTED_EXTENSIONS.keys())))
+
     return out
 
 
