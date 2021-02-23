@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tarfile
 from tempfile import NamedTemporaryFile
+import logging
 
 try:
     from . import archive_utils
@@ -16,6 +17,7 @@ from . import utils
 from .interface import AbstractBaseFormat
 from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 
+LOG = logging.getLogger(__file__)
 
 def _sort_file_order(prefix, files):
     """Sort by filesize or by binsort, to optimize compression"""
@@ -132,7 +134,14 @@ class CondaTarBZ2(AbstractBaseFormat):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
 
         if libarchive_enabled:
-            _tar_xf(fn, dest_dir)
+            try:
+                _tar_xf(fn, dest_dir)
+            except InvalidArchiveError:
+                LOG.warn(
+                    "Failed extraction with libarchive... falling back to python implementation"
+                )
+                _tar_xf_no_libarchive(fn, dest_dir)
+
         else:
             _tar_xf_no_libarchive(fn, dest_dir)
 
