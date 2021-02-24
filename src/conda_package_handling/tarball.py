@@ -137,7 +137,7 @@ class CondaTarBZ2(AbstractBaseFormat):
             try:
                 _tar_xf(fn, dest_dir)
             except InvalidArchiveError:
-                LOG.warn(
+                LOG.warning(
                     "Failed extraction with libarchive... falling back to python implementation"
                 )
                 _tar_xf_no_libarchive(fn, dest_dir)
