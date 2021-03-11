@@ -36,7 +36,6 @@ def _sort_file_order(prefix, files):
             else:
                 info_order = 1 + abs(hash(ext)) % (10 ** 8)
         return info_order, fsize
-
     binsort = os.path.join(sys.prefix, 'bin', 'binsort')
     if os.path.exists(binsort):
         with NamedTemporaryFile(mode='w', suffix='.filelist', delete=False) as fl:
@@ -51,6 +50,15 @@ def _sort_file_order(prefix, files):
                 files_list = [f.split(prefix + os.sep, 1)[-1]
                                 for f in files_list]
                 os.unlink(fl.name)
+        # Binsort does not handle symlinks gracefully. It will follow them. We must correct that.
+        s1 = set(files)
+        s2 = set(files_list)
+        followed = s2 - s1
+        for f in followed:
+            files_list.remove(f)
+        s2 = set(files_list)
+        if len(s1) > len(s2):
+            files_list.extend(s1 - s2)
     else:
         files_list = list(f for f in sorted(files, key=order))
     return files_list
