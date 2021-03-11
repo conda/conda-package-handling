@@ -134,7 +134,7 @@ static int copy_data(struct archive *ar, struct archive *aw)
             return (ARCHIVE_OK);
         if (r < ARCHIVE_OK)
             return (r);
-        r = archive_write_data_block(aw, buff, size, (int)offset);
+        r = archive_write_data_block(aw, buff, size, (size_t)offset);
         if (r < ARCHIVE_OK) {
             return (r);
     }

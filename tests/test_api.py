@@ -188,6 +188,10 @@ def test_secure_refusal_to_extract_abs_paths(testing_workdir):
     with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
         open('thebrain', 'w').close()
         tf.add(os.path.join(testing_workdir, 'thebrain'), '/naughty/abs_path')
+        try:
+            tf.getmember('/naughty/abs_path')
+        except KeyError:
+            pytest.skip("Tar implementation does not generate unsafe paths in archive.")
 
     with pytest.raises(api.InvalidArchiveError):
         api.extract('pinkie.tar.bz2')
