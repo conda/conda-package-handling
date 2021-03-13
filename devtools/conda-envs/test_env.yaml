@@ -1,8 +1,5 @@
 name: test
 
-channels:
-  - defaults
-
 dependencies:
   - conda-build
   - futures   # [py27]
