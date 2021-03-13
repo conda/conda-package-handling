@@ -1,0 +1,15 @@
+name: test
+
+channels:
+  - defaults
+
+dependencies:
+  - futures   # [py27]
+  - python
+  - six
+  - tqdm
+  - pytest
+  - pytest-cov
+  - pytest-mock
+  - mock
+
