@@ -4,13 +4,13 @@ channels:
   - defaults
 
 dependencies:
+  - conda-build
   - futures   # [py27]
+  - mock
   - python
-  - six
-  - tqdm
   - pytest
   - pytest-cov
   - pytest-mock
-  - mock
-  - cython
+  - six
+  - tqdm
 
