@@ -61,7 +61,7 @@ jobs:
       shell: bash -l {0}
 
       run: |
-        pytest -v --cov=molecool --cov-report=xml --color=yes molecool/tests/
+        pytest -v --cov=src/conda_package_handling --cov-report=xml --color=yes tests/
 
     - name: CodeCov
       uses: codecov/codecov-action@v1
