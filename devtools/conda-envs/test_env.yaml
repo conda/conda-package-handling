@@ -7,7 +7,6 @@ dependencies:
   - conda-build
   - futures   # [py27]
   - mock
-  - python
   - pytest
   - pytest-cov
   - pytest-mock
