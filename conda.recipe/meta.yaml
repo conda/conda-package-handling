@@ -38,7 +38,7 @@ test:
     - conda_package_handling
     - conda_package_handling.archive_utils_cy
   commands:
-    - pytest tests
+    - pytest -v --cov=tests/ --cov-report=xml --color=yes tests/
 about:
   home: https://github.com/conda/conda-package-handling
   summary: Create and extract conda packages of various formats
