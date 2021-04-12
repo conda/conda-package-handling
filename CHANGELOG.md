@@ -1,4 +1,31 @@
 # current developments
+2021-04-12 1.7.3:
+------------------
+
+Enhancements:
+-------------
+
+* Python tar extraction now used as a fallback if libarchive fails
+
+Bug fixes:
+----------
+
+* Fix binsort's mangling of symlinks
+* Fix #71, larger directories fail to extract using libarchive
+* When testing that exceptions are raised or archives containing abs paths, first check that such a "broken" archive was created during test setup... otherwise skip the test.
+* api.create now raises an error correctly if archive creation failed or extension is not supported.
+* Travis CI issue now resolved, mock added as dependency for conda test environments and system dependencies
+* Fixed bug where extract parser cli failed due to not having ``out_folder`` attribute.
+
+Contributors:
+-------------
+
+* @mingwandroid
+* @leej3
+* @beckermr
+* @seemethere
+
+
 
 2020-10-16 1.7.2:
 ------------------
