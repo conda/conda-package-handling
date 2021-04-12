@@ -25,10 +25,26 @@
   github: alanhdu
 - name: Ray Donnelly
   email: mingw.android@gmail.com
-  num_commits: 7
+  num_commits: 14
   first_commit: 2020-05-06 10:49:55
+  github: mingwandroid
 - name: ossdev07
   email: ossdev@puresoftware.com
   num_commits: 1
   first_commit: 2020-01-06 10:18:31
   github: ossdev07
+- name: leej3
+  email: johnleenimh@gmail.com
+  num_commits: 12
+  first_commit: 2021-02-23 12:20:16
+  github: leej3
+- name: Matthew R. Becker
+  email: beckermr@users.noreply.github.com
+  num_commits: 2
+  first_commit: 2020-12-29 14:58:11
+  github: beckermr
+- name: Eli Uriegas
+  email: seemethere101@gmail.com
+  num_commits: 1
+  first_commit: 2021-03-14 08:41:18
+  github: seemethere

@@ -2,8 +2,11 @@ All of the people who have made at least one contribution to conda-package-handl
 Authors are sorted by number of commits.
 
 * Michael Sarahan
-* Jonathan J. Helmus
 * Ray Donnelly
+* leej3
+* Jonathan J. Helmus
 * Nehal J Wani
 * Alan Du
+* Matthew R. Becker
 * ossdev07
+* Eli Uriegas
