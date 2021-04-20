@@ -76,7 +76,7 @@ it is always good idea to make sure that the you have permissions everywhere
 to actually perform the release.  So it is customary to run ``rever check`` before
 the release, just to make sure.  The standard workflow is thus::
 
-     rever check
+    rever check
     rever 1.2.3
 
  If for some reason a release fails partway through, or you want to claw back a
