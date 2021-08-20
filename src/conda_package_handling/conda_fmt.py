@@ -91,12 +91,8 @@ class CondaFormat_v2(AbstractBaseFormat):
         return conda_pkg_fn
 
     @staticmethod
-    def get_pkg_details(in_file):
+    def get_pkg_details(in_file): # XXX
         stat_result = os.stat(in_file)
         size = stat_result.st_size
-        # open the file twice because we need to start from the beginning each time
-        with open(in_file, 'rb') as f:
-            md5 = utils.md5_checksum(f)
-        with open(in_file, 'rb') as f:
-            sha256 = utils.sha256_checksum(f)
+        md5, sha256 = utils.checksums(in_file, ("md5", "sha256"))
         return {"size": size, "md5": md5, "sha256": sha256}
