@@ -1,5 +1,5 @@
 import contextlib
-from concurrent.futures import ProcessPoolExecutor, Executor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Executor
 from errno import ENOENT, EACCES, EPERM, EROFS
 import fnmatch
 import hashlib
@@ -409,3 +409,21 @@ def sha256_checksum(fd):
 
 def md5_checksum(fd):
     return _checksum(fd, 'md5')
+
+
+def checksum(fn, algorithm, buffersize=1<<20):
+    """
+    Calculate a checksum for a filename (not an open file).
+    """
+    with open(fn, 'rb') as fd:
+        return _checksum(fd, algorithm, buffersize)
+
+
+def checksums(fn, algorithms, buffersize=1<<20):
+    """
+    Calculate multiple checksums for a filename in parallel.
+    """
+    with ThreadPoolExecutor(max_workers=len(algorithms)) as e:
+        # take care not to share hash_impl between threads
+        results = [e.submit(checksum, fn, algorithm, buffersize) for algorithm in algorithms]
+    return [result.result() for result in results]
