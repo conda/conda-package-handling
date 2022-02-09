@@ -363,7 +363,11 @@ def filter_files(files_list, prefix, filter_patterns=(r'(.*[\\\\/])?\.git[\\\\/]
     for pattern in filter_patterns:
         r = re.compile(pattern)
         files_list = set(files_list) - set(filter(r.match, files_list))
-    return [f for f in files_list if not os.path.isdir(os.path.join(prefix, f))]
+    return [f for f in files_list if
+            # `islink` prevents symlinks to directories from being removed
+            os.path.islink(os.path.join(prefix, f)) or
+            not os.path.isdir(os.path.join(prefix, f))
+            ]
 
 
 def filter_info_files(files_list, prefix):
