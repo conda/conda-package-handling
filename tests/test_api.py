@@ -104,6 +104,14 @@ def test_api_extract_info_conda_v2(testing_workdir):
 
 
 def test_api_transmute_tarball_to_conda_v2(testing_workdir):
+    tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
+    errors = api.transmute(tarfile, '.conda', testing_workdir)
+    assert not errors
+    assert os.path.isfile(os.path.join(testing_workdir, test_package_name + '.conda'))
+
+
+@pytest.mark.skipif(sys.platform=="win32", reason="windows and symlinks are not great")
+def test_api_transmute_to_conda_v2_contents(testing_workdir):
     def _walk(path):
         for entry in os.scandir(path):
             if entry.is_dir(follow_symlinks=False):
@@ -112,10 +120,8 @@ def test_api_transmute_tarball_to_conda_v2(testing_workdir):
             yield entry
 
     tar_path = os.path.join(data_dir, test_package_name_2 + '.tar.bz2')
-    errors = api.transmute(tar_path, '.conda', testing_workdir)
     conda_path = os.path.join(testing_workdir, test_package_name_2 + '.conda')
-    assert not errors
-    assert os.path.isfile(conda_path)
+    api.transmute(tar_path, '.conda', testing_workdir)
 
     # Verify original contents were all put in the right place
     pkg_tarbz2 = tarfile.open(tar_path, mode="r:bz2")
