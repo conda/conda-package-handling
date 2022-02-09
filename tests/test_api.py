@@ -143,24 +143,24 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
                 for entry in _walk(root)
                 }
 
-            for e in expected:
-                if e.path not in contents:
-                    errors.append(f"'{e.path}' not found in {component} contents")
+            for item in expected:
+                if item.path not in contents:
+                    errors.append(f"'{item.path}' not found in {component} contents")
                     continue
 
-                ct = contents.pop(e.path)
-                if e.issym():
-                    if not ct["is_symlink"] or ct["target"] != e.linkname:
-                        errors.append(f"{e.name} -> {e.linkname} incorrect in {component} contents")
-                elif not e.isfile():
+                ct = contents.pop(item.path)
+                if item.issym():
+                    if not ct["is_symlink"] or ct["target"] != item.linkname:
+                        errors.append(f"{item.name} -> {item.linkname} incorrect in {component} contents")
+                elif not item.isfile():
                     # Raise an exception rather than appending to `errors`
                     # because getting to this point is an indication that our
                     # test data (i.e., .tar.bz2 package) is corrupt, rather
                     # than the `.transmute` function having problems (which is
                     # what `errors` is meant to track).  For context, conda
                     # packages should only contain regular files and symlinks.
-                    raise ValueError(f"unexpected item '{e.path}' in test .tar.bz2")
-            if len(contents) != 0:
+                    raise ValueError(f"unexpected item '{item.path}' in test .tar.bz2")
+            if contents:
                 errors.append(f"extra files [{', '.join(contents)}] in {component} contents")
     assert not errors
 
