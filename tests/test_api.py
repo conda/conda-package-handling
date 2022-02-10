@@ -4,6 +4,8 @@ import shutil
 import sys
 import tarfile
 
+from tempfile import TemporaryDirectory
+
 import pytest
 
 from conda_package_handling import api
@@ -12,6 +14,7 @@ import conda_package_handling.tarball
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
 test_package_name = "mock-2.0.0-py37_1000"
+test_package_name_2 = "cph_test_data-0.0.1-0"
 
 
 def test_api_extract_tarball_implicit_path(testing_workdir):
@@ -105,6 +108,61 @@ def test_api_transmute_tarball_to_conda_v2(testing_workdir):
     errors = api.transmute(tarfile, '.conda', testing_workdir)
     assert not errors
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name + '.conda'))
+
+
+@pytest.mark.skipif(sys.platform=="win32", reason="windows and symlinks are not great")
+def test_api_transmute_to_conda_v2_contents(testing_workdir):
+    def _walk(path):
+        for entry in os.scandir(path):
+            if entry.is_dir(follow_symlinks=False):
+                yield from _walk(entry.path)
+                continue
+            yield entry
+
+    tar_path = os.path.join(data_dir, test_package_name_2 + '.tar.bz2')
+    conda_path = os.path.join(testing_workdir, test_package_name_2 + '.conda')
+    api.transmute(tar_path, '.conda', testing_workdir)
+
+    # Verify original contents were all put in the right place
+    pkg_tarbz2 = tarfile.open(tar_path, mode="r:bz2")
+    info_items = [item for item in pkg_tarbz2.getmembers()
+                  if item.path.startswith("info/")]
+    pkg_items = [item for item in pkg_tarbz2.getmembers()
+                 if not item.path.startswith("info/")]
+
+    errors = []
+    for component, expected in (("info", info_items), ("pkg", pkg_items)):
+        with TemporaryDirectory() as root:
+            api.extract(conda_path, root, components=component)
+
+            contents = {
+                os.path.relpath(entry.path, root): {
+                    "is_symlink": entry.is_symlink(),
+                    "target": os.readlink(entry.path) if entry.is_symlink() else None
+                    }
+                for entry in _walk(root)
+                }
+
+            for item in expected:
+                if item.path not in contents:
+                    errors.append(f"'{item.path}' not found in {component} contents")
+                    continue
+
+                ct = contents.pop(item.path)
+                if item.issym():
+                    if not ct["is_symlink"] or ct["target"] != item.linkname:
+                        errors.append(f"{item.name} -> {item.linkname} incorrect in {component} contents")
+                elif not item.isfile():
+                    # Raise an exception rather than appending to `errors`
+                    # because getting to this point is an indication that our
+                    # test data (i.e., .tar.bz2 package) is corrupt, rather
+                    # than the `.transmute` function having problems (which is
+                    # what `errors` is meant to track).  For context, conda
+                    # packages should only contain regular files and symlinks.
+                    raise ValueError(f"unexpected item '{item.path}' in test .tar.bz2")
+            if contents:
+                errors.append(f"extra files [{', '.join(contents)}] in {component} contents")
+    assert not errors
 
 
 def test_api_transmute_conda_v2_to_tarball(testing_workdir):
