@@ -4,11 +4,7 @@ https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+forma
 import json
 import os
 from tempfile import NamedTemporaryFile
-try:
-    from zipfile import ZipFile, BadZipFile, ZIP_STORED
-except ImportError:
-    # py27 compat
-    from zipfile import ZipFile, ZIP_STORED, BadZipfile as BadZipFile
+from zipfile import ZipFile, BadZipFile, ZIP_STORED
 
 from . import utils
 from .exceptions import InvalidArchiveError

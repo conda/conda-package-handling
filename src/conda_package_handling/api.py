@@ -3,7 +3,6 @@ from glob import glob as _glob
 import functools as _functools
 import tempfile as _tempfile
 
-from six import string_types as _string_types
 import tqdm as _tqdm
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
@@ -68,7 +67,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
     if file_list is None:
         file_list = _collect_paths(prefix)
 
-    elif isinstance(file_list, _string_types):
+    elif isinstance(file_list, str):
         try:
             with open(file_list) as f:
                 data = f.readlines()

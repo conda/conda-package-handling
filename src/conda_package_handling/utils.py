@@ -16,8 +16,6 @@ import sys
 from tempfile import mkdtemp, NamedTemporaryFile
 import warnings as _warnings
 
-from six import string_types
-
 on_win = sys.platform == 'win32'
 log = logging.getLogger(__file__)
 CONDA_TEMP_EXTENSION = '.c~'
@@ -346,7 +344,7 @@ def tmp_chdir(dest):
 
 
 def ensure_list(arg):
-    if (isinstance(arg, string_types) or not hasattr(arg, '__iter__')):
+    if (isinstance(arg, str) or not hasattr(arg, '__iter__')):
         if arg is not None:
             arg = [arg]
         else:
