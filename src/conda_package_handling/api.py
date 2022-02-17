@@ -104,7 +104,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     out_fn = _os.path.join(out_folder, basename + out_ext)
     errors = ""
     if not _os.path.lexists(out_fn) or ('force' in kw and kw['force']):
-        with _TemporaryDirectory(prefix=out_folder) as tmp:
+        with _TemporaryDirectory(dir=out_folder) as tmp:
             try:
                 extract(fn, dest_dir=tmp)
                 file_list = _collect_paths(tmp)
