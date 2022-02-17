@@ -22,9 +22,7 @@ requirements:
     - msinttypes  # [win and vc<14]
     - _libarchive_static_for_cph
   run:
-    - futures   # [py27]
     - python
-    - six
     - tqdm
 test:
   source_files:

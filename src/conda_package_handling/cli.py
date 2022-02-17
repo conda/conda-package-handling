@@ -65,7 +65,7 @@ def parse_args(parse_this=None):
     convert_parser.add_argument('out_ext', help="extension of file to convert to.  "
                                 "Examples: .tar.bz2, .conda")
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
-    convert_parser.add_argument("--force",  action='store_true', help="Force overwrite existing package")
+    convert_parser.add_argument("--force", action='store_true', help="Force overwrite existing package")
     convert_parser.add_argument("--processes", type=int, help="Max number of processes to use.  If "
                                 "not set, defaults to your CPU count.")
     return parser.parse_args(parse_this)

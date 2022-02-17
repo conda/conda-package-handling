@@ -1,11 +1,8 @@
 import abc
 import os
 
-import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class AbstractBaseFormat():
+class AbstractBaseFormat(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod

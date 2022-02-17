@@ -15,12 +15,6 @@ archive_utils_cy_extension = Extension(
     libraries=_libraries,
 )
 
-requirements = [
-    # package requirements go here
-    "six",
-]
-if sys.version_info.major == 2:
-    requirements.append('futures')
 
 setup(
     name='conda-package-handling',
@@ -38,10 +32,8 @@ setup(
             'cph=conda_package_handling.cli:main'
         ]
     },
-    install_requires=requirements,
     keywords='conda-package-handling',
     classifiers=[
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ]
