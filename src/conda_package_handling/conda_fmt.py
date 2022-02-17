@@ -84,6 +84,7 @@ class CondaFormat_v2(AbstractBaseFormat):
             with ZipFile(conda_pkg_fn, 'w', compression=ZIP_STORED) as zf:
                 with NamedTemporaryFile(mode='w', delete=False) as tf:
                     json.dump(pkg_metadata, tf)
+                    tf.flush()
                     zf.write(tf.name, 'metadata.json')
                 for pkg in (info_tarball, pkg_tarball):
                     zf.write(pkg, os.path.basename(pkg))

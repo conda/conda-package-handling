@@ -1,8 +1,10 @@
 from datetime import datetime
+import json
 import os
 import shutil
 import sys
 import tarfile
+import zipfile
 
 from tempfile import TemporaryDirectory
 
@@ -103,12 +105,18 @@ def test_api_extract_info_conda_v2(testing_workdir):
     assert not os.path.isdir(os.path.join(testing_workdir, 'manual_path', 'lib'))
 
 
+def check_conda_v2_metadata(condafile):
+    with zipfile.ZipFile(condafile) as zf:
+        d = json.loads(zf.read('metadata.json'))
+    assert d['conda_pkg_format_version'] == 2
+
 def test_api_transmute_tarball_to_conda_v2(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.tar.bz2')
     errors = api.transmute(tarfile, '.conda', testing_workdir)
     assert not errors
-    assert os.path.isfile(os.path.join(testing_workdir, test_package_name + '.conda'))
-
+    condafile = os.path.join(testing_workdir, test_package_name + '.conda')
+    assert os.path.isfile(condafile)
+    check_conda_v2_metadata(condafile)
 
 @pytest.mark.skipif(sys.platform=="win32", reason="windows and symlinks are not great")
 def test_api_transmute_to_conda_v2_contents(testing_workdir):
