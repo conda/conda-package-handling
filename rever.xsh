@@ -1,11 +1,11 @@
 $ACTIVITIES = [
     "authors",
     "changelog",
-    "tag",
-    "push_tag",
-    "ghrelease",
-    "conda_forge"
-    ]
+    # "tag",
+    # "push_tag",
+    # "ghrelease",
+    # "conda_forge"
+]
 
 #
 # Basic settings
@@ -20,6 +20,7 @@ $AUTHORS_FILENAME = "AUTHORS.txt"
 $CHANGELOG_FILENAME = "CHANGELOG.md"
 $CHANGELOG_PATTERN = "# current developments"
 $CHANGELOG_HEADER = """# current developments
+
 $RELEASE_DATE $VERSION:
 ------------------
 

@@ -48,3 +48,38 @@
   num_commits: 1
   first_commit: 2021-03-14 08:41:18
   github: seemethere
+- name: Daniel Bast
+  email: 2790401+dbast@users.noreply.github.com
+  num_commits: 2
+  first_commit: 2021-04-12 11:49:45
+- name: conda-bot
+  email: ad-team+condabot@anaconda.com
+  num_commits: 2
+  first_commit: 2022-01-25 21:32:39
+- name: Cheng H. Lee
+  email: clee@anaconda.com
+  alternate_emails:
+  - chenghlee@users.noreply.github.com
+  num_commits: 4
+  first_commit: 2022-02-09 18:08:33
+- name: Chris Burr
+  email: chrisburr@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2022-02-17 10:23:53
+- name: Daniel Holth
+  email: dholth@anaconda.com
+  num_commits: 2
+  first_commit: 2021-08-20 21:11:50
+  github: dholth
+- name: vz-x
+  email: 77290357+vz-x@users.noreply.github.com
+  num_commits: 1
+  first_commit: 2022-02-17 11:31:22
+- name: Christopher Barber
+  email: christopher.barber@analog.com
+  num_commits: 2
+  first_commit: 2022-02-09 01:00:38
+- name: Jannis Leidel
+  email: jannis@leidel.info
+  num_commits: 5
+  first_commit: 2021-09-17 21:51:27
