@@ -1,5 +1,39 @@
 .. current developments
 
+2022-03-12 1.8.0:
+==================
+
+Enhancements:
+-------------
+
+* Compute package hashes in threads. (#83)
+
+Bug fixes:
+----------
+
+* Fix running from a read-only working directory (#44)
+* Fix symlinks to directories being incorrectly placed in the ``info`` tarball
+  when transmuting ``.tar.bz2``- to ``.conda``-format packages (#84)
+* No longer generate emtpy metadata.json in v2 packages (#88)
+* Fix for TypeError in tarball.py. (#86)
+
+Deprecations:
+-------------
+
+* Remove Python 2 support.
+
+Other:
+------
+
+* Added project board, issue staleness, thread locking and label automation
+  using GitHub action workflows to improve maintenance of GitHub project.
+
+  More information can be found in the infra repo: https://github.com/conda/infra
+
+* Removed unused continuous integration platform config files.
+
+
+
 2021-04-12 1.7.3:
 ==================
 
