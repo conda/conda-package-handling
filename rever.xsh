@@ -12,7 +12,7 @@ $ACTIVITIES = [
 #
 $PROJECT = $GITHUB_REPO = "conda-package-handling"
 $GITHUB_ORG = "conda"
-$AUTHORS_FILENAME = "AUTHORS.txt"
+$AUTHORS_FILENAME = "AUTHORS.rst"
 
 #
 # Changelog settings
