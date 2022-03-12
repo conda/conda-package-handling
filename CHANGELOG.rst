@@ -32,6 +32,16 @@ Other:
 
 * Removed unused continuous integration platform config files.
 
+Contributors:
+-------------
+
+* @dholth
+* @conda-bot
+* @chenghlee
+* @analog-cbarber
+* @chrisburr
+* @vz-x
+* @jezdez
 
 
 2021-04-12 1.7.3:
