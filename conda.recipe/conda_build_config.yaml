@@ -1,4 +1,0 @@
-# The default AppVeyor VM image includes Visual Studio 2008 and 2015 but not 2017
-# Rather than using a different image, use VS2015 for non-Python 2.7 builds
-c_compiler:  # [win and not py27]
-  - vs2015   # [win and not py27]
