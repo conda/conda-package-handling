@@ -1,27 +1,28 @@
 $ACTIVITIES = [
     "authors",
     "changelog",
-    "tag",
-    "push_tag",
-    "ghrelease",
-    "conda_forge"
-    ]
+    # "tag",
+    # "push_tag",
+    # "ghrelease",
+    # "conda_forge"
+]
 
 #
 # Basic settings
 #
 $PROJECT = $GITHUB_REPO = "conda-package-handling"
 $GITHUB_ORG = "conda"
-$AUTHORS_FILENAME = "AUTHORS.txt"
+$AUTHORS_FILENAME = "AUTHORS.rst"
 
 #
 # Changelog settings
 #
-$CHANGELOG_FILENAME = "CHANGELOG.md"
-$CHANGELOG_PATTERN = "# current developments"
-$CHANGELOG_HEADER = """# current developments
+$CHANGELOG_FILENAME = "CHANGELOG.rst"
+$CHANGELOG_PATTERN = ".. current developments"
+$CHANGELOG_HEADER = """.. current developments
+
 $RELEASE_DATE $VERSION:
-------------------
+==================
 
 """
 $CHANGELOG_CATEGORIES = (

@@ -1,6 +1,51 @@
-# current developments
+.. current developments
+
+2022-03-12 1.8.0:
+==================
+
+Enhancements:
+-------------
+
+* Compute package hashes in threads. (#83)
+
+Bug fixes:
+----------
+
+* Fix running from a read-only working directory (#44)
+* Fix symlinks to directories being incorrectly placed in the ``info`` tarball
+  when transmuting ``.tar.bz2``- to ``.conda``-format packages (#84)
+* No longer generate emtpy metadata.json in v2 packages (#88)
+* Fix for TypeError in tarball.py. (#86)
+
+Deprecations:
+-------------
+
+* Remove Python 2 support.
+
+Other:
+------
+
+* Added project board, issue staleness, thread locking and label automation
+  using GitHub action workflows to improve maintenance of GitHub project.
+
+  More information can be found in the infra repo: https://github.com/conda/infra
+
+* Removed unused continuous integration platform config files.
+
+Contributors:
+-------------
+
+* @dholth
+* @conda-bot
+* @chenghlee
+* @analog-cbarber
+* @chrisburr
+* @vz-x
+* @jezdez
+
+
 2021-04-12 1.7.3:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -28,7 +73,7 @@ Contributors:
 
 
 2020-10-16 1.7.2:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -49,7 +94,7 @@ Contributors:
 * @nehaljwani
 
 2019-09-20 1.6.0:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -71,7 +116,7 @@ Contributors:
 
 
 2019-08-31 1.5.0:
-------------------
+==================
 
 Contributors:
 -------------
@@ -81,7 +126,7 @@ Contributors:
 
 
 2019-08-04 1.4.1:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -95,7 +140,7 @@ Contributors:
 
 
 2019-08-02 1.4.0:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -110,7 +155,7 @@ Contributors:
 
 
 2019-07-11 1.3.11:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -124,7 +169,7 @@ Contributors:
 
 
 2019-06-24 1.3.10:
-------------------
+==================
 
 Contributors:
 -------------
@@ -133,7 +178,7 @@ Contributors:
 
 
 2019-06-14 1.3.9:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -147,7 +192,7 @@ Contributors:
 
 
 2019-06-13 1.3.8:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -161,7 +206,7 @@ Contributors:
 
 
 2019-06-12 1.3.7:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -175,7 +220,7 @@ Contributors:
 
 
 2019-06-12 1.3.6:
-------------------
+==================
 
 Contributors:
 -------------
@@ -183,7 +228,7 @@ Contributors:
 
 
 2019-06-12 1.3.5:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -197,7 +242,7 @@ Contributors:
 
 
 2019-06-11 1.3.4:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -212,7 +257,7 @@ Contributors:
 
 
 2019-06-11 1.3.3:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -226,7 +271,7 @@ Contributors:
 
 
 2019-06-11 1.3.2:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -240,7 +285,7 @@ Contributors:
 
 
 2019-06-11 1.3.1:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -254,7 +299,7 @@ Contributors:
 
 
 2019-06-10 1.3.0:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -268,7 +313,7 @@ Contributors:
 
 
 2019-06-08 1.2.0:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -283,7 +328,7 @@ Contributors:
 
 
 2019-05-21 1.1.5:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -297,7 +342,7 @@ Contributors:
 
 
 2019-05-21 1.1.4:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -311,7 +356,7 @@ Contributors:
 
 
 2019-05-20 1.1.3:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -325,7 +370,7 @@ Contributors:
 
 
 2019-05-20 1.1.2:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -339,7 +384,7 @@ Contributors:
 
 
 2019-05-14 1.1.1:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -353,7 +398,7 @@ Contributors:
 
 
 2019-05-10 1.1.0:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -371,7 +416,7 @@ Contributors:
 
 
 2019-02-13 1.0.4:
-------------------
+==================
 
 Enhancements:
 -------------
@@ -386,7 +431,7 @@ Contributors:
 
 
 2019-02-04 1.0.3:
-------------------
+==================
 
 Bug fixes:
 ----------
@@ -400,7 +445,7 @@ Contributors:
 
 
 2019-02-04 1.0.2:
-------------------
+==================
 
 Contributors:
 -------------
@@ -409,14 +454,7 @@ Contributors:
 
 
 2019-02-04 1.0.1:
-------------------
+==================
 
 Contributors:
 -------------
-
-
-
-
-## 1.0.0
-
-Initial release
