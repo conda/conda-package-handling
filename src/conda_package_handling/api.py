@@ -23,7 +23,7 @@ def _collect_paths(prefix):
             file_paths.append(_os.path.relpath(_os.path.join(dp, f), prefix))
         dir_paths.extend(_os.path.relpath(_os.path.join(dp, _), prefix) for _ in dn)
     file_list = file_paths + [dp for dp in dir_paths
-                              if not any(f.startswith(dp) for f in file_paths)]
+                              if not any(f.startswith(dp + _os.sep) for f in file_paths)]
     return file_list
 
 
