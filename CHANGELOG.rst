@@ -8,6 +8,13 @@ Bug fixes:
 
 * Don't drop empty directories that happen to be prefixes of something else (#99)
 
+Contributors:
+-------------
+
+* @tobijk
+* @conda-bot
+* @chenghlee
+
 2022-03-12 1.8.0:
 ==================
 
