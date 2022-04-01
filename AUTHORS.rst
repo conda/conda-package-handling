@@ -9,12 +9,13 @@ Authors are sorted by number of commits.
 * Nehal J Wani
 * Alan Du
 * Cheng H. Lee
+* conda-bot
 * Matthew R. Becker
 * Daniel Bast
-* conda-bot
 * Daniel Holth
 * Christopher Barber
 * ossdev07
 * Eli Uriegas
 * Chris Burr
 * vz-x
+* Tobias "Tobi" Koch

@@ -1,5 +1,13 @@
 .. current developments
 
+2022-04-01 1.8.1:
+==================
+
+Bug fixes:
+----------
+
+* Don't drop empty directories that happen to be prefixes of something else (#99)
+
 2022-03-12 1.8.0:
 ==================
 
