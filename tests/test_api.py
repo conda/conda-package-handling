@@ -121,22 +121,24 @@ def test_api_transmute_tarball_to_conda_v2(testing_workdir):
 
 def test_api_transmute_tarball_info_sorts_first(testing_workdir):
     for test_package in (test_package_name, test_package_name_2):
-        test_file = os.path.join(data_dir, test_package + '.tar.bz2')
+        test_file = os.path.join(data_dir, test_package + ".tar.bz2")
         # skip 'don't transmute to same extension' logic
-        fn, out_fn, errors = api._convert(test_file, '.tar.bz2', testing_workdir)
+        fn, out_fn, errors = api._convert(test_file, ".tar.bz2", testing_workdir)
         assert fn == test_file
         assert not errors
         # info must be first
-        with tarfile.open(out_fn, 'r:bz2') as repacked:
+        with tarfile.open(out_fn, "r:bz2") as repacked:
             info_seen = False
             not_info_seen = False
             for member in repacked:
-                if member.name.startswith('info'):
-                    assert not_info_seen == False, f'package info/ must sort first, unlike {[m.name for m in repacked.getmembers()]}'
+                if member.name.startswith("info"):
+                    assert (
+                        not_info_seen == False
+                    ), f"{test_package} package info/ must sort first, but {[m.name for m in repacked.getmembers()]}"
                     info_seen = True
                 else:
                     not_info_seen = True
-            assert info_seen, 'package had no info/ files'
+            assert info_seen, "package had no info/ files"
 
 
 @pytest.mark.skipif(sys.platform=="win32", reason="windows and symlinks are not great")
