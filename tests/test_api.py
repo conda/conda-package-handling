@@ -132,7 +132,7 @@ def test_api_transmute_tarball_info_sorts_first(testing_workdir):
             not_info_seen = False
             for member in repacked:
                 if member.name.startswith('info'):
-                    assert not_info_seen == False, 'package info/ must sort first'
+                    assert not_info_seen == False, f'package info/ must sort first, unlike {[m.name for m in repacked.getmembers()]}'
                     info_seen = True
                 else:
                     not_info_seen = True
