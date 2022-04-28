@@ -17,7 +17,7 @@ cdef extern from "archive_utils_c.c":
         pass
 
     ctypedef int (*archive_open_callback)(archive *, void *_client_data);
-    ctypedef size_t (*archive_read_callback)(archive *, void *_client_data, const void **_buffer);
+    ctypedef ssize_t (*archive_read_callback)(archive *, void *_client_data, const void **_buffer);
     ctypedef int (*archive_close_callback)(archive *, void *_client_data);
 
     archive* archive_read_new();
@@ -167,7 +167,6 @@ def read_zstd(reader):
         <archive_read_callback*>&myread,
         <archive_close_callback*>&myclose
         ))
-
     archive_check(a);
 
     archive_read_next_header(a, &ae);
