@@ -13,11 +13,20 @@ cdef extern from "archive_utils_c.c":
     struct archive:
         pass
 
-    int	*archive_open_callback(archive *, void *_client_data);
-    size_t *archive_read_callback(archive *, void *_client_data, const void **_buffer);
-    int *archive_close_callback(archive *, void *_client_data);
+    struct archive_entry:
+        pass
+
+    ctypedef int (*archive_open_callback)(archive *, void *_client_data);
+    ctypedef size_t (*archive_read_callback)(archive *, void *_client_data, const void **_buffer);
+    ctypedef int (*archive_close_callback)(archive *, void *_client_data);
 
     archive* archive_read_new();
+
+    int archive_read_support_filter_all(archive *);
+    int archive_read_support_filter_zstd(archive *);
+    int archive_read_support_format_all(archive *);
+    int archive_read_support_format_raw(archive *);
+
     int archive_read_open(
         archive *,
         void *_client_data,
@@ -25,7 +34,13 @@ cdef extern from "archive_utils_c.c":
         archive_read_callback *,
         archive_close_callback *
         );
-    int archive_read_support_filter_all(archive *);
+
+    int archive_read_next_header(archive *, archive_entry **);
+
+    ssize_t	archive_read_data(archive *, void *, size_t);
+
+    int archive_errno(archive *);
+    char* archive_error_string(archive *);
 
 #define	ARCHIVE_EOF	  1	/* Found end of archive. */
 #define	ARCHIVE_OK	  0	/* Operation was successful. */
@@ -72,13 +87,24 @@ def create_archive(fullpath, files, compression_filter, compression_opts):
     return 0, b'', b''
 
 
+BLOCK_SIZE = 10240
+
+
 cdef ssize_t myread(archive *a, void *client_data, const void **buff):
+    cdef char *c_string = NULL
+    cdef Py_ssize_t length = 0
+
     func = <object>client_data
 
-    dereference(buff) = mydata.buff;
-    buf = func(10240)
-    # return (read(mydata.fd, mydata.buff, 10240));
-    # copy Python buffer to C buffer, or use buffer protocol
+    # might need to save a reference to buf
+    buf = func(BLOCK_SIZE)   # read function returning bytes
+
+    print('pass', buf, 'to libarchive')
+
+    c_string = buf[::1]
+
+    # update pointer to pointer
+    buff[0] = c_string
 
     return len(buf)
 
@@ -88,13 +114,16 @@ cdef int myopen(archive *a, void *client_data):
 
     # Python file-like should already be open
     # Check for read method?
+
     # mydata->fd = open(mydata->name, O_RDONLY);
     # return (mydata->fd >= 0 ? ARCHIVE_OK : ARCHIVE_FATAL);
+
+    print('myopen called')
 
     return ARCHIVE_OK
 
 
-cdef int myclose( archive *a, void *client_data):
+cdef int myclose(archive *a, void *client_data):
     func = <object>client_data
 
     # drop a refcount?
@@ -105,12 +134,51 @@ cdef int myclose( archive *a, void *client_data):
     return ARCHIVE_OK;
 
 
+cdef archive_check(archive *a, note=None):
+    note = note or ""
+    errno = archive_errno(a)
+    cdef const char* errstr = archive_error_string(a)
+
+    print(note, errno, errstr or "<no error>")
+
+
 def read_zstd(reader):
     """Decompress .zstd given a reader with a .read() method"""
     cdef archive *a;
+    cdef archive_entry *ae;
 
     a = archive_read_new();
-    archive_read_support_filter_all(a);
-    # archive_read_support_format_all(a);
-    archive_read_open(a, <void*>reader, myopen, myread, myclose);
+
+    print('support filter zstd only', archive_read_support_filter_zstd(a))
+
+    # beware slower 'using external zstd to decompress'
+    archive_check(a)
+
+    # raw format, otherwise will expect e.g. `.tar.zst`
+    print('support format raw', archive_read_support_format_raw(a))
+    archive_check(a)
+
+    #define	ARCHIVE_FATAL	(-30)	/* No more operations are possible.
+
+    # can this be made to work without all the <archive_ ...> casts?
+    print('read open', archive_read_open(a,
+        <void*>reader,
+        <archive_open_callback*>&myopen,
+        <archive_read_callback*>&myread,
+        <archive_close_callback*>&myclose
+        ))
+
+    archive_check(a);
+
+    archive_read_next_header(a, &ae);
+    archive_check(a)
+
+    cdef char outbuf[10240];
+
+    # print('read next header', archive_read_next_header(a, &ae))
+    bytes_read = archive_read_data(a, outbuf, 10240)
+    archive_check(a)
+
+    print('bytes read', bytes_read)
+    print(outbuf[:bytes_read])
 
