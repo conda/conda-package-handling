@@ -90,23 +90,26 @@ def create_archive(fullpath, files, compression_filter, compression_opts):
 BLOCK_SIZE = 10240
 
 
+cdef class readerbuf:
+    cdef object reader
+    cdef bytes buffer
+
+
 cdef ssize_t myread(archive *a, void *client_data, const void **buff):
     cdef char *c_string = NULL
     cdef Py_ssize_t length = 0
 
-    func = <object>client_data
+    rb = <readerbuf>client_data;
 
     # might need to save a reference to buf
-    buf = func(BLOCK_SIZE)   # read function returning bytes
+    rb.buffer = rb.reader(BLOCK_SIZE)   # read function returning bytes
 
-    print('pass', buf, 'to libarchive')
-
-    c_string = buf[::1]
+    c_string = rb.buffer
 
     # update pointer to pointer
     buff[0] = c_string
 
-    return len(buf)
+    return len(rb.buffer)
 
 
 cdef int myopen(archive *a, void *client_data):
@@ -151,7 +154,7 @@ def read_zstd(reader):
 
     print('support filter zstd only', archive_read_support_filter_zstd(a))
 
-    # beware slower 'using external zstd to decompress'
+    # beware slower 'using external zstd to decompress', -20 return code
     archive_check(a)
 
     # raw format, otherwise will expect e.g. `.tar.zst`
@@ -160,9 +163,12 @@ def read_zstd(reader):
 
     #define	ARCHIVE_FATAL	(-30)	/* No more operations are possible.
 
+    rb = readerbuf()
+    rb.reader = reader
+
     # can this be made to work without all the <archive_ ...> casts?
     print('read open', archive_read_open(a,
-        <void*>reader,
+        <void*>rb,
         <archive_open_callback*>&myopen,
         <archive_read_callback*>&myread,
         <archive_close_callback*>&myclose
