@@ -59,7 +59,7 @@ def _sort_file_order(prefix, files):
         s2 = set(files_list)
         if len(s1) > len(s2):
             files_list.extend(s1 - s2)
-        # move info/ to front
+        # move info/ to front, otherwise preserving current order fi[0]
         files_list = [f for _, f in
             sorted(enumerate(files_list),
             key=lambda fi: (not fi[1].startswith('info' + os.path.sep), fi[0]))
