@@ -21,11 +21,12 @@ LOG = logging.getLogger(__file__)
 
 def _sort_file_order(prefix, files):
     """Sort by filesize or by binsort, to optimize compression"""
+    info_slash = "info" +  os.path.sep
     def order(f):
         # we don't care about empty files so send them back via 100000
         fsize = os.lstat(os.path.join(prefix, f)).st_size or 100000
         # info/* records will be False == 0, others will be 1.
-        info_order = int(os.path.dirname(f) != 'info')
+        info_order = int(not f.startswith(info_slash))
         if info_order:
             _, ext = os.path.splitext(f)
             # Strip any .dylib.* and .so.* and rename .dylib to .so
@@ -59,8 +60,12 @@ def _sort_file_order(prefix, files):
         s2 = set(files_list)
         if len(s1) > len(s2):
             files_list.extend(s1 - s2)
+        # move info/ to front, otherwise preserving current order fi[0]
+        # (Python's sort algorithm is guaranteed to be stable, maintains 
+        # existing order of items with the same sort key)
+        files_list = list(sorted(files, key=lambda f: not f.startswith(info_slash)))
     else:
-        files_list = list(f for f in sorted(files, key=order))
+        files_list = list(sorted(files, key=order))
     return files_list
 
 
