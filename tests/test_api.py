@@ -120,7 +120,11 @@ def test_api_transmute_tarball_to_conda_v2(testing_workdir):
 
 
 def test_api_transmute_tarball_info_sorts_first(testing_workdir):
-    for test_package in (test_package_name, test_package_name_2):
+    test_packages = [test_package_name]
+    test_packages_with_symlinks = [test_package_name_2]
+    if sys.platform != 'win32':
+        test_packages += test_packages_with_symlinks
+    for test_package in test_packages:
         test_file = os.path.join(data_dir, test_package + ".tar.bz2")
         # skip 'don't transmute to same extension' logic
         fn, out_fn, errors = api._convert(test_file, ".tar.bz2", testing_workdir)
