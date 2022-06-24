@@ -115,6 +115,14 @@ def parse_args(parse_this=None):
         help="Max number of processes to use.  If "
         "not set, defaults to your CPU count.",
     )
+    convert_parser.add_argument(
+        "--zstd-compression-level",
+        help=("When building v2 packages, set the compression level used by "
+              "conda-package-handling. Defaults to the maximum."),
+        type=int,
+        choices=range(1, 22),
+        default=22,
+    )
     return parser.parse_args(parse_this)
 
 
@@ -141,6 +149,7 @@ def main(args=None):
             args.out_folder,
             args.processes or 1,
             force=args.force,
+            compression_tuple = ('.tar.zst', 'zstd', f'zstd:compression-level={args.zstd_compression_level}')
         )
         if failed_files:
             print("failed files:")
