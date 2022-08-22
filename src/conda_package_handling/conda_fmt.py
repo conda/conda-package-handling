@@ -23,18 +23,17 @@ def _lookup_component_filename(zf, file_id, component_name):
     return component_filename
 
 
-def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
+def _extract_component(fn, file_id, component_name, dest_dir):
     try:
         with ZipFile(fn, compression=ZIP_STORED) as zf:
             with utils.TemporaryDirectory(dir=dest_dir) as tmpdir:
-                with utils.tmp_chdir(tmpdir):
-                    component_filename = _lookup_component_filename(zf, file_id, component_name)
-                    if not component_filename:
-                        raise RuntimeError("didn't find {} component in {}"
-                                           .format(component_name, fn))
-                    component_filename = component_filename[0]
-                    zf.extract(component_filename)
-                    _tar_xf(component_filename, dest_dir)
+                component_filename = _lookup_component_filename(zf, file_id, component_name)
+                if not component_filename:
+                    raise RuntimeError("didn't find {} component in {}"
+                                        .format(component_name, fn))
+                component_filename = component_filename[0]
+                zf.extract(component_filename, tmpdir)
+                _tar_xf(os.path.join(tmpdir, component_filename), dest_dir)
     except BadZipFile as e:
         raise InvalidArchiveError(fn, str(e))
 
@@ -42,6 +41,10 @@ def _extract_component(fn, file_id, component_name, dest_dir=os.getcwd()):
 class CondaFormat_v2(AbstractBaseFormat):
     """If there's another conda format or breaking changes, please create a new class and keep this
     one, so that handling of v2 stays working."""
+
+    @staticmethod
+    def supported(fn):
+        return fn.endswith('.conda')
 
     @staticmethod
     def extract(fn, dest_dir, **kw):

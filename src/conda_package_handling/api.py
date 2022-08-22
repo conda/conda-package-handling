@@ -2,8 +2,11 @@ import os as _os
 from glob import glob as _glob
 import functools as _functools
 import tempfile as _tempfile
+from typing import Dict
 
 import tqdm as _tqdm
+
+from conda_package_handling.interface import AbstractBaseFormat
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
@@ -12,7 +15,7 @@ from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 from .utils import (TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf,
                     get_executor as _get_executor)
 
-SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
+SUPPORTED_EXTENSIONS: Dict[str, AbstractBaseFormat] = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
 
 
@@ -52,9 +55,9 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
     if not _os.path.isdir(dest_dir):
         _os.makedirs(dest_dir)
 
-    for ext in SUPPORTED_EXTENSIONS:
-        if fn.endswith(ext):
-            SUPPORTED_EXTENSIONS[ext].extract(fn, dest_dir, components=components)
+    for format in SUPPORTED_EXTENSIONS.values():
+        if format.supported(fn):
+            format.extract(fn, dest_dir, components=components)
             break
     else:
         raise ValueError("Didn't recognize extension for file '{}'.  Supported extensions are: {}"
@@ -76,10 +79,10 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
             raise
 
     out = None
-    for ext in SUPPORTED_EXTENSIONS:
-        if out_fn.endswith(ext):
+    for format in SUPPORTED_EXTENSIONS.values():
+        if format.supported(out_fn):
             try:
-                out = SUPPORTED_EXTENSIONS[ext].create(prefix, file_list, out_fn, out_folder, **kw)
+                out = format.create(prefix, file_list, out_fn, out_folder, **kw)
                 break
             except Exception as err:
                 # don't leave broken files around
@@ -88,7 +91,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 raise err
     else:
         raise ValueError("Didn't recognize extension for file '{}'.  Supported extensions are: {}"
-                         .format(fn, list(SUPPORTED_EXTENSIONS.keys())))
+                         .format(out_fn, list(SUPPORTED_EXTENSIONS.keys())))
 
     return out
 
@@ -172,9 +175,9 @@ def verify_conversion(glob_pattern, target_dir, reference_ext,
 
 def get_pkg_details(in_file):
     """For the new pkg format, we return the size and hashes of the inner pkg part of the file"""
-    for ext in SUPPORTED_EXTENSIONS:
-        if in_file.endswith(ext):
-            details = SUPPORTED_EXTENSIONS[ext].get_pkg_details(in_file)
+    for format in SUPPORTED_EXTENSIONS.values():
+        if format.supported(in_file):
+            details = format.get_pkg_details(in_file)
             break
     else:
         raise ValueError("Don't know what to do with file {}".format(in_file))
