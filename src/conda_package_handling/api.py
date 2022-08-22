@@ -2,11 +2,8 @@ import os as _os
 from glob import glob as _glob
 import functools as _functools
 import tempfile as _tempfile
-from typing import Dict
 
 import tqdm as _tqdm
-
-from conda_package_handling.interface import AbstractBaseFormat
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
@@ -15,7 +12,7 @@ from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 from .utils import (TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf,
                     get_executor as _get_executor)
 
-SUPPORTED_EXTENSIONS: Dict[str, AbstractBaseFormat] = {'.tar.bz2': _CondaTarBZ2,
+SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
 
 
