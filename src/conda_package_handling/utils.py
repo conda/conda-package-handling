@@ -413,7 +413,7 @@ def md5_checksum(fd):
     return _checksum(fd, 'md5')
 
 
-def checksum(fn, algorithm, buffersize=1<<20):
+def checksum(fn, algorithm, buffersize=1<<18):
     """
     Calculate a checksum for a filename (not an open file).
     """
@@ -421,7 +421,7 @@ def checksum(fn, algorithm, buffersize=1<<20):
         return _checksum(fd, algorithm, buffersize)
 
 
-def checksums(fn, algorithms, buffersize=1<<20):
+def checksums(fn, algorithms, buffersize=1<<18):
     """
     Calculate multiple checksums for a filename in parallel.
     """
