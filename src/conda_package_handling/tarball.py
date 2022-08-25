@@ -61,7 +61,7 @@ def _sort_file_order(prefix, files):
         if len(s1) > len(s2):
             files_list.extend(s1 - s2)
         # move info/ to front, otherwise preserving current order fi[0]
-        # (Python's sort algorithm is guaranteed to be stable, maintains 
+        # (Python's sort algorithm is guaranteed to be stable, maintains
         # existing order of items with the same sort key)
         files_list = list(sorted(files, key=lambda f: not f.startswith(info_slash)))
     else:
@@ -138,6 +138,10 @@ def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
 
 
 class CondaTarBZ2(AbstractBaseFormat):
+
+    @staticmethod
+    def supported(fn):
+        return fn.endswith('.tar.bz2')
 
     @staticmethod
     def extract(fn, dest_dir, **kw):

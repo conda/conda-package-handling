@@ -6,6 +6,11 @@ class AbstractBaseFormat(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
+    def supported(fn):
+        return False
+
+    @staticmethod
+    @abc.abstractmethod
     def extract(fn, dest_dir, **kw):
         raise NotImplementedError
 

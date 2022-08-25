@@ -74,6 +74,22 @@ def test_api_extract_conda_v2_implicit_path(testing_workdir):
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name, 'info', 'index.json'))
 
 
+def test_api_extract_conda_v2_no_destdir_relative_path(testing_workdir):
+    cwd = os.getcwd()
+    os.chdir(testing_workdir)
+    try:
+        condafile = os.path.join(data_dir, test_package_name + '.conda')
+        local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
+        shutil.copy2(condafile, local_condafile)
+
+        condafile = os.path.basename(local_condafile)
+        assert os.path.exists(condafile)
+        # cli passes dest=None, prefix=None
+        api.extract(condafile, None, prefix=None)
+    finally:
+        os.chdir(cwd)
+
+
 def test_api_extract_conda_v2_explicit_path(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + '.conda')
     local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
