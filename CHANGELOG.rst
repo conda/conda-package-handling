@@ -1,5 +1,20 @@
 .. current developments
 
+2022-09-06 1.9.0:
+==================
+
+Contributors:
+-------------
+
+* @conda-bot
+* @jezdez
+* @dholth
+* @kenodegard
+* @conda-bot
+* @mariusvniekerk
+
+
+
 2022-04-01 1.8.1:
 ==================
 
