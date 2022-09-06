@@ -54,7 +54,7 @@
   first_commit: 2021-04-12 11:49:45
 - name: conda-bot
   email: ad-team+condabot@anaconda.com
-  num_commits: 3
+  num_commits: 10
   first_commit: 2022-01-25 21:32:39
   alternate_emails:
   - 18747875+conda-bot@users.noreply.github.com
@@ -70,7 +70,7 @@
   first_commit: 2022-02-17 10:23:53
 - name: Daniel Holth
   email: dholth@anaconda.com
-  num_commits: 2
+  num_commits: 5
   first_commit: 2021-08-20 21:11:50
   github: dholth
 - name: vz-x
@@ -83,9 +83,22 @@
   first_commit: 2022-02-09 01:00:38
 - name: Jannis Leidel
   email: jannis@leidel.info
-  num_commits: 6
+  num_commits: 9
   first_commit: 2021-09-17 21:51:27
 - name: Tobias "Tobi" Koch
   email: tkoch@anaconda.com
   num_commits: 1
   first_commit: 2022-03-31 19:54:23
+- name: Marius van Niekerk
+  email: marius.v.niekerk@gmail.com
+  num_commits: 1
+  first_commit: 2022-07-19 15:55:18
+- name: Ken Odegard
+  email: kodegard@anaconda.com
+  num_commits: 3
+  first_commit: 2022-06-15 15:11:13
+- name: conda bot
+  email: 18747875+conda-bot@users.noreply.github.com
+
+  num_commits: 3
+  first_commit: 2022-03-30 14:32:25
