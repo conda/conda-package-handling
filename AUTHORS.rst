@@ -5,17 +5,20 @@ Authors are sorted by number of commits.
 * Ray Donnelly
 * leej3
 * Jonathan J. Helmus
+* conda-bot
 * Jannis Leidel
+* Daniel Holth
 * Nehal J Wani
 * Alan Du
 * Cheng H. Lee
-* conda-bot
+* Ken Odegard
+* conda bot
 * Matthew R. Becker
 * Daniel Bast
-* Daniel Holth
 * Christopher Barber
 * ossdev07
 * Eli Uriegas
 * Chris Burr
 * vz-x
 * Tobias "Tobi" Koch
+* Marius van Niekerk
