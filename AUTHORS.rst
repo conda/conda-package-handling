@@ -3,16 +3,16 @@ Authors are sorted by number of commits.
 
 * Michael Sarahan
 * Ray Donnelly
+* Conda Bot
 * leej3
 * Jonathan J. Helmus
-* conda-bot
 * Jannis Leidel
+* conda-bot
 * Daniel Holth
 * Nehal J Wani
 * Alan Du
 * Cheng H. Lee
 * Ken Odegard
-* conda bot
 * Matthew R. Becker
 * Daniel Bast
 * Christopher Barber

@@ -1,19 +1,5 @@
 .. current developments
 
-2022-09-06 1.9.0:
-==================
-
-Contributors:
--------------
-
-* @conda-bot
-* @jezdez
-* @dholth
-* @kenodegard
-* @conda-bot
-* @mariusvniekerk
-
-
 
 2022-04-01 1.8.1:
 ==================
@@ -348,7 +334,7 @@ Contributors:
 Enhancements:
 -------------
 
-* add get_default_extracted_folder api function that returns the folder location where a file would be extracted to by default (no dest folder specified) 
+* add get_default_extracted_folder api function that returns the folder location where a file would be extracted to by default (no dest folder specified)
 * add --processes flag to cph t, to limit number of processes spawned.  Defaults to number of CPUs if not set.
 
 Contributors:
