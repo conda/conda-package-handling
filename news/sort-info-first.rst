@@ -1,5 +1,5 @@
-Features:
-----------
+Enhancements:
+-------------
 
 * Support setting the zstd compression level on the cli. (#114)
 
