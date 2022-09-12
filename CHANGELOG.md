@@ -18,8 +18,8 @@
 * @conda-bot
 * @jezdez
 * @dholth
-* @kenodegard
-* @mariusvniekerk
+* @kenodegard made their first contribution in #112
+* @mariusvniekerk made their first contribution in #114
 
 ## 1.8.1 (2022-04-01)
 
