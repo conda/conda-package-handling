@@ -1,6 +1,4 @@
-All of the people who have made at least one contribution to conda-package-handling
-
-.
+All of the people who have made at least one contribution to conda-package-handling.
 Authors are sorted alphabetically.
 
 * Alan Du
@@ -12,15 +10,14 @@ Authors are sorted alphabetically.
 * Daniel Holth
 * Eli Uriegas
 * Jannis Leidel
+* John Lee
 * Jonathan J. Helmus
 * Ken Odegard
 * Marius van Niekerk
 * Matthew R. Becker
 * Michael Sarahan
 * Nehal J Wani
+* Pure Software
 * Ray Donnelly
 * Tobias "Tobi" Koch
-* conda-bot
-* leej3
-* ossdev07
-* vz-x
+* Vadim Zayakin
