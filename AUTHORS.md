@@ -1,24 +1,26 @@
-All of the people who have made at least one contribution to conda-package-handling.
-Authors are sorted by number of commits.
+All of the people who have made at least one contribution to conda-package-handling
 
-* Michael Sarahan
-* Ray Donnelly
-* leej3
-* Jonathan J. Helmus
-* conda-bot
-* Jannis Leidel
-* Daniel Holth
-* Nehal J Wani
+.
+Authors are sorted alphabetically.
+
 * Alan Du
 * Cheng H. Lee
-* Ken Odegard
-* conda bot
-* Matthew R. Becker
-* Daniel Bast
-* Christopher Barber
-* ossdev07
-* Eli Uriegas
 * Chris Burr
-* vz-x
-* Tobias "Tobi" Koch
+* Christopher Barber
+* Conda Bot
+* Daniel Bast
+* Daniel Holth
+* Eli Uriegas
+* Jannis Leidel
+* Jonathan J. Helmus
+* Ken Odegard
 * Marius van Niekerk
+* Matthew R. Becker
+* Michael Sarahan
+* Nehal J Wani
+* Ray Donnelly
+* Tobias "Tobi" Koch
+* conda-bot
+* leej3
+* ossdev07
+* vz-x
