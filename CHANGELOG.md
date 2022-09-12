@@ -2,15 +2,24 @@
 
 ## 1.9.0 (2022-09-06)
 
+### Enhancements
+
+* Support setting the zstd compression level on the cli. (#114)
+
+### Bug fixes
+
+* Include tested fix for "``info/`` sorts first in ``.tar.bz2``" feature, useful
+  for streaming ``.tar.bz2``. (#102)
+* Fix extracting ``.conda`` given as relative path. (#116)
+* Gracefully handle missing subcommands. (#105)
+
 ### Contributors
 
 * @conda-bot
 * @jezdez
 * @dholth
 * @kenodegard
-* @conda-bot
 * @mariusvniekerk
-
 
 ## 1.8.1 (2022-04-01)
 
