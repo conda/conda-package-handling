@@ -53,13 +53,25 @@
   num_commits: 2
   first_commit: 2021-04-12 11:49:45
   github: dbast
-- name: conda-bot
-  email:  ad-team+condabot@anaconda.com
-  num_commits: 10
-  first_commit: 2022-01-25 21:32:39
+- name: Conda Bot
+  email: 18747875+conda-bot@users.noreply.github.com
+  num_commits: 22
+  first_commit: 2022-01-17 20:22:29
   github: conda-bot
+  aliases:
+  - conda-bot
+  - Distro Bot
+  - distro-bot@anaconda.com
+  - conda bot
+  alternate_emails:
+  - ad-team+condabot@anaconda.com
+  - 18747875+conda-bot@users.noreply.github.com
+  - Distro Bot
+  - distro-bot@anaconda.com
 - name: conda-bot
-  email: "18747875+conda-bot@users.noreply.github.com"
+  email: ad-team+condabot@anaconda.com
+  num_commits: 0
+  first_commit: 2022-01-25 21:32:39
   github: conda-bot
 - name: Cheng H. Lee
   email: clee@anaconda.com
@@ -73,7 +85,7 @@
   first_commit: 2022-02-17 10:23:53
 - name: Daniel Holth
   email: dholth@anaconda.com
-  num_commits: 5
+  num_commits: 6
   first_commit: 2021-08-20 21:11:50
   github: dholth
 - name: vz-x
@@ -100,6 +112,6 @@
   github: mariusvniekerk
 - name: Ken Odegard
   email: kodegard@anaconda.com
-  num_commits: 3
+  num_commits: 4
   first_commit: 2022-06-15 15:11:13
   github: kenodegard

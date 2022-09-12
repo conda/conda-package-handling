@@ -2,16 +2,24 @@
 
 ## 1.9.0 (2022-09-06)
 
+### Enhancements
+
+* Support setting the zstd compression level on the cli. (#114)
+
+### Bug fixes
+
+* Include tested fix for "``info/`` sorts first in ``.tar.bz2``" feature, useful
+  for streaming ``.tar.bz2``. (#102)
+* Fix extracting ``.conda`` given as relative path. (#116)
+* Gracefully handle missing subcommands. (#105)
+
 ### Contributors
 
 * @conda-bot
 * @jezdez
 * @dholth
-* @kenodegard
-* @conda-bot
-* @mariusvniekerk
-
-
+* @kenodegard made their first contribution in #112
+* @mariusvniekerk made their first contribution in #114
 
 ## 1.8.1 (2022-04-01)
 
@@ -281,7 +289,7 @@
 
 ### Enhancements
 
-* add get_default_extracted_folder api function that returns the folder location where a file would be extracted to by default (no dest folder specified) 
+* add get_default_extracted_folder api function that returns the folder location where a file would be extracted to by default (no dest folder specified)
 * add --processes flag to cph t, to limit number of processes spawned.  Defaults to number of CPUs if not set.
 
 ### Contributors
