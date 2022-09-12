@@ -1,6 +1,5 @@
 [//]: # (current developments)
 
-=======
 ## 1.9.0 (2022-09-06)
 
 ### Contributors
