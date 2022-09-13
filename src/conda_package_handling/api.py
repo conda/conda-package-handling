@@ -93,6 +93,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
     return out
 
 
+# TODO conda-package-streaming can convert from .tar.bz2 to .conda without
+# temporary files
 def _convert(fn, out_ext, out_folder, **kw):
     basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match
