@@ -1,42 +1,57 @@
-# libarchive 3.4.0 breaks some symlink stuff on macos.  Holding back for now.
-{% set libarchive_version = "3.3.3" %}
+{% set name = "conda-package-handling" %}
+{% set version = "2.0.0" %}
 
 package:
-  name: conda-package-handling
+  name: {{ name }}
   version: {{ GIT_DESCRIBE_TAG }}.{{ GIT_BUILD_STR }}
 
 source:
   - path: ..
 
 build:
-  script: python setup.py install --single-version-externally-managed --record=record.txt
+  number: 0
+  script: {{ PYTHON }} -m pip install . --no-deps -vv
   entry_points:
     - cph = conda_package_handling.cli:main
+
 requirements:
   build:
-    - {{ compiler('c') }}
+    - python
+    - pip
   host:
     - python
-    - setuptools
-    - cython
-    - msinttypes  # [win and vc<14]
-    - _libarchive_static_for_cph
+    - pip
   run:
     - python
     - tqdm
+    - conda-package-streaming >=0.4.0
+
 test:
   source_files:
     - tests
   requires:
+    - mock
     - pytest
     - pytest-cov
     - pytest-mock
-    - mock
   imports:
     - conda_package_handling
-    - conda_package_handling.archive_utils_cy
   commands:
-    - pytest -v --cov=tests/ --cov-report=xml --color=yes tests/
+    # This test is skipped until Dec 2019 which is weird. Skip for now.
+    - pytest tests -k "not test_secure_refusal_to_extract_abs_paths"
+
 about:
   home: https://github.com/conda/conda-package-handling
+  dev_url: https://github.com/conda/conda-package-handling
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file:
+    - LICENSE
   summary: Create and extract conda packages of various formats
+
+extra:
+  recipe-maintainers:
+    - msarahan
+    - beckermr
+    - dbast
+    - dholth
