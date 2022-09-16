@@ -7,13 +7,9 @@ import tarfile
 from tempfile import NamedTemporaryFile
 import logging
 
-try:
-    from . import archive_utils
-    libarchive_enabled = True
-except ImportError:
-    libarchive_enabled = False
+libarchive_enabled = False
 
-from . import utils
+from . import utils, streaming
 from .interface import AbstractBaseFormat
 from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 
@@ -75,10 +71,6 @@ def _create_no_libarchive(fullpath, files):
             t.add(f)
 
 
-def _create_libarchive(fullpath, files, compression_filter, filter_opts):
-    archive_utils.create_archive(fullpath, files, compression_filter, filter_opts)
-
-
 def create_compressed_tarball(prefix, files, tmpdir, basename,
                               ext, compression_filter, filter_opts=''):
     tmp_path = os.path.join(tmpdir, basename)
@@ -89,52 +81,8 @@ def create_compressed_tarball(prefix, files, tmpdir, basename,
     # possible large binary or data files
     fullpath = tmp_path + ext
     with utils.tmp_chdir(prefix):
-        if libarchive_enabled:
-            _create_libarchive(fullpath, files, compression_filter, filter_opts)
-        else:
             _create_no_libarchive(fullpath, files)
     return fullpath
-
-
-def _tar_xf(tarball, dir_path):
-    if not os.path.isabs(tarball):
-        tarball = os.path.join(os.getcwd(), tarball)
-    with utils.tmp_chdir(dir_path):
-        archive_utils.extract_file(tarball)
-
-
-def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
-    if destination_directory is None:
-        destination_directory = tarball_full_path[:-8]
-
-    with open(tarball_full_path, 'rb') as fileobj:
-        with tarfile.open(fileobj=fileobj) as tar_file:
-            for member in tar_file.getmembers():
-                if (os.path.isabs(member.name) or not os.path.realpath(
-                        member.name).startswith(os.getcwd())):
-                    raise InvalidArchiveError(tarball_full_path,
-                                              "contains unsafe path: {}".format(member.name))
-            try:
-                tar_file.extractall(path=destination_directory)
-            except IOError as e:
-                if e.errno == ELOOP:
-                    raise CaseInsensitiveFileSystemError(
-                        package_location=tarball_full_path,
-                        extract_location=destination_directory,
-                        caused_by=e,
-                    )
-                else:
-                    raise InvalidArchiveError(tarball_full_path,
-                                              "failed with error: {}".format(str(e)))
-
-    if sys.platform.startswith('linux') and os.getuid() == 0:
-        # When extracting as root, tarfile will by restore ownership
-        # of extracted files.  However, we want root to be the owner
-        # (our implementation of --no-same-owner).
-        for root, dirs, files in os.walk(destination_directory):
-            for fn in files:
-                p = os.path.join(root, fn)
-                os.lchown(p, 0, 0)
 
 
 class CondaTarBZ2(AbstractBaseFormat):
@@ -150,17 +98,7 @@ class CondaTarBZ2(AbstractBaseFormat):
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
 
-        if libarchive_enabled:
-            try:
-                _tar_xf(fn, dest_dir)
-            except InvalidArchiveError:
-                LOG.warning(
-                    "Failed extraction with libarchive... falling back to python implementation"
-                )
-                _tar_xf_no_libarchive(fn, dest_dir)
-
-        else:
-            _tar_xf_no_libarchive(fn, dest_dir)
+        streaming._extract(str(fn), str(dest_dir), components=["pkg"])
 
     @staticmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):

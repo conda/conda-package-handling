@@ -240,14 +240,16 @@ def test_create_package_with_uncommon_conditions_captures_all_content(testing_wo
     os.symlink('../a_folder/text_file', 'src/symlink_stuff/symlink_to_text_file')
 
     with tarfile.open('pinkie.tar.bz2', 'w:bz2') as tf:
-        tf.add('src/empty_folder', 'empty_folder')
-        tf.add('src/empty_file', 'empty_file')
-        tf.add('src/a_folder', 'a_folder')
-        tf.add('src/a_folder/text_file', 'a_folder/text_file')
-        tf.add('src/a_folder/hardlink_to_text_file', 'a_folder/hardlink_to_text_file')
-        tf.add('src/symlink_stuff/symlink_to_a', 'symlink_stuff/symlink_to_a')
-        tf.add('src/symlink_stuff/symlink_to_empty_file', 'symlink_stuff/symlink_to_empty_file')
-        tf.add('src/symlink_stuff/symlink_to_text_file', 'symlink_stuff/symlink_to_text_file')
+        def add(source, target):
+            tf.add(source, target, recursive=False)
+        add('src/empty_folder', 'empty_folder')
+        add('src/empty_file', 'empty_file')
+        add('src/a_folder', 'a_folder')
+        add('src/a_folder/text_file', 'a_folder/text_file')
+        add('src/a_folder/hardlink_to_text_file', 'a_folder/hardlink_to_text_file')
+        add('src/symlink_stuff/symlink_to_a', 'symlink_stuff/symlink_to_a')
+        add('src/symlink_stuff/symlink_to_empty_file', 'symlink_stuff/symlink_to_empty_file')
+        add('src/symlink_stuff/symlink_to_text_file', 'symlink_stuff/symlink_to_text_file')
 
     cph_created = api.create('src', None, 'thebrain.tar.bz2')
 

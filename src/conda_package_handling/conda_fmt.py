@@ -9,9 +9,10 @@ from zipfile import ZipFile, ZIP_STORED
 from . import utils
 from .interface import AbstractBaseFormat
 
-from conda_package_streaming import extract, package_streaming
+from conda_package_streaming import extract, package_streaming, exceptions
 
 import zstandard
+
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=22")

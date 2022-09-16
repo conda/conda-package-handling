@@ -123,6 +123,13 @@ def parse_args(parse_this=None):
         choices=range(1, 22),
         default=22,
     )
+    convert_parser.add_argument(
+        "--zstd-compression-threads",
+        help=("When building v2 packages, set the compression threads used by "
+              "conda-package-handling. Defaults to 1. 0=automatic."),
+        type=int,
+        default=1,
+    )
     return parser.parse_args(parse_this)
 
 
@@ -149,7 +156,8 @@ def main(args=None):
             args.out_folder,
             args.processes or 1,
             force=args.force,
-            compression_tuple = ('.tar.zst', 'zstd', f'zstd:compression-level={args.zstd_compression_level}')
+            zstd_compress_level=args.zstd_compression_level,
+            zstd_compress_threads=args.zstd_compression_threads,
         )
         if failed_files:
             print("failed files:")
