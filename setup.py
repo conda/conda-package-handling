@@ -1,11 +1,15 @@
 from setuptools import setup, find_packages
-import versioneer
+import pathlib
+import re
 
+version = re.search(
+    r'__version__\s+=\s+"(.*)"',
+    pathlib.Path("src/conda_package_handling/__init__.py").read_text(),
+)[1]
 
 setup(
     name="conda-package-handling",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=version,
     description="Create and extract conda packages of various formats",
     author="Anaconda, Inc.",
     author_email="conda@anaconda.com",
@@ -18,7 +22,6 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-
     ],
     python_requires=">=3.7",
     install_requires=["conda-package-streaming >= 0.4.0"],

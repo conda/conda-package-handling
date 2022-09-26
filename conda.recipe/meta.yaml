@@ -1,9 +1,12 @@
 {% set name = "conda-package-handling" %}
-{% set version = "2.0.0" %}
+{% set version_match = load_file_regex(
+  load_file="src/conda_package_handling/__init__.py",
+  regex_pattern='^__version__ = "(.+)"') %}
+{% set version = version_match[1] %}
 
 package:
   name: {{ name }}
-  version: {{ GIT_DESCRIBE_TAG }}.{{ GIT_BUILD_STR }}
+  version: {{ version }}
 
 source:
   - path: ..
@@ -13,11 +16,13 @@ build:
   script: {{ PYTHON }} -m pip install . --no-deps -vv
   entry_points:
     - cph = conda_package_handling.cli:main
+  noarch: python
 
 requirements:
   build:
     - python
     - pip
+    - wheel
   host:
     - python
     - pip
@@ -38,7 +43,7 @@ test:
     - conda_package_handling
   commands:
     # This test is skipped until Dec 2019 which is weird. Skip for now.
-    - pytest tests -k "not test_secure_refusal_to_extract_abs_paths"
+    - pytest -v --cov=tests/ --cov-report=xml --color=yes tests/ -k "not test_secure_refusal_to_extract_abs_paths"
 
 about:
   home: https://github.com/conda/conda-package-handling
