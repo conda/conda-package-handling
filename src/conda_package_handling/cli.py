@@ -66,35 +66,6 @@ def parse_args(parse_this=None):
     )
     create_parser.add_argument("--out-folder", help="Folder to dump final archive to")
 
-    verify_parser = sp.add_parser(
-        "verify", help="verify converted files against their reference", aliases=["v"]
-    )
-    verify_parser.add_argument(
-        "glob",
-        help="filename glob pattern to match pairs and verify.  Use"
-        "the --reference-ext argument to change which extension is used "
-        "as the ground truth, and which is considered corrupt in any "
-        "mismatch",
-    )
-    verify_parser.add_argument(
-        "--target-dir",
-        help="folder for finding pairs of files.  Defaults to cwd.",
-        default=os.getcwd(),
-    )
-    verify_parser.add_argument(
-        "--reference-ext",
-        "-r",
-        help="file extension to consider as "
-        "'ground truth' in comparison.  Use this with the --all flag.",
-        default=".tar.bz2",
-    )
-    verify_parser.add_argument(
-        "--processes",
-        type=int,
-        help="Max number of processes to use.  If "
-        "not set, defaults to your CPU count.",
-    )
-
     convert_parser = sp.add_parser(
         "transmute", help="convert from one package type to another", aliases=["t"]
     )
@@ -158,14 +129,6 @@ def main(args=None):
             force=args.force,
             zstd_compress_level=args.zstd_compression_level,
             zstd_compress_threads=args.zstd_compression_threads,
-        )
-        if failed_files:
-            print("failed files:")
-            pprint(failed_files)
-            sys.exit(1)
-    elif args.subcommand in ("verify", "v"):
-        failed_files = api.verify_conversion(
-            args.glob, args.target_dir, args.reference_ext
         )
         if failed_files:
             print("failed files:")

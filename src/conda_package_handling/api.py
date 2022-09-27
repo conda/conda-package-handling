@@ -165,34 +165,6 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     return failed_files
 
 
-def verify_conversion(glob_pattern, target_dir, reference_ext,
-                      tmpdir_root=_tempfile.gettempdir(), processes=None):
-    from .validate import validate_converted_files_match
-    if not glob_pattern.endswith(reference_ext):
-        glob_pattern = glob_pattern + reference_ext
-    file_sets_by_ext = {ext: _glob(_os.path.join(target_dir, glob_pattern + ext))
-                        for ext in SUPPORTED_EXTENSIONS}
-    matches = {path.replace(ext, "") for ext, path in file_sets_by_ext[reference_ext]}
-    for ext, paths in file_sets_by_ext.items():
-        if ext == reference_ext:
-            continue
-        matches &= {path.replace(ext, "") for ext, path in paths}
-    other_exts = set(SUPPORTED_EXTENSIONS) - {reference_ext, }
-
-    errors = {}
-    with _tqdm.tqdm(total=(len(matches) * len(SUPPORTED_EXTENSIONS) - 1), leave=False) as t:
-        with _Executor(max_workers=processes) as executor:
-            for other_ext in other_exts:
-                verify_fn = lambda fn: validate_converted_files_match(ref_ext=reference_ext,
-                                                                      subject=fn + other_ext)
-                for fn, missing, mismatching in executor.map(verify_fn, matches):
-                    t.set_description("Validating %s" % fn)
-                    t.update()
-                    if missing or mismatching:
-                        errors[fn] = str(ConversionError(missing, mismatching))
-    return errors
-
-
 def get_pkg_details(in_file):
     """For the new pkg format, we return the size and hashes of the inner pkg part of the file"""
     for format in SUPPORTED_EXTENSIONS.values():
