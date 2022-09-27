@@ -4,9 +4,11 @@
   alternate_emails:
   - msarahan@continuum.io
   - msarahan@anaconda.com
+  - msarahan@gmail.com
   aliases:
   - Mike Sarahan
   num_commits: 98
+  - Michael Sarahan
   first_commit: 2019-01-03 20:00:40
 - name: Nehal J Wani
   email: nehaljw.kkd1@gmail.com
@@ -28,13 +30,17 @@
   num_commits: 14
   first_commit: 2020-05-06 10:49:55
   github: mingwandroid
-- name: ossdev07
+- name: Pure Software
   email: ossdev@puresoftware.com
+  aliases:
+  - ossdev07
   num_commits: 1
   first_commit: 2020-01-06 10:18:31
   github: ossdev07
-- name: leej3
+- name: John Lee
   email: johnleenimh@gmail.com
+  aliases:
+  - leej3
   num_commits: 12
   first_commit: 2021-02-23 12:20:16
   github: leej3
@@ -53,14 +59,21 @@
   num_commits: 2
   first_commit: 2021-04-12 11:49:45
   github: dbast
-- name: conda-bot
-  email:  ad-team+condabot@anaconda.com
-  num_commits: 10
-  first_commit: 2022-01-25 21:32:39
+- name: Conda Bot
+  email: 18747875+conda-bot@users.noreply.github.com
+  num_commits: 22
+  first_commit: 2022-01-17 20:22:29
   github: conda-bot
-- name: conda-bot
-  email: "18747875+conda-bot@users.noreply.github.com"
-  github: conda-bot
+  aliases:
+  - conda-bot
+  - Distro Bot
+  - distro-bot@anaconda.com
+  - conda bot
+  alternate_emails:
+  - ad-team+condabot@anaconda.com
+  - 18747875+conda-bot@users.noreply.github.com
+  - Distro Bot
+  - distro-bot@anaconda.com
 - name: Cheng H. Lee
   email: clee@anaconda.com
   alternate_emails:
@@ -73,13 +86,16 @@
   first_commit: 2022-02-17 10:23:53
 - name: Daniel Holth
   email: dholth@anaconda.com
-  num_commits: 5
+  num_commits: 6
   first_commit: 2021-08-20 21:11:50
   github: dholth
-- name: vz-x
+- name: Vadim Zayakin
   email: 77290357+vz-x@users.noreply.github.com
+  aliases:
+  - vz-x
   num_commits: 1
   first_commit: 2022-02-17 11:31:22
+  github: vz-x
 - name: Christopher Barber
   email: christopher.barber@analog.com
   num_commits: 2
@@ -100,6 +116,6 @@
   github: mariusvniekerk
 - name: Ken Odegard
   email: kodegard@anaconda.com
-  num_commits: 3
+  num_commits: 4
   first_commit: 2022-06-15 15:11:13
   github: kenodegard

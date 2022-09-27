@@ -9,25 +9,43 @@
 # This file is up-to-date if the command git log --format="%aN <%aE>" | sort -u
 # gives no duplicates.
 
-Michael Sarahan <msarahan@gmail.com> Mike Sarahan <msarahan@continuum.io>
-Michael Sarahan <msarahan@gmail.com> Mike Sarahan <msarahan@anaconda.com>
-Ray Donnelly <mingw.android@gmail.com>
-leej3 <johnleenimh@gmail.com>
-Jonathan J. Helmus <jjhelmus@gmail.com>
-conda-bot <ad-team+condabot@anaconda.com> conda-bot <18747875+conda-bot@users.noreply.github.com>
-Jannis Leidel <jannis@leidel.info>
-Daniel Holth <dholth@anaconda.com>
-Nehal J Wani <nehaljw.kkd1@gmail.com>
 Alan Du <alanhdu@gmail.com>
 Cheng H. Lee <clee@anaconda.com> Cheng H. Lee <chenghlee@users.noreply.github.com>
-Ken Odegard <kodegard@anaconda.com>
-conda bot <18747875+conda-bot@users.noreply.github.com>
-Matthew R. Becker <beckermr@users.noreply.github.com>
-Daniel Bast <2790401+dbast@users.noreply.github.com>
-Christopher Barber <christopher.barber@analog.com>
-ossdev07 <ossdev@puresoftware.com>
-Eli Uriegas <seemethere101@gmail.com>
 Chris Burr <chrisburr@users.noreply.github.com>
-vz-x <77290357+vz-x@users.noreply.github.com>
-Tobias "Tobi" Koch <tkoch@anaconda.com>
+Christopher Barber <christopher.barber@analog.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda-bot <ad-team+condabot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda-bot <18747875+conda-bot@users.noreply.github.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda-bot <Distro Bot>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda-bot <distro-bot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> Distro Bot <ad-team+condabot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> Distro Bot <18747875+conda-bot@users.noreply.github.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> Distro Bot <Distro Bot>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> Distro Bot <distro-bot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> distro-bot@anaconda.com <ad-team+condabot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> distro-bot@anaconda.com <18747875+conda-bot@users.noreply.github.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> distro-bot@anaconda.com <Distro Bot>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> distro-bot@anaconda.com <distro-bot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda bot <ad-team+condabot@anaconda.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda bot <18747875+conda-bot@users.noreply.github.com>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda bot <Distro Bot>
+Conda Bot <18747875+conda-bot@users.noreply.github.com> conda bot <distro-bot@anaconda.com>
+Daniel Bast <2790401+dbast@users.noreply.github.com>
+Daniel Holth <dholth@anaconda.com>
+Eli Uriegas <seemethere101@gmail.com>
+Jannis Leidel <jannis@leidel.info>
+John Lee <johnleenimh@gmail.com> leej3 <johnleenimh@gmail.com>
+Jonathan J. Helmus <jjhelmus@gmail.com>
+Ken Odegard <kodegard@anaconda.com>
 Marius van Niekerk <marius.v.niekerk@gmail.com>
+Matthew R. Becker <beckermr@users.noreply.github.com>
+Michael Sarahan <msarahan@gmail.com> Mike Sarahan <msarahan@continuum.io>
+Michael Sarahan <msarahan@gmail.com> Mike Sarahan <msarahan@anaconda.com>
+Michael Sarahan <msarahan@gmail.com> Mike Sarahan <msarahan@gmail.com>
+Michael Sarahan <msarahan@gmail.com> Michael Sarahan <msarahan@continuum.io>
+Michael Sarahan <msarahan@gmail.com> Michael Sarahan <msarahan@anaconda.com>
+Michael Sarahan <msarahan@gmail.com> Michael Sarahan <msarahan@gmail.com>
+Nehal J Wani <nehaljw.kkd1@gmail.com>
+Pure Software <ossdev@puresoftware.com> ossdev07 <ossdev@puresoftware.com>
+Ray Donnelly <mingw.android@gmail.com>
+Tobias "Tobi" Koch <tkoch@anaconda.com>
+Vadim Zayakin <77290357+vz-x@users.noreply.github.com> vz-x <77290357+vz-x@users.noreply.github.com>
