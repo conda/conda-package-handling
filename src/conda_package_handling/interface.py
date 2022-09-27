@@ -3,7 +3,6 @@ import os
 
 
 class AbstractBaseFormat(metaclass=abc.ABCMeta):
-
     @staticmethod
     @abc.abstractmethod
     def supported(fn):

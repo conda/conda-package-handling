@@ -1,9 +1,9 @@
 import argparse
 import os
-from pprint import pprint
 import sys
+from pprint import pprint
 
-from . import api, __version__
+from . import __version__, api
 
 
 def parse_args(parse_this=None):
@@ -17,9 +17,7 @@ def parse_args(parse_this=None):
     )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
 
-    extract_parser = sp.add_parser(
-        "extract", help="extract package contents", aliases=["x"]
-    )
+    extract_parser = sp.add_parser("extract", help="extract package contents", aliases=["x"])
     extract_parser.add_argument("archive_path", help="path to archive to extract")
     extract_parser.add_argument(
         "--dest",
@@ -43,9 +41,7 @@ def parse_args(parse_this=None):
         action="store_true",
     )
 
-    create_parser = sp.add_parser(
-        "create", help="bundle files into a package", aliases=["c"]
-    )
+    create_parser = sp.add_parser("create", help="bundle files into a package", aliases=["c"])
     create_parser.add_argument(
         "prefix",
         help="folder of files to bundle.  Not strictly required to"
@@ -54,9 +50,7 @@ def parse_args(parse_this=None):
         "conda package",
     )
     create_parser.add_argument(
-        "out_fn",
-        help="Filename of archive to be created.  Extension "
-        "determines package type.",
+        "out_fn", help="Filename of archive to be created.  Extension " "determines package type."
     )
     create_parser.add_argument(
         "--file-list",
@@ -91,8 +85,7 @@ def parse_args(parse_this=None):
     verify_parser.add_argument(
         "--processes",
         type=int,
-        help="Max number of processes to use.  If "
-        "not set, defaults to your CPU count.",
+        help="Max number of processes to use.  If " "not set, defaults to your CPU count.",
     )
 
     convert_parser = sp.add_parser(
@@ -102,8 +95,7 @@ def parse_args(parse_this=None):
         "in_file", help="existing file to convert from.  Glob patterns " "accepted."
     )
     convert_parser.add_argument(
-        "out_ext",
-        help="extension of file to convert to.  " "Examples: .tar.bz2, .conda",
+        "out_ext", help="extension of file to convert to.  " "Examples: .tar.bz2, .conda"
     )
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
     convert_parser.add_argument(
@@ -112,13 +104,14 @@ def parse_args(parse_this=None):
     convert_parser.add_argument(
         "--processes",
         type=int,
-        help="Max number of processes to use.  If "
-        "not set, defaults to your CPU count.",
+        help="Max number of processes to use.  If " "not set, defaults to your CPU count.",
     )
     convert_parser.add_argument(
         "--zstd-compression-level",
-        help=("When building v2 packages, set the compression level used by "
-              "conda-package-handling. Defaults to the maximum."),
+        help=(
+            "When building v2 packages, set the compression level used by "
+            "conda-package-handling. Defaults to the maximum."
+        ),
         type=int,
         choices=range(1, 22),
         default=22,
@@ -130,14 +123,11 @@ def main(args=None):
     args = parse_args(args)
     if hasattr(args, "out_folder") and args.out_folder:
         args.out_folder = (
-            os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder)))
-            + os.sep
+            os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder))) + os.sep
         )
     if args.subcommand in ("extract", "x"):
         if args.info:
-            api.extract(
-                args.archive_path, args.dest, components="info", prefix=args.prefix
-            )
+            api.extract(args.archive_path, args.dest, components="info", prefix=args.prefix)
         else:
             api.extract(args.archive_path, args.dest, prefix=args.prefix)
     elif args.subcommand in ("create", "c"):
@@ -149,16 +139,18 @@ def main(args=None):
             args.out_folder,
             args.processes or 1,
             force=args.force,
-            compression_tuple = ('.tar.zst', 'zstd', f'zstd:compression-level={args.zstd_compression_level}')
+            compression_tuple=(
+                ".tar.zst",
+                "zstd",
+                f"zstd:compression-level={args.zstd_compression_level}",
+            ),
         )
         if failed_files:
             print("failed files:")
             pprint(failed_files)
             sys.exit(1)
     elif args.subcommand in ("verify", "v"):
-        failed_files = api.verify_conversion(
-            args.glob, args.target_dir, args.reference_ext
-        )
+        failed_files = api.verify_conversion(args.glob, args.target_dir, args.reference_ext)
         if failed_files:
             print("failed files:")
             pprint(failed_files)

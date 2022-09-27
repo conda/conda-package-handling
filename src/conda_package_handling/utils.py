@@ -1,28 +1,39 @@
 import contextlib
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Executor
-from errno import ENOENT, EACCES, EPERM, EROFS
 import fnmatch
 import hashlib
-from itertools import chain
 import logging
 import os
-from os.path import (isdir, isfile, basename, dirname, join, split, lexists, normpath,
-                     abspath, islink)
 import re
 import shutil
-from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE
-from subprocess import check_output, CalledProcessError, STDOUT, list2cmdline
 import sys
-from tempfile import mkdtemp, NamedTemporaryFile
 import warnings as _warnings
+from concurrent.futures import Executor, ProcessPoolExecutor, ThreadPoolExecutor
+from errno import EACCES, ENOENT, EPERM, EROFS
+from itertools import chain
+from os.path import (
+    abspath,
+    basename,
+    dirname,
+    isdir,
+    isfile,
+    islink,
+    join,
+    lexists,
+    normpath,
+    split,
+)
+from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE
+from subprocess import STDOUT, CalledProcessError, check_output, list2cmdline
+from tempfile import NamedTemporaryFile, mkdtemp
 
-on_win = sys.platform == 'win32'
+on_win = sys.platform == "win32"
 log = logging.getLogger(__file__)
-CONDA_TEMP_EXTENSION = '.c~'
+CONDA_TEMP_EXTENSION = ".c~"
 
 
 def which(executable):
     from distutils.spawn import find_executable
+
     return find_executable(executable)
 
 
@@ -37,7 +48,7 @@ def make_writable(path):
             log.debug("path cannot be made writable: %s", path)
         return True
     except Exception as e:
-        eno = getattr(e, 'errno', None)
+        eno = getattr(e, "errno", None)
         if eno in (ENOENT,):
             log.debug("tried to make writable, but didn't exist: %s", path)
             raise
@@ -80,8 +91,8 @@ def recursive_make_writable(path):
 
 def quote_for_shell(arguments, shell=None):
     if not shell:
-        shell = 'cmd.exe' if on_win else 'bash'
-    if shell == 'cmd.exe':
+        shell = "cmd.exe" if on_win else "bash"
+    if shell == "cmd.exe":
         return list2cmdline(arguments)
     else:
         # If any multiline argument gets mixed with any other argument (which is true if we've
@@ -96,12 +107,12 @@ def quote_for_shell(arguments, shell=None):
                 quote = "'"
             elif "'" in arg:
                 quote = '"'
-            elif not any(_ in arg for _ in (' ', '\n')):
-                quote = ''
+            elif not any(_ in arg for _ in (" ", "\n")):
+                quote = ""
             else:
                 quote = '"'
             quoted.append(quote + arg + quote)
-        return ' '.join(quoted)
+        return " ".join(quoted)
 
 
 def rmtree(path, *args, **kwargs):
@@ -118,59 +129,74 @@ def rmtree(path, *args, **kwargs):
             # out = check_output('DEL /F/Q/S *.* > NUL 2> NUL'.format(path), shell=True,
             #                    stderr=STDOUT, cwd=path)
 
-            out = check_output('RD /S /Q "{}" > NUL 2> NUL'.format(path), shell=True,
-                               stderr=STDOUT)
+            out = check_output(
+                'RD /S /Q "{}" > NUL 2> NUL'.format(path), shell=True, stderr=STDOUT
+            )
         except:
             try:
                 # Try to delete in Unicode
                 name = None
 
                 with NamedTemporaryFile(suffix=".bat", delete=False) as batch_file:
-                    batch_file.write('RD /S {}\n'.format(quote_for_shell([path])))
-                    batch_file.write('chcp 65001\n')
-                    batch_file.write('RD /S {}\n'.format(quote_for_shell([path])))
-                    batch_file.write('EXIT 0\n')
+                    batch_file.write("RD /S {}\n".format(quote_for_shell([path])))
+                    batch_file.write("chcp 65001\n")
+                    batch_file.write("RD /S {}\n".format(quote_for_shell([path])))
+                    batch_file.write("EXIT 0\n")
                     name = batch_file.name
                 # If the above is bugged we can end up deleting hard-drives, so we check
                 # that 'path' appears in it. This is not bulletproof but it could save you (me).
-                with open(name, 'r') as contents:
+                with open(name, "r") as contents:
                     content = contents.read()
                     assert path in content
-                comspec = os.environ['COMSPEC']
+                comspec = os.environ["COMSPEC"]
                 CREATE_NO_WINDOW = 0x08000000
                 # It is essential that we `pass stdout=None, stderr=None, stdin=None` here because
                 # if we do not, then the standard console handles get attached and chcp affects the
                 # parent process (and any which share those console handles!)
-                out = check_output([comspec, '/d', '/c', name], shell=False,
-                                   stdout=None, stderr=None, stdin=None,
-                                   creationflags=CREATE_NO_WINDOW)
+                out = check_output(
+                    [comspec, "/d", "/c", name],
+                    shell=False,
+                    stdout=None,
+                    stderr=None,
+                    stdin=None,
+                    creationflags=CREATE_NO_WINDOW,
+                )
 
             except CalledProcessError as e:
                 if e.returncode != 5:
-                    log.error("Removing folder {} the fast way failed.  Output was: {}"
-                              .format(out))
+                    log.error(
+                        "Removing folder {} the fast way failed.  Output was: {}".format(out)
+                    )
                     raise
                 else:
-                    log.debug("removing dir contents the fast way failed.  Output was: {}"
-                              .format(out))
+                    log.debug(
+                        "removing dir contents the fast way failed.  Output was: {}".format(out)
+                    )
     else:
         try:
-            os.makedirs('.empty')
+            os.makedirs(".empty")
         except:
             pass
         # yes, this looks strange.  See
         #    https://unix.stackexchange.com/a/79656/34459
         #    https://web.archive.org/web/20130929001850/http://linuxnote.net/jianingy/en/linux/a-fast-way-to-remove-huge-number-of-files.html  # NOQA
-        rsync = which('rsync')
-        if rsync and isdir('.empty'):
+        rsync = which("rsync")
+        if rsync and isdir(".empty"):
             try:
                 out = check_output(
-                    [rsync, '-a', '--force', '--delete', join(os.getcwd(), '.empty') + "/",
-                     path + "/"],
-                    stderr=STDOUT)
+                    [
+                        rsync,
+                        "-a",
+                        "--force",
+                        "--delete",
+                        join(os.getcwd(), ".empty") + "/",
+                        path + "/",
+                    ],
+                    stderr=STDOUT,
+                )
             except CalledProcessError:
                 log.debug("removing dir contents the fast way failed.  Output was: {}".format(out))
-            shutil.rmtree('.empty')
+            shutil.rmtree(".empty")
     shutil.rmtree(path)
 
 
@@ -190,35 +216,41 @@ def unlink_or_rename_to_trash(path):
             if on_win:
                 # on windows, it is important to use the rename program, as just using python's
                 #    rename leads to permission errors when files are in use.
-                with NamedTemporaryFile(suffix='.bat') as trash_script:
-                    with open(trash_script, 'w') as f:
+                with NamedTemporaryFile(suffix=".bat") as trash_script:
+                    with open(trash_script, "w") as f:
                         f.write('@pushd "%1"\n')
-                        f.write('@REM Rename src to dest')
+                        f.write("@REM Rename src to dest")
                         f.write('@ren "%2" "%3" > NUL 2> NUL")')
 
                     _dirname, _fn = split(path)
                     dest_fn = path + ".conda_trash"
                     counter = 1
                     while isfile(dest_fn):
-                        dest_fn = dest_fn.splitext[0] + '.conda_trash_{}'.format(counter)
+                        dest_fn = dest_fn.splitext[0] + ".conda_trash_{}".format(counter)
                         counter += 1
                     out = "< empty >"
                     try:
-                        out = check_output(['cmd.exe', '/C', trash_script, _dirname, _fn,
-                                            basename(dest_fn)],
-                                           stderr=STDOUT)
+                        out = check_output(
+                            ["cmd.exe", "/C", trash_script, _dirname, _fn, basename(dest_fn)],
+                            stderr=STDOUT,
+                        )
                     except CalledProcessError:
-                        log.warn("renaming file path {} to trash failed.  Output was: {}"
-                                 .format(path, out))
+                        log.warn(
+                            "renaming file path {} to trash failed.  Output was: {}".format(
+                                path, out
+                            )
+                        )
 
-            log.warn("Could not remove or rename {}.  Please remove this file manually (you "
-                     "may need to reboot to free file handles)".format(path))
+            log.warn(
+                "Could not remove or rename {}.  Please remove this file manually (you "
+                "may need to reboot to free file handles)".format(path)
+            )
 
 
 def remove_empty_parent_paths(path):
     # recurse to clean up empty folders that were created to have a nested hierarchy
     parent_path = dirname(path)
-    while(isdir(parent_path) and not os.listdir(parent_path)):
+    while isdir(parent_path) and not os.listdir(parent_path):
         rmdir(parent_path)
         parent_path = dirname(parent_path)
 
@@ -257,12 +289,13 @@ try_rmdir_all_empty = move_to_trash = move_path_to_trash = rm_rf
 def delete_trash(prefix):
     if not prefix:
         prefix = sys.prefix
-    exclude = set(['envs'])
+    exclude = set(["envs"])
     for root, dirs, files in os.walk(prefix, topdown=True):
         dirs[:] = [d for d in dirs if d not in exclude]
         for fn in files:
             if fnmatch.fnmatch(fn, "*.conda_trash*") or fnmatch.fnmatch(
-                    fn, "*" + CONDA_TEMP_EXTENSION):
+                fn, "*" + CONDA_TEMP_EXTENSION
+            ):
                 filename = join(root, fn)
                 try:
                     os.unlink(filename)
@@ -303,7 +336,7 @@ class TemporaryDirectory(object):
     name = None
     _closed = False
 
-    def __init__(self, suffix="", prefix='.cph_tmp', dir=os.getcwd()):
+    def __init__(self, suffix="", prefix=".cph_tmp", dir=os.getcwd()):
         self.name = mkdtemp(suffix, prefix, dir)
 
     def __repr__(self):
@@ -317,13 +350,16 @@ class TemporaryDirectory(object):
             try:
                 rm_rf(self.name)
             except:
-                _warnings.warn('Conda-package-handling says: "I tried to clean up, '
-                                'but I could not.  There is a mess in %s that you might '
-                                'want to clean up yourself.  Sorry..."' % self.name)
+                _warnings.warn(
+                    'Conda-package-handling says: "I tried to clean up, '
+                    "but I could not.  There is a mess in %s that you might "
+                    'want to clean up yourself.  Sorry..."' % self.name
+                )
             self._closed = True
             if _warn and _warnings.warn:
-                _warnings.warn("Implicitly cleaning up {!r}".format(self),
-                                _warnings.ResourceWarning)
+                _warnings.warn(
+                    "Implicitly cleaning up {!r}".format(self), _warnings.ResourceWarning
+                )
 
     def __exit__(self, exc, value, tb):
         self.cleanup()
@@ -344,7 +380,7 @@ def tmp_chdir(dest):
 
 
 def ensure_list(arg):
-    if (isinstance(arg, str) or not hasattr(arg, '__iter__')):
+    if isinstance(arg, str) or not hasattr(arg, "__iter__"):
         if arg is not None:
             arg = [arg]
         else:
@@ -352,46 +388,58 @@ def ensure_list(arg):
     return arg
 
 
-def filter_files(files_list, prefix, filter_patterns=(r'(.*[\\\\/])?\.git[\\\\/].*',
-                                                      r'(.*[\\\\/])?\.git$',
-                                                      r'(.*)?\.DS_Store.*',
-                                                      r'.*\.la$',
-                                                      r'conda-meta.*')):
+def filter_files(
+    files_list,
+    prefix,
+    filter_patterns=(
+        r"(.*[\\\\/])?\.git[\\\\/].*",
+        r"(.*[\\\\/])?\.git$",
+        r"(.*)?\.DS_Store.*",
+        r".*\.la$",
+        r"conda-meta.*",
+    ),
+):
     """Remove things like the .git directory from the list of files to be copied"""
     for pattern in filter_patterns:
         r = re.compile(pattern)
         files_list = set(files_list) - set(filter(r.match, files_list))
-    return [f for f in files_list if
-            # `islink` prevents symlinks to directories from being removed
-            os.path.islink(os.path.join(prefix, f)) or
-            not os.path.isdir(os.path.join(prefix, f))
-            ]
+    return [
+        f
+        for f in files_list
+        if
+        # `islink` prevents symlinks to directories from being removed
+        os.path.islink(os.path.join(prefix, f)) or not os.path.isdir(os.path.join(prefix, f))
+    ]
 
 
 def filter_info_files(files_list, prefix):
-    return filter_files(files_list, prefix, filter_patterns=(
-                    'info[\\\\/]index.json',
-                    'info[\\\\/]files',
-                    'info[\\\\/]paths.json',
-                    'info[\\\\/]about.json',
-                    'info[\\\\/]has_prefix',
-                    'info[\\\\/]hash_input_files',   # legacy, not used anymore
-                    'info[\\\\/]hash_input.json',
-                    'info[\\\\/]run_exports.yaml',   # legacy
-                    'info[\\\\/]run_exports.json',   # current
-                    'info[\\\\/]git',
-                    'info[\\\\/]recipe[\\\\/].*',
-                    'info[\\\\/]recipe_log.json',
-                    'info[\\\\/]recipe.tar',
-                    'info[\\\\/]test[\\\\/].*',
-                    'info[\\\\/]LICENSE.txt',
-                    'info[\\\\/]requires',
-                    'info[\\\\/]meta',
-                    'info[\\\\/]platform',
-                    'info[\\\\/]no_link',
-                    'info[\\\\/]link.json',
-                    'info[\\\\/]icon.png',
-            ))
+    return filter_files(
+        files_list,
+        prefix,
+        filter_patterns=(
+            "info[\\\\/]index.json",
+            "info[\\\\/]files",
+            "info[\\\\/]paths.json",
+            "info[\\\\/]about.json",
+            "info[\\\\/]has_prefix",
+            "info[\\\\/]hash_input_files",  # legacy, not used anymore
+            "info[\\\\/]hash_input.json",
+            "info[\\\\/]run_exports.yaml",  # legacy
+            "info[\\\\/]run_exports.json",  # current
+            "info[\\\\/]git",
+            "info[\\\\/]recipe[\\\\/].*",
+            "info[\\\\/]recipe_log.json",
+            "info[\\\\/]recipe.tar",
+            "info[\\\\/]test[\\\\/].*",
+            "info[\\\\/]LICENSE.txt",
+            "info[\\\\/]requires",
+            "info[\\\\/]meta",
+            "info[\\\\/]platform",
+            "info[\\\\/]no_link",
+            "info[\\\\/]link.json",
+            "info[\\\\/]icon.png",
+        ),
+    )
 
 
 def _checksum(fd, algorithm, buffersize=65536):
@@ -400,28 +448,28 @@ def _checksum(fd, algorithm, buffersize=65536):
         raise ValueError("Unrecognized hash algorithm: {}".format(algorithm))
     else:
         hash_impl = hash_impl()
-    for block in iter(lambda: fd.read(buffersize), b''):
+    for block in iter(lambda: fd.read(buffersize), b""):
         hash_impl.update(block)
     return hash_impl.hexdigest()
 
 
 def sha256_checksum(fd):
-    return _checksum(fd, 'sha256')
+    return _checksum(fd, "sha256")
 
 
 def md5_checksum(fd):
-    return _checksum(fd, 'md5')
+    return _checksum(fd, "md5")
 
 
-def checksum(fn, algorithm, buffersize=1<<18):
+def checksum(fn, algorithm, buffersize=1 << 18):
     """
     Calculate a checksum for a filename (not an open file).
     """
-    with open(fn, 'rb') as fd:
+    with open(fn, "rb") as fd:
         return _checksum(fd, algorithm, buffersize)
 
 
-def checksums(fn, algorithms, buffersize=1<<18):
+def checksums(fn, algorithms, buffersize=1 << 18):
     """
     Calculate multiple checksums for a filename in parallel.
     """

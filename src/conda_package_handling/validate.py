@@ -1,18 +1,19 @@
 import os
+
 from .utils import TemporaryDirectory
 
 
 def validate_converted_files_match(src_file_or_folder, subject, reference_ext=""):
     from .api import extract
+
     with TemporaryDirectory() as tmpdir:
         if os.path.isdir(src_file_or_folder):
             src_folder = src_file_or_folder
         else:
-            extract(src_file_or_folder + reference_ext,
-                    dest_dir=os.path.join(tmpdir, 'src'))
-            src_folder = os.path.join(tmpdir, 'src')
+            extract(src_file_or_folder + reference_ext, dest_dir=os.path.join(tmpdir, "src"))
+            src_folder = os.path.join(tmpdir, "src")
 
-        converted_folder = os.path.join(tmpdir, 'converted')
+        converted_folder = os.path.join(tmpdir, "converted")
         extract(subject, dest_dir=converted_folder)
 
         missing_files = set()
