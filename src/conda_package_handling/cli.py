@@ -1,9 +1,9 @@
 import argparse
 import os
-from pprint import pprint
 import sys
+from pprint import pprint
 
-from . import api, __version__
+from . import __version__, api
 
 
 def parse_args(parse_this=None):
@@ -78,7 +78,7 @@ def parse_args(parse_this=None):
     )
     verify_parser.add_argument(
         "--target-dir",
-        help="folder for finding pairs of files.  Defaults " "to cwd.",
+        help="folder for finding pairs of files.  Defaults to cwd.",
         default=os.getcwd(),
     )
     verify_parser.add_argument(

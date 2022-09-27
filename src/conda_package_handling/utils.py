@@ -1,20 +1,30 @@
 import contextlib
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, Executor
-from errno import ENOENT, EACCES, EPERM, EROFS
 import fnmatch
 import hashlib
-from itertools import chain
 import logging
 import os
-from os.path import (isdir, isfile, basename, dirname, join, split, lexists, normpath,
-                     abspath, islink)
 import re
 import shutil
-from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE
-from subprocess import check_output, CalledProcessError, STDOUT, list2cmdline
 import sys
-from tempfile import mkdtemp, NamedTemporaryFile
 import warnings as _warnings
+from concurrent.futures import Executor, ProcessPoolExecutor, ThreadPoolExecutor
+from errno import EACCES, ENOENT, EPERM, EROFS
+from itertools import chain
+from os.path import (
+    abspath,
+    basename,
+    dirname,
+    isdir,
+    isfile,
+    islink,
+    join,
+    lexists,
+    normpath,
+    split,
+)
+from stat import S_IEXEC, S_IMODE, S_ISDIR, S_ISREG, S_IWRITE
+from subprocess import STDOUT, CalledProcessError, check_output, list2cmdline
+from tempfile import NamedTemporaryFile, mkdtemp
 
 on_win = sys.platform == 'win32'
 log = logging.getLogger(__file__)

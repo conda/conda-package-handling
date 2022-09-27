@@ -4,14 +4,13 @@ Exception-compatible adapter from conda_package_streaming.
 
 from __future__ import annotations
 
-import os, os.path
+import os
+import os.path
 from tarfile import TarError
 from zipfile import BadZipFile
-from conda_package_streaming.extract import (
-    extract_stream,
-    package_streaming,
-    exceptions as cps_exceptions,
-)
+
+from conda_package_streaming.extract import exceptions as cps_exceptions
+from conda_package_streaming.extract import extract_stream, package_streaming
 
 from . import exceptions
 

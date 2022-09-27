@@ -1,15 +1,15 @@
-from errno import ELOOP
+import logging
 import os
 import re
 import subprocess
 import sys
 import tarfile
+from errno import ELOOP
 from tempfile import NamedTemporaryFile
-import logging
 
-from . import utils, streaming
-from .interface import AbstractBaseFormat
+from . import streaming, utils
 from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
+from .interface import AbstractBaseFormat
 
 LOG = logging.getLogger(__file__)
 

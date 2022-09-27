@@ -4,15 +4,13 @@ https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+forma
 import json
 import os
 import tarfile
-from zipfile import ZipFile, ZIP_STORED
-
-from . import utils
-from .interface import AbstractBaseFormat
-
-from .streaming import _extract
+from zipfile import ZIP_STORED, ZipFile
 
 import zstandard
 
+from . import utils
+from .interface import AbstractBaseFormat
+from .streaming import _extract
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=22")

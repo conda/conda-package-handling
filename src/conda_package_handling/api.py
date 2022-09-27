@@ -1,19 +1,21 @@
-import os as _os
-from glob import glob as _glob
 import functools as _functools
+import os as _os
 import tempfile as _tempfile
-import zstandard
-
-import tqdm as _tqdm
+from glob import glob as _glob
 
 import conda_package_streaming.transmute
+import tqdm as _tqdm
+import zstandard
+
+from .conda_fmt import ZSTD_COMPRESS_LEVEL, ZSTD_COMPRESS_THREADS
+from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
-from .conda_fmt import ZSTD_COMPRESS_LEVEL, ZSTD_COMPRESS_THREADS, CondaFormat_v2 as _CondaFormat_v2
-from .utils import (TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf,
-                    get_executor as _get_executor)
+from .utils import TemporaryDirectory as _TemporaryDirectory
+from .utils import get_executor as _get_executor
+from .utils import rm_rf as _rm_rf
 
 SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
                         '.conda': _CondaFormat_v2}
@@ -23,7 +25,7 @@ SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
 THREADSAFE_EXTRACT = True
 
 # old API meaning "can extract .conda" (which we do without libarchive)
-libarchive_enabled=True
+libarchive_enabled = True
 
 
 def _collect_paths(prefix):
@@ -115,9 +117,12 @@ def _convert(fn, out_ext, out_folder, **kw):
     if not _os.path.lexists(out_fn) or ('force' in kw and kw['force']):
         if out_ext == ".conda":
             # streaming transmute, not extracted to the filesystem
-            compressor = lambda: zstandard.ZstdCompressor(
+            compressor_args = dict(
                 level=kw.get('zstd_compress_level', ZSTD_COMPRESS_LEVEL),
                 threads=kw.get('zstd_compress_threads', ZSTD_COMPRESS_THREADS),
+            )
+            compressor = lambda: zstandard.ZstdCompressor(
+                **compressor_args
             )
             conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
         else:
