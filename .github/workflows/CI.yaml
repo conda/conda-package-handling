@@ -46,7 +46,7 @@ jobs:
       # conda setup requires this special shell
       shell: bash -l {0}
       run: |
-        conda build conda.recipe
+        conda build conda.recipe -c conda-canary
 
 # TODO: Re-enable codecov when we figure out how to grab coverage from the conda build
 #       environment
