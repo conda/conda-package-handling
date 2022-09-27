@@ -124,7 +124,12 @@ def _convert(fn, out_ext, out_folder, **kw):
             compressor = lambda: zstandard.ZstdCompressor(
                 **compressor_args
             )
-            conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
+            try:
+                conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
+            except BaseException:
+                # don't leave partial `.conda` around
+                _os.unlink(out_fn)
+                raise
         else:
             with _TemporaryDirectory(dir=out_folder) as tmp:
                 try:
