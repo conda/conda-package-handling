@@ -31,7 +31,7 @@ class CondaFormat_v2(AbstractBaseFormat):
 
     @staticmethod
     def extract(fn, dest_dir, **kw):
-        components= utils.ensure_list(kw.get("components")) or ("info", "pkg")
+        components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
         if not os.path.isdir(dest_dir):

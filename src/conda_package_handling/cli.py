@@ -88,16 +88,20 @@ def parse_args(parse_this=None):
     )
     convert_parser.add_argument(
         "--zstd-compression-level",
-        help=("When building v2 packages, set the compression level used by "
-              "conda-package-handling. Defaults to the maximum."),
+        help=(
+            "When building v2 packages, set the compression level used by "
+            "conda-package-handling. Defaults to the maximum."
+        ),
         type=int,
         choices=range(1, 22),
         default=22,
     )
     convert_parser.add_argument(
         "--zstd-compression-threads",
-        help=("When building v2 packages, set the compression threads used by "
-              "conda-package-handling. Defaults to 1. 0=automatic."),
+        help=(
+            "When building v2 packages, set the compression threads used by "
+            "conda-package-handling. Defaults to 1. 0=automatic."
+        ),
         type=int,
         default=1,
     )

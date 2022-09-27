@@ -1,6 +1,7 @@
-from setuptools import setup, find_packages
 import pathlib
 import re
+
+from setuptools import find_packages, setup
 
 version = re.search(
     r'__version__\s+=\s+"(.*)"',
