@@ -16,4 +16,4 @@
 
 ### Other
 
-* reformat entire codebase with black, isort
+* Reformat entire codebase with `black`, `isort`. (#132)
