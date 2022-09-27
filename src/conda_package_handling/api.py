@@ -10,7 +10,7 @@ import conda_package_streaming.transmute
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
-from .tarball import CondaTarBZ2 as _CondaTarBZ2, libarchive_enabled  # NOQA
+from .tarball import CondaTarBZ2 as _CondaTarBZ2
 from .conda_fmt import ZSTD_COMPRESS_LEVEL, ZSTD_COMPRESS_THREADS, CondaFormat_v2 as _CondaFormat_v2
 from .utils import (TemporaryDirectory as _TemporaryDirectory, rm_rf as _rm_rf,
                     get_executor as _get_executor)
@@ -21,6 +21,9 @@ SUPPORTED_EXTENSIONS = {'.tar.bz2': _CondaTarBZ2,
 # check this instead of version
 # extract() is threadsafe but create() may not be
 THREADSAFE_EXTRACT = True
+
+# old API meaning "can extract .conda" (which we do without libarchive)
+libarchive_enabled=True
 
 
 def _collect_paths(prefix):

@@ -9,7 +9,7 @@ from zipfile import ZipFile, ZIP_STORED
 from . import utils
 from .interface import AbstractBaseFormat
 
-from conda_package_streaming import extract, package_streaming, exceptions
+from .streaming import _extract
 
 import zstandard
 
@@ -33,20 +33,13 @@ class CondaFormat_v2(AbstractBaseFormat):
 
     @staticmethod
     def extract(fn, dest_dir, **kw):
-        components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
-        file_name = os.path.basename(fn)
+        components= utils.ensure_list(kw.get("components")) or ("info", "pkg")
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
         if not os.path.isdir(dest_dir):
             os.makedirs(dest_dir)
 
-        with open(fn, "rb") as fileobj:
-            for component in components:
-                # will parse zipfile twice
-                stream = package_streaming.stream_conda_component(
-                    file_name, fileobj, component=component
-                )
-                extract.extract_stream(stream, dest_dir)
+        _extract(str(fn), str(dest_dir), components=components)
 
     @staticmethod
     def extract_info(fn, dest_dir=None):
@@ -88,7 +81,7 @@ class CondaFormat_v2(AbstractBaseFormat):
             pkg_metadata = {"conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION}
             conda_file.writestr("metadata.json", json.dumps(pkg_metadata))
 
-            # it's more convenient to put the smaller info last for transmute
+            # put the info last, for parity with updated transmute.
             for component, files in (f"pkg-{file_id}.tar.zst", pkg_files), (
                 f"info-{file_id}.tar.zst",
                 info_files,

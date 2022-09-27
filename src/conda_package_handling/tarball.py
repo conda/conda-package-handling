@@ -7,8 +7,6 @@ import tarfile
 from tempfile import NamedTemporaryFile
 import logging
 
-libarchive_enabled = False
-
 from . import utils, streaming
 from .interface import AbstractBaseFormat
 from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
