@@ -72,9 +72,9 @@ class CondaFormat_v2(AbstractBaseFormat):
                 threads=ZSTD_COMPRESS_THREADS,
             )
 
-        with ZipFile(
-            conda_pkg_fn, "w", compression=ZIP_STORED
-        ) as conda_file, utils.tmp_chdir(prefix):
+        with ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file, utils.tmp_chdir(
+            prefix
+        ):
 
             pkg_metadata = {"conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION}
             conda_file.writestr("metadata.json", json.dumps(pkg_metadata))
@@ -86,9 +86,7 @@ class CondaFormat_v2(AbstractBaseFormat):
             ):
                 compress = compressor()
                 with conda_file.open(component, "w") as component_file:
-                    component_stream = compress.stream_writer(
-                        component_file, closefd=False
-                    )
+                    component_stream = compress.stream_writer(component_file, closefd=False)
                     component_tar = tarfile.TarFile(fileobj=component_stream, mode="w")
 
                     for file in files:

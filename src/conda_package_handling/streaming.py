@@ -42,6 +42,4 @@ def _extract(fn: str, dest_dir: str, components: list[str]):
     except cps_exceptions.CaseInsensitiveFileSystemError as e:
         raise exceptions.CaseInsensitiveFileSystemError(fn, dest_dir) from e
     except (IOError, TarError, BadZipFile) as e:
-        raise exceptions.InvalidArchiveError(
-            fn, "failed with error: {}".format(str(e))
-        ) from e
+        raise exceptions.InvalidArchiveError(fn, "failed with error: {}".format(str(e))) from e

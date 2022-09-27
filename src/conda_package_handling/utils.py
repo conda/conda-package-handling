@@ -68,11 +68,7 @@ class DummyExecutor(Executor):
 
 
 def get_executor(processes):
-    return (
-        DummyExecutor()
-        if processes == 1
-        else ProcessPoolExecutor(max_workers=processes)
-    )
+    return DummyExecutor() if processes == 1 else ProcessPoolExecutor(max_workers=processes)
 
 
 def recursive_make_writable(path):
@@ -169,16 +165,12 @@ def rmtree(path, *args, **kwargs):
             except CalledProcessError as e:
                 if e.returncode != 5:
                     log.error(
-                        "Removing folder {} the fast way failed.  Output was: {}".format(
-                            out
-                        )
+                        "Removing folder {} the fast way failed.  Output was: {}".format(out)
                     )
                     raise
                 else:
                     log.debug(
-                        "removing dir contents the fast way failed.  Output was: {}".format(
-                            out
-                        )
+                        "removing dir contents the fast way failed.  Output was: {}".format(out)
                     )
     else:
         try:
@@ -203,11 +195,7 @@ def rmtree(path, *args, **kwargs):
                     stderr=STDOUT,
                 )
             except CalledProcessError:
-                log.debug(
-                    "removing dir contents the fast way failed.  Output was: {}".format(
-                        out
-                    )
-                )
+                log.debug("removing dir contents the fast way failed.  Output was: {}".format(out))
             shutil.rmtree(".empty")
     shutil.rmtree(path)
 
@@ -238,9 +226,7 @@ def unlink_or_rename_to_trash(path):
                     dest_fn = path + ".conda_trash"
                     counter = 1
                     while isfile(dest_fn):
-                        dest_fn = dest_fn.splitext[0] + ".conda_trash_{}".format(
-                            counter
-                        )
+                        dest_fn = dest_fn.splitext[0] + ".conda_trash_{}".format(counter)
                         counter += 1
                     out = "< empty >"
                     try:
@@ -430,8 +416,7 @@ def filter_files(
         for f in files_list
         if
         # `islink` prevents symlinks to directories from being removed
-        os.path.islink(os.path.join(prefix, f))
-        or not os.path.isdir(os.path.join(prefix, f))
+        os.path.islink(os.path.join(prefix, f)) or not os.path.isdir(os.path.join(prefix, f))
     ]
 
 
@@ -498,7 +483,5 @@ def checksums(fn, algorithms, buffersize=1 << 18):
     """
     with ThreadPoolExecutor(max_workers=len(algorithms)) as e:
         # take care not to share hash_impl between threads
-        results = [
-            e.submit(checksum, fn, algorithm, buffersize) for algorithm in algorithms
-        ]
+        results = [e.submit(checksum, fn, algorithm, buffersize) for algorithm in algorithms]
     return [result.result() for result in results]

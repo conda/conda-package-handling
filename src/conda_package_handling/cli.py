@@ -17,9 +17,7 @@ def parse_args(parse_this=None):
     )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
 
-    extract_parser = sp.add_parser(
-        "extract", help="extract package contents", aliases=["x"]
-    )
+    extract_parser = sp.add_parser("extract", help="extract package contents", aliases=["x"])
     extract_parser.add_argument("archive_path", help="path to archive to extract")
     extract_parser.add_argument(
         "--dest",
@@ -43,9 +41,7 @@ def parse_args(parse_this=None):
         action="store_true",
     )
 
-    create_parser = sp.add_parser(
-        "create", help="bundle files into a package", aliases=["c"]
-    )
+    create_parser = sp.add_parser("create", help="bundle files into a package", aliases=["c"])
     create_parser.add_argument(
         "prefix",
         help="folder of files to bundle.  Not strictly required to"
@@ -55,8 +51,7 @@ def parse_args(parse_this=None):
     )
     create_parser.add_argument(
         "out_fn",
-        help="Filename of archive to be created.  Extension "
-        "determines package type.",
+        help="Filename of archive to be created.  Extension " "determines package type.",
     )
     create_parser.add_argument(
         "--file-list",
@@ -83,8 +78,7 @@ def parse_args(parse_this=None):
     convert_parser.add_argument(
         "--processes",
         type=int,
-        help="Max number of processes to use.  If "
-        "not set, defaults to your CPU count.",
+        help="Max number of processes to use.  If " "not set, defaults to your CPU count.",
     )
     convert_parser.add_argument(
         "--zstd-compression-level",
@@ -112,14 +106,11 @@ def main(args=None):
     args = parse_args(args)
     if hasattr(args, "out_folder") and args.out_folder:
         args.out_folder = (
-            os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder)))
-            + os.sep
+            os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder))) + os.sep
         )
     if args.subcommand in ("extract", "x"):
         if args.info:
-            api.extract(
-                args.archive_path, args.dest, components="info", prefix=args.prefix
-            )
+            api.extract(args.archive_path, args.dest, components="info", prefix=args.prefix)
         else:
             api.extract(args.archive_path, args.dest, prefix=args.prefix)
     elif args.subcommand in ("create", "c"):

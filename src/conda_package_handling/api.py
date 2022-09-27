@@ -34,9 +34,7 @@ def _collect_paths(prefix):
             file_paths.append(_os.path.relpath(_os.path.join(dp, f), prefix))
         dir_paths.extend(_os.path.relpath(_os.path.join(dp, _), prefix) for _ in dn)
     file_list = file_paths + [
-        dp
-        for dp in dir_paths
-        if not any(f.startswith(dp + _os.sep) for f in file_paths)
+        dp for dp in dir_paths if not any(f.startswith(dp + _os.sep) for f in file_paths)
     ]
     return file_list
 
@@ -60,9 +58,7 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
                 "prefix)"
             )
         if not _os.path.isabs(dest_dir):
-            dest_dir = _os.path.normpath(
-                _os.path.join(prefix or _os.getcwd(), dest_dir)
-            )
+            dest_dir = _os.path.normpath(_os.path.join(prefix or _os.getcwd(), dest_dir))
     else:
         dest_dir = _os.path.join(
             prefix or _os.path.dirname(fn),
@@ -140,9 +136,7 @@ def _convert(fn, out_ext, out_folder, **kw):
             )
             compressor = lambda: zstandard.ZstdCompressor(**compressor_args)
             try:
-                conda_package_streaming.transmute.transmute(
-                    fn, out_folder, compressor=compressor
-                )
+                conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
             except BaseException:
                 # don't leave partial `.conda` around
                 _os.unlink(out_fn)
@@ -153,13 +147,7 @@ def _convert(fn, out_ext, out_folder, **kw):
                     extract(fn, dest_dir=tmp)
                     file_list = _collect_paths(tmp)
 
-                    create(
-                        tmp,
-                        file_list,
-                        _os.path.basename(out_fn),
-                        out_folder=out_folder,
-                        **kw
-                    )
+                    create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
                     (
                         _,
                         missing_files,
@@ -185,9 +173,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     failed_files = {}
     with _tqdm.tqdm(total=len(flist), leave=False) as t:
         with _get_executor(processes) as executor:
-            convert_f = _functools.partial(
-                _convert, out_ext=out_ext, out_folder=out_folder, **kw
-            )
+            convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
             for fn, out_fn, errors in executor.map(convert_f, flist):
                 t.set_description("Converted: %s" % fn)
                 t.update()

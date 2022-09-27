@@ -41,9 +41,7 @@ def _sort_file_order(prefix, files):
                 fl.writelines(map(lambda x: "." + os.sep + x + "\n", files))
                 fl.close()
                 cmd = binsort + " -t 1 -q -d -o 1000 {}".format(fl.name)
-                out, _ = subprocess.Popen(
-                    cmd, shell=True, stdout=subprocess.PIPE
-                ).communicate()
+                out, _ = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
                 files_list = out.decode("utf-8").strip().split("\n")
                 # binsort returns the absolute paths.
                 files_list = [f.split(prefix + os.sep, 1)[-1] for f in files_list]

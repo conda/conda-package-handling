@@ -23,9 +23,7 @@ def test_api_extract_tarball_implicit_path(testing_workdir):
     local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
     shutil.copy2(tarfile, local_tarfile)
     api.extract(local_tarfile)
-    assert os.path.isfile(
-        os.path.join(testing_workdir, test_package_name, "info", "index.json")
-    )
+    assert os.path.isfile(os.path.join(testing_workdir, test_package_name, "info", "index.json"))
 
 
 def test_api_tarball_details(testing_workdir):
@@ -33,20 +31,14 @@ def test_api_tarball_details(testing_workdir):
     results = api.get_pkg_details(tarfile)
     assert results["size"] == 106576
     assert results["md5"] == "0f9cce120a73803a70abb14bd4d4900b"
-    assert (
-        results["sha256"]
-        == "34c659b0fdc53d28ae721fd5717446fb8abebb1016794bd61e25937853f4c29c"
-    )
+    assert results["sha256"] == "34c659b0fdc53d28ae721fd5717446fb8abebb1016794bd61e25937853f4c29c"
 
 
 def test_api_conda_v2_details(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + ".conda")
     results = api.get_pkg_details(condafile)
     assert results["size"] == 113421
-    assert (
-        results["sha256"]
-        == "181ec44eb7b06ebb833eae845bcc466ad96474be1f33ee55cab7ac1b0fdbbfa3"
-    )
+    assert results["sha256"] == "181ec44eb7b06ebb833eae845bcc466ad96474be1f33ee55cab7ac1b0fdbbfa3"
     assert results["md5"] == "23c226430e35a3bd994db6c36b9ac8ae"
 
 
@@ -56,9 +48,7 @@ def test_api_extract_tarball_explicit_path(testing_workdir):
     shutil.copy2(tarfile, local_tarfile)
 
     api.extract(local_tarfile, "manual_path")
-    assert os.path.isfile(
-        os.path.join(testing_workdir, "manual_path", "info", "index.json")
-    )
+    assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
 
 
 def test_api_extract_tarball_with_libarchive_import_error(testing_workdir, mocker):
@@ -69,9 +59,7 @@ def test_api_extract_tarball_with_libarchive_import_error(testing_workdir, mocke
         local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
         shutil.copy2(tarfile, local_tarfile)
         api.extract(local_tarfile, "manual_path")
-        assert os.path.isfile(
-            os.path.join(testing_workdir, "manual_path", "info", "index.json")
-        )
+        assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
     finally:
         api.libarchive_enabled = True
         conda_package_handling.tarball.libarchive_enabled = True
@@ -82,9 +70,7 @@ def test_api_extract_conda_v2_implicit_path(testing_workdir):
     local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
     shutil.copy2(condafile, local_condafile)
     api.extract(local_condafile)
-    assert os.path.isfile(
-        os.path.join(testing_workdir, test_package_name, "info", "index.json")
-    )
+    assert os.path.isfile(os.path.join(testing_workdir, test_package_name, "info", "index.json"))
 
 
 def test_api_extract_conda_v2_no_destdir_relative_path(testing_workdir):
@@ -109,9 +95,7 @@ def test_api_extract_conda_v2_explicit_path(testing_workdir):
     shutil.copy2(tarfile, local_tarfile)
 
     api.extract(tarfile, "manual_path")
-    assert os.path.isfile(
-        os.path.join(testing_workdir, "manual_path", "info", "index.json")
-    )
+    assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
 
 
 def test_api_extract_conda_v2_explicit_path_prefix(testing_workdir):
@@ -121,20 +105,14 @@ def test_api_extract_conda_v2_explicit_path_prefix(testing_workdir):
         os.path.join(testing_workdir, "folder", test_package_name, "info", "index.json")
     )
 
-    api.extract(
-        tarfile, dest_dir="steve", prefix=os.path.join(testing_workdir, "folder")
-    )
-    assert os.path.isfile(
-        os.path.join(testing_workdir, "folder", "steve", "info", "index.json")
-    )
+    api.extract(tarfile, dest_dir="steve", prefix=os.path.join(testing_workdir, "folder"))
+    assert os.path.isfile(os.path.join(testing_workdir, "folder", "steve", "info", "index.json"))
 
 
 def test_api_extract_dest_dir_and_prefix_both_abs_raises():
     tarfile = os.path.join(data_dir, test_package_name + ".conda")
     with pytest.raises(ValueError):
-        api.extract(
-            tarfile, prefix=os.path.dirname(tarfile), dest_dir=os.path.dirname(tarfile)
-        )
+        api.extract(tarfile, prefix=os.path.dirname(tarfile), dest_dir=os.path.dirname(tarfile))
 
 
 def test_api_extract_info_conda_v2(testing_workdir):
@@ -142,9 +120,7 @@ def test_api_extract_info_conda_v2(testing_workdir):
     local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
     shutil.copy2(condafile, local_condafile)
     api.extract(local_condafile, "manual_path", components="info")
-    assert os.path.isfile(
-        os.path.join(testing_workdir, "manual_path", "info", "index.json")
-    )
+    assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
     assert not os.path.isdir(os.path.join(testing_workdir, "manual_path", "lib"))
 
 
@@ -189,9 +165,7 @@ def test_api_transmute_tarball_info_sorts_first(testing_workdir):
             assert info_seen, "package had no info/ files"
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="windows and symlinks are not great"
-)
+@pytest.mark.skipif(sys.platform == "win32", reason="windows and symlinks are not great")
 def test_api_transmute_to_conda_v2_contents(testing_workdir):
     def _walk(path):
         for entry in os.scandir(path):
@@ -206,12 +180,8 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
 
     # Verify original contents were all put in the right place
     pkg_tarbz2 = tarfile.open(tar_path, mode="r:bz2")
-    info_items = [
-        item for item in pkg_tarbz2.getmembers() if item.path.startswith("info/")
-    ]
-    pkg_items = [
-        item for item in pkg_tarbz2.getmembers() if not item.path.startswith("info/")
-    ]
+    info_items = [item for item in pkg_tarbz2.getmembers() if item.path.startswith("info/")]
+    pkg_items = [item for item in pkg_tarbz2.getmembers() if not item.path.startswith("info/")]
 
     errors = []
     for component, expected in (("info", info_items), ("pkg", pkg_items)):
@@ -246,9 +216,7 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
                     # packages should only contain regular files and symlinks.
                     raise ValueError(f"unexpected item '{item.path}' in test .tar.bz2")
             if contents:
-                errors.append(
-                    f"extra files [{', '.join(contents)}] in {component} contents"
-                )
+                errors.append(f"extra files [{', '.join(contents)}] in {component} contents")
     assert not errors
 
 
@@ -262,9 +230,7 @@ def test_warning_when_bundling_no_metadata(testing_workdir):
     pass
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32", reason="windows and symlinks are not great"
-)
+@pytest.mark.skipif(sys.platform == "win32", reason="windows and symlinks are not great")
 def test_create_package_with_uncommon_conditions_captures_all_content(testing_workdir):
     os.makedirs("src/a_folder")
     os.makedirs("src/empty_folder")
