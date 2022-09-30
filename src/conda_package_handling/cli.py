@@ -87,14 +87,14 @@ def parse_args(parse_this=None):
             "conda-package-handling. Defaults to the maximum."
         ),
         type=int,
-        choices=range(1, 22),
+        choices=range(1, 23),
         default=22,
     )
     convert_parser.add_argument(
         "--zstd-compression-threads",
         help=(
             "When building v2 packages, set the compression threads used by "
-            "conda-package-handling. Defaults to 1. 0=automatic."
+            "conda-package-handling. Defaults to 1. -1=automatic."
         ),
         type=int,
         default=1,

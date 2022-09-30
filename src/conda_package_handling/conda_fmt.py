@@ -17,7 +17,7 @@ DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=22")
 
 # increase to reduce speed and increase compression (22 = conda's default)
 ZSTD_COMPRESS_LEVEL = 22
-# increase to reduce compression and increase speed
+# increase to reduce compression (slightly) and increase speed
 ZSTD_COMPRESS_THREADS = 1
 
 
