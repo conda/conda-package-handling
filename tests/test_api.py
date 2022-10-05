@@ -11,7 +11,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 import conda_package_handling.tarball
-from conda_package_handling import api
+from conda_package_handling import api, exceptions
 
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
@@ -473,3 +473,19 @@ def test_api_transmute_fail_validation_2(tmpdir, mocker):
     # run with out_folder=None
     errors = api.transmute(str(tmptarfile), ".tar.bz2")
     assert errors
+
+
+def test_api_translates_exception(mocker, tmpdir):
+    from conda_package_streaming.extract import exceptions as cps_exceptions
+
+    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+
+    # translates their exception to our exception of the same name
+    mocker.patch(
+        "conda_package_streaming.package_streaming.stream_conda_component",
+        side_effect=cps_exceptions.CaseInsensitiveFileSystemError(),
+    )
+
+    # should this be exported from the api or inherit from InvalidArchiveError?
+    with pytest.raises(exceptions.CaseInsensitiveFileSystemError):
+        api.extract(tarfile, tmpdir)
