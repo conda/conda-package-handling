@@ -16,8 +16,12 @@ from .test_api import data_dir, test_package_name
 TEST_CONDA = Path(data_dir, test_package_name + ".conda")
 TEST_TARBZ = Path(data_dir, test_package_name + ".tar.bz2")
 
+
 def test_extract_create(tmpdir):
-    for format, infile, outfile in (CondaFormat_v2, TEST_CONDA, "newmock.conda"), (CondaTarBZ2, TEST_TARBZ, "newmock.tar.bz2"):
+    for format, infile, outfile in (
+        (CondaFormat_v2(), TEST_CONDA, "newmock.conda"),
+        (CondaTarBZ2(), TEST_TARBZ, "newmock.tar.bz2"),
+    ):
 
         both_path = Path(tmpdir, f"mkdirs-{outfile.split('.', 1)[-1]}")
 
@@ -25,6 +29,7 @@ def test_extract_create(tmpdir):
         format.extract(infile, str(both_path))
         assert sorted(os.listdir(both_path)) == sorted(["lib", "info"])
 
+        # instantiated, above, so isinstance works; normally used 100% static
         if isinstance(format, CondaFormat_v2):
             info_path = Path(tmpdir, "info-only")
             format.extract_info(TEST_CONDA, str(info_path))
