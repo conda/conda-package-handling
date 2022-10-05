@@ -4,7 +4,6 @@ import pathlib
 import shutil
 import sys
 import tarfile
-from xdrlib import ConversionError
 import zipfile
 from datetime import datetime
 from tempfile import TemporaryDirectory
