@@ -1,8 +1,6 @@
 import logging
 import os
 import re
-import subprocess
-import sys
 import tarfile
 from errno import ELOOP
 from tempfile import NamedTemporaryFile
@@ -15,7 +13,7 @@ LOG = logging.getLogger(__file__)
 
 
 def _sort_file_order(prefix, files):
-    """Sort by filesize or by binsort, to optimize compression"""
+    """Sort by filesize, to optimize compression?"""
     info_slash = "info" + os.path.sep
 
     def order(f):
@@ -34,33 +32,8 @@ def _sort_file_order(prefix, files):
                 info_order = 1 + abs(hash(ext)) % (10**8)
         return info_order, fsize
 
-    binsort = os.path.join(sys.prefix, "bin", "binsort")
-    if os.path.exists(binsort):
-        with NamedTemporaryFile(mode="w", suffix=".filelist", delete=False) as fl:
-            with utils.tmp_chdir(prefix):
-                fl.writelines(map(lambda x: "." + os.sep + x + "\n", files))
-                fl.close()
-                cmd = binsort + " -t 1 -q -d -o 1000 {}".format(fl.name)
-                out, _ = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
-                files_list = out.decode("utf-8").strip().split("\n")
-                # binsort returns the absolute paths.
-                files_list = [f.split(prefix + os.sep, 1)[-1] for f in files_list]
-                os.unlink(fl.name)
-        # Binsort does not handle symlinks gracefully. It will follow them. We must correct that.
-        s1 = set(files)
-        s2 = set(files_list)
-        followed = s2 - s1
-        for f in followed:
-            files_list.remove(f)
-        s2 = set(files_list)
-        if len(s1) > len(s2):
-            files_list.extend(s1 - s2)
-        # move info/ to front, otherwise preserving current order fi[0]
-        # (Python's sort algorithm is guaranteed to be stable, maintains
-        # existing order of items with the same sort key)
-        files_list = list(sorted(files, key=lambda f: not f.startswith(info_slash)))
-    else:
-        files_list = list(sorted(files, key=order))
+    files_list = list(sorted(files, key=order))
+
     return files_list
 
 

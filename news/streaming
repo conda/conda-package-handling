@@ -12,6 +12,8 @@
 ### Deprecations
 
 * Remove broken `verify` subcommand.
+* Remove support for `binsort` (was supposed to help with `tar.bz2`
+  compression). (Use `.conda` instead.)
 
 ### Docs
 
