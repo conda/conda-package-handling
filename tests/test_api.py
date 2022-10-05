@@ -1,3 +1,4 @@
+from cgi import test
 import json
 import os
 import shutil
@@ -332,3 +333,14 @@ def tests_secure_refusal_to_extract_dotdot(testing_workdir):
 
     with pytest.raises(api.InvalidArchiveError):
         api.extract("pinkie.tar.bz2")
+
+
+def test_api_bad_filename(testing_workdir):
+    with pytest.raises(ValueError):
+        api.extract("pinkie.rar", testing_workdir)
+
+
+def test_details_bad_extension():
+    with pytest.raises(ValueError):
+        # TODO this function should not exist
+        api.get_pkg_details("pinkie.rar")
