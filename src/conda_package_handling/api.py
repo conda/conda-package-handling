@@ -145,8 +145,8 @@ def _convert(fn, out_ext, out_folder, **kw):
                 conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
             except BaseException:
                 # don't leave partial `.conda` around
-                if _os.path.exists(out_fn):
-                    _os.unlink(out_fn)
+                if _os.path.isfile(out_fn):
+                    _rm_rf(out_fn)
                 raise
         else:
             with _TemporaryDirectory(dir=out_folder) as tmp:
