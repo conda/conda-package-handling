@@ -2,16 +2,20 @@
 Create and extract conda packages of various formats
 
 ```
-usage: cph [-h] {extract,x,create,c,transmute,t} ...
+usage: cph [-h] [-V] {extract,x,create,c,verify,v,transmute,t} ...
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
+  -V, --version         Show the conda-package-handling version number and
+                        exit.
 
 subcommands:
-  {extract,x,create,c,transmute,t}
+  {extract,x,create,c,verify,v,transmute,t}
     extract (x)         extract package contents
     create (c)          bundle files into a package
+    verify (v)          verify converted files against their reference
     transmute (t)       convert from one package type to another
+
 ```
 
 cph is an abstraction of conda package handling and a tool for extracting,
