@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 import shutil
 import sys
 import tarfile
@@ -10,7 +11,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 import conda_package_handling.tarball
-from conda_package_handling import api
+from conda_package_handling import api, exceptions
 
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
@@ -90,11 +91,11 @@ def test_api_extract_conda_v2_no_destdir_relative_path(testing_workdir):
 
 
 def test_api_extract_conda_v2_explicit_path(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + ".conda")
-    local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
-    shutil.copy2(tarfile, local_tarfile)
+    condafile = os.path.join(data_dir, test_package_name + ".conda")
+    local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
+    shutil.copy2(condafile, local_condafile)
 
-    api.extract(tarfile, "manual_path")
+    api.extract(condafile, "manual_path")
     assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
 
 
@@ -332,3 +333,119 @@ def tests_secure_refusal_to_extract_dotdot(testing_workdir):
 
     with pytest.raises(api.InvalidArchiveError):
         api.extract("pinkie.tar.bz2")
+
+
+def test_api_bad_filename(testing_workdir):
+    with pytest.raises(ValueError):
+        api.extract("pinkie.rar", testing_workdir)
+
+
+def test_details_bad_extension():
+    with pytest.raises(ValueError):
+        # TODO this function should not exist
+        api.get_pkg_details("pinkie.rar")
+
+
+def test_convert_bad_extension(testing_workdir):
+    api._convert("pinkie.rar", ".conda", testing_workdir)
+
+
+def test_convert_keyerror(tmpdir, mocker):
+    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+
+    mocker.patch(
+        "conda_package_streaming.transmute.transmute",
+        side_effect=KeyboardInterrupt(),
+    )
+
+    # interrupted before ".conda" was created
+    with pytest.raises(KeyboardInterrupt):
+        api._convert(tarfile, ".conda", tmpdir)
+
+    def create_file_and_raise(*args, **kwargs):
+        out_fn = pathlib.Path(tmpdir, pathlib.Path(tarfile[: -len(".tar.bz2")] + ".conda").name)
+        print("out fn", out_fn)
+        out_fn.write_text("")
+        raise KeyboardInterrupt()
+
+    mocker.patch("conda_package_streaming.transmute.transmute", side_effect=create_file_and_raise)
+
+    # interrupted after ".conda" was created
+    with pytest.raises(KeyboardInterrupt):
+        api._convert(tarfile, ".conda", tmpdir)
+
+
+def test_create_filelist(tmpdir, mocker):
+    # another bad API, tested for coverage
+    filelist = pathlib.Path(tmpdir, "filelist.txt")
+    filelist.write_text("\n".join(["filelist.txt", "anotherfile"]))
+
+    # when looking for filelist-not-found.txt
+    with pytest.raises(FileNotFoundError):
+        api.create(str(tmpdir), "filelist-not-found.txt", str(tmpdir / "newconda.conda"))
+
+    # when adding anotherfile
+    with pytest.raises(FileNotFoundError):
+        api.create(str(tmpdir), str(filelist), str(tmpdir / "newconda.conda"))
+
+    # unrecognized target extension
+    with pytest.raises(ValueError):
+        api.create(str(tmpdir), str(filelist), str(tmpdir / "newpackage.rar"))
+
+    def create_file_and_raise(prefix, file_list, out_fn, *args, **kwargs):
+        pathlib.Path(prefix, out_fn).write_text("")
+        raise KeyboardInterrupt()
+
+    mocker.patch(
+        "conda_package_handling.conda_fmt.CondaFormat_v2.create",
+        side_effect=create_file_and_raise,
+    )
+
+    # failure inside inner create()
+    with pytest.raises(KeyboardInterrupt):
+        api.create(str(tmpdir), str(filelist), str(tmpdir / "newpackage.conda"))
+
+
+def test_api_transmute_fail_validation(tmpdir, mocker):
+    tarfile = os.path.join(data_dir, test_package_name + ".conda")
+
+    # this code is only called for .conda -> .tar.bz2; a streaming validate for
+    # .tar.bz2 -> .conda would be a good idea.
+    mocker.patch(
+        "conda_package_handling.validate.validate_converted_files_match",
+        return_value=(None, set(["missing-file.txt"]), set(["mismatched-size.txt"])),
+    )
+
+    errors = api.transmute(tarfile, ".tar.bz2", tmpdir)
+    assert errors
+
+
+def test_api_transmute_fail_validation_2(tmpdir, mocker):
+    tarfile = os.path.join(data_dir, test_package_name + ".conda")
+    tmptarfile = tmpdir / pathlib.Path(tarfile).name
+    shutil.copy(tarfile, tmptarfile)
+
+    mocker.patch(
+        "conda_package_handling.validate.validate_converted_files_match",
+        side_effect=Exception("not today"),
+    )
+
+    # run with out_folder=None
+    errors = api.transmute(str(tmptarfile), ".tar.bz2")
+    assert errors
+
+
+def test_api_translates_exception(mocker, tmpdir):
+    from conda_package_streaming.extract import exceptions as cps_exceptions
+
+    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+
+    # translates their exception to our exception of the same name
+    mocker.patch(
+        "conda_package_streaming.package_streaming.stream_conda_component",
+        side_effect=cps_exceptions.CaseInsensitiveFileSystemError(),
+    )
+
+    # should this be exported from the api or inherit from InvalidArchiveError?
+    with pytest.raises(exceptions.CaseInsensitiveFileSystemError):
+        api.extract(tarfile, tmpdir)

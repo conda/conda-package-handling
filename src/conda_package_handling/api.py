@@ -83,9 +83,14 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
 def create(prefix, file_list, out_fn, out_folder=None, **kw):
     if not out_folder:
         out_folder = _os.getcwd()
+
+    # simplify arguments to format.create()
+    if _os.path.isabs(out_fn):
+        out_folder = _os.path.dirname(out_fn)
+        out_fn = _os.path.basename(out_fn)
+
     if file_list is None:
         file_list = _collect_paths(prefix)
-
     elif isinstance(file_list, str):
         try:
             with open(file_list) as f:
@@ -100,10 +105,11 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
             try:
                 out = format.create(prefix, file_list, out_fn, out_folder, **kw)
                 break
-            except Exception as err:
+            except BaseException as err:
                 # don't leave broken files around
-                if out and _os.path.isfile(out):
-                    _rm_rf(out)
+                abs_out_fn = _os.path.join(out_folder, out_fn)
+                if _os.path.isfile(abs_out_fn):
+                    _rm_rf(abs_out_fn)
                 raise err
     else:
         raise ValueError(
@@ -139,7 +145,8 @@ def _convert(fn, out_ext, out_folder, **kw):
                 conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
             except BaseException:
                 # don't leave partial `.conda` around
-                _os.unlink(out_fn)
+                if _os.path.isfile(out_fn):
+                    _rm_rf(out_fn)
                 raise
         else:
             with _TemporaryDirectory(dir=out_folder) as tmp:
