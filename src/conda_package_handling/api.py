@@ -19,12 +19,9 @@ from .utils import rm_rf as _rm_rf
 
 SUPPORTED_EXTENSIONS = {".tar.bz2": _CondaTarBZ2, ".conda": _CondaFormat_v2}
 
-# check this instead of version
-# extract() is threadsafe but create() may not be
-THREADSAFE_EXTRACT = True
+THREADSAFE_EXTRACT = True  #: Not present in conda-package-handling<2.0.
 
-# old API meaning "can extract .conda" (which we do without libarchive)
-libarchive_enabled = True
+libarchive_enabled = True  #: Old API meaning "can extract .conda" (now without libarchive)
 
 
 def _collect_paths(prefix):
