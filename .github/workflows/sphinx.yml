@@ -1,0 +1,34 @@
+name: Sphinx
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sphinx:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+          cache: "pip"
+      - uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: build/html
+      - name: Build Documentation
+        run: |
+          pip install -e .[docs]
+          make html
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@068dc23d9710f1ba62e86896f84735d869951305 # tag=v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/html
