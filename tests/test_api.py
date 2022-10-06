@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 
 import pytest
 
+import conda_package_handling
 import conda_package_handling.tarball
 from conda_package_handling import api, exceptions
 
@@ -17,6 +18,18 @@ this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
 test_package_name = "mock-2.0.0-py37_1000"
 test_package_name_2 = "cph_test_data-0.0.1-0"
+
+
+def test_correct_version():
+    """
+    Prevent accidentally running tests against a globally installed different version.
+    """
+    assert (
+        conda_package_handling.__version__
+        in (
+            pathlib.Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
+        ).read_text()
+    )
 
 
 def test_api_extract_tarball_implicit_path(testing_workdir):
