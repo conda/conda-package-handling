@@ -14,7 +14,7 @@ readme = pathlib.Path("README.md")
 text = readme.read_text()
 
 output = []
-state = 0
+
 lines = iter(text.splitlines())
 for line in lines:
     output.append(line)
