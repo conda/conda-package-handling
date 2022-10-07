@@ -5,7 +5,6 @@ Test format classes.
 """
 
 import os
-
 from pathlib import Path
 
 from conda_package_handling.conda_fmt import CondaFormat_v2

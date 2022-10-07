@@ -2,30 +2,32 @@
 Create and extract conda packages of various formats
 
 ```
-usage: cph [-h] {extract,x,create,c,transmute,t} ...
+usage: cph [-h] [-V] {extract,x,create,c,verify,v,transmute,t} ...
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
+  -V, --version         Show the conda-package-handling version number and
+                        exit.
 
 subcommands:
-  {extract,x,create,c,transmute,t}
+  {extract,x,create,c,verify,v,transmute,t}
     extract (x)         extract package contents
     create (c)          bundle files into a package
+    verify (v)          verify converted files against their reference
     transmute (t)       convert from one package type to another
+
 ```
 
 cph is an abstraction of conda package handling and a tool for extracting,
 creating, and converting between formats.
 
-At the time of writing, the standard conda package format is a .tar.bz2 file.
-That will need to be maintained for quite a long time, thanks to the long tail
-of people using old conda versions. There is a new conda format, described at
-https://docs.google.com/document/d/1HGKsbg_j69rKXPihhpCb1kNQSE8Iy3yOsUU2x68x8uw/edit?usp=sharing.
-This new format is designed to have much faster metadata access and utilize more
-modern compression algorithms, while also facilitating package signing without
-adding sidecar files.
+There are two conda formats. The new conda format, described at [.conda file
+format](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/packages.html?highlight=format#conda-file-format),
+consists of an outer, uncompressed ZIP-format container, with 2 inner compressed
+.tar files. It is designed to have much faster metadata access and utilize more
+modern compression algorithms. The old conda format is a `.tar.bz2` archive.
 
-For example, one can transmute (convert) the old package format to the new one with cph:
+One can transmute (convert) the old package format to the new one with cph:
 
 ```
 cph transmute mkl-2018.0.3-1.tar.bz2 .conda
@@ -40,11 +42,10 @@ $ time cph extract mkl-2018.0.3-1.conda --dest mkl-b
 cph extract mkl-2018.0.3-1.conda --dest mkl-b  1.41s user 0.65s system 87% cpu 2.365 total
 ```
 
-The new package format is an indexed, uncompressed zip file that contains
-tarfiles that can use any compression supported by libarchive. The info metadata
-about packages is separated into its own tarfile from the rest of the package
-contents. By doing this, we can extract only the metadata, for speeding up
-operations like indexing.
+The new package format is an indexed, uncompressed zip file that contains two
+Zstandard compressed tarfiles. The info metadata about packages is separated
+into its own tarfile from the rest of the package contents. By doing this, we
+can extract only the metadata, for speeding up operations like indexing.
 
 ```
 $ time cph extract mkl-2018.0.3-1.conda --dest mkl-b --info
@@ -68,21 +69,22 @@ computer to extract it.
 
 ## Releasing
 
- Conda-package-handling releases may be performed via the `rever command <https://regro.github.io/rever-docs/>`_.
-Rever is configured to perform the activities for a typical conda-build release.
-To cut a release, simply run ``rever <X.Y.Z>`` where ``<X.Y.Z>`` is the
-release number that you want bump to. For example, ``rever 1.2.3``.  However,
-it is always good idea to make sure that the you have permissions everywhere
-to actually perform the release.  So it is customary to run ``rever check`` before
-the release, just to make sure.  The standard workflow is thus::
+Conda-package-handling releases may be performed via the `rever command
+<https://regro.github.io/rever-docs/>`_. Rever is configured to perform the
+activities for a typical conda-build release. To cut a release, simply run
+``rever <X.Y.Z>`` where ``<X.Y.Z>`` is the release number that you want bump to.
+For example, ``rever 1.2.3``.  However, it is always good idea to make sure that
+the you have permissions everywhere to actually perform the release.  So it is
+customary to run ``rever check`` before the release, just to make sure.  The
+standard workflow is thus::
 
     rever check
     rever 1.2.3
 
- If for some reason a release fails partway through, or you want to claw back a
-release that you have made, rever allows you to undo activities. If you find yourself
-in this pickle, you can pass the ``--undo`` option a comma-separated list of
-activities you'd like to undo.  For example::
+If for some reason a release fails partway through, or you want to claw back a
+release that you have made, rever allows you to undo activities. If you find
+yourself in this pickle, you can pass the ``--undo`` option a comma-separated
+list of activities you'd like to undo.  For example::
 
      rever --undo tag,changelog,authors 1.2.3
 
