@@ -1,11 +1,10 @@
 import functools as _functools
 import os as _os
-from typing import Any
 import warnings as _warnings
 from glob import glob as _glob
+from typing import Any
 
 import conda_package_streaming.transmute
-from more_itertools import zip_equal
 import tqdm as _tqdm
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
