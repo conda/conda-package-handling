@@ -485,3 +485,15 @@ def checksums(fn, algorithms, buffersize=1 << 18):
         # take care not to share hash_impl between threads
         results = [e.submit(checksum, fn, algorithm, buffersize) for algorithm in algorithms]
     return [result.result() for result in results]
+
+
+def anonymize_tarinfo(tarinfo):
+    """
+    Remove user id, name from tarinfo.
+    """
+    # also remove timestamps?
+    tarinfo.uid = 0
+    tarinfo.uname = ""
+    tarinfo.gid = 0
+    tarinfo.gname = ""
+    return tarinfo

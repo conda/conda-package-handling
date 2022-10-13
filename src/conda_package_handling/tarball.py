@@ -40,7 +40,7 @@ def _sort_file_order(prefix, files):
 def _create_no_libarchive(fullpath, files):
     with tarfile.open(fullpath, "w:bz2") as t:
         for f in files:
-            t.add(f)
+            t.add(f, filter=utils.anonymize_tarinfo)
 
 
 def create_compressed_tarball(

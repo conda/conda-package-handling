@@ -90,7 +90,7 @@ class CondaFormat_v2(AbstractBaseFormat):
                     component_tar = tarfile.TarFile(fileobj=component_stream, mode="w")
 
                     for file in files:
-                        component_tar.add(file)
+                        component_tar.add(file, filter=utils.anonymize_tarinfo)
 
                     component_tar.close()
                     component_stream.close()
