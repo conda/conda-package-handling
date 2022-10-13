@@ -128,8 +128,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 def _convert(fn, out_ext, out_folder, **kw):
     # allow package to work in degraded mode when zstandard is not available
-    import zstandard
     import conda_package_streaming.transmute
+    import zstandard
 
     basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match
