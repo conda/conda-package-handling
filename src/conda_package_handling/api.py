@@ -4,7 +4,6 @@ import warnings as _warnings
 from glob import glob as _glob
 from typing import Any
 
-import conda_package_streaming.transmute
 import tqdm as _tqdm
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
@@ -130,6 +129,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 def _convert(fn, out_ext, out_folder, **kw):
     # allow package to work in degraded mode when zstandard is not available
     import zstandard
+    import conda_package_streaming.transmute
 
     basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match
