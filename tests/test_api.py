@@ -20,7 +20,9 @@ test_package_name = "mock-2.0.0-py37_1000"
 test_package_name_2 = "cph_test_data-0.0.1-0"
 
 
-@pytest.mark.skipif(os.environ.get("GITHUB_ACTIONS", False), reason="Fails on GitHub Actions")
+@pytest.mark.skipif(
+    bool(os.environ.get("GITHUB_ACTIONS", False)), reason="Fails on GitHub Actions"
+)
 def test_correct_version():
     """
     Prevent accidentally running tests against a globally installed different version.
