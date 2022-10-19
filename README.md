@@ -2,7 +2,7 @@
 Create and extract conda packages of various formats
 
 ```
-usage: cph [-h] [-V] {extract,x,create,c,verify,v,transmute,t} ...
+usage: cph [-h] [-V] {extract,x,create,c,transmute,t} ...
 
 options:
   -h, --help            show this help message and exit
@@ -10,10 +10,9 @@ options:
                         exit.
 
 subcommands:
-  {extract,x,create,c,verify,v,transmute,t}
+  {extract,x,create,c,transmute,t}
     extract (x)         extract package contents
     create (c)          bundle files into a package
-    verify (v)          verify converted files against their reference
     transmute (t)       convert from one package type to another
 
 ```
