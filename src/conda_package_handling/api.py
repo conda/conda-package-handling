@@ -1,14 +1,10 @@
 import functools as _functools
 import os as _os
-import tempfile as _tempfile
+import warnings as _warnings
 from glob import glob as _glob
+from typing import Any
 
-import conda_package_streaming.transmute
 import tqdm as _tqdm
-import zstandard
-
-from .conda_fmt import ZSTD_COMPRESS_LEVEL, ZSTD_COMPRESS_THREADS
-from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
@@ -17,11 +13,23 @@ from .utils import TemporaryDirectory as _TemporaryDirectory
 from .utils import get_executor as _get_executor
 from .utils import rm_rf as _rm_rf
 
-SUPPORTED_EXTENSIONS = {".tar.bz2": _CondaTarBZ2, ".conda": _CondaFormat_v2}
+# type checker thinks _CondaTarBZ2 is an ABC and not an AbstractFormat?
+SUPPORTED_EXTENSIONS: dict[str, Any] = {".tar.bz2": _CondaTarBZ2}
+
+libarchive_enabled = False  #: Old API meaning "can extract .conda" (now without libarchive)
+
+try:
+    from .conda_fmt import ZSTD_COMPRESS_LEVEL, ZSTD_COMPRESS_THREADS
+    from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
+
+    SUPPORTED_EXTENSIONS[".conda"] = _CondaFormat_v2
+
+    libarchive_enabled = True
+
+except ImportError:
+    _warnings.warn("Install zstandard Python bindings for .conda support")
 
 THREADSAFE_EXTRACT = True  #: Not present in conda-package-handling<2.0.
-
-libarchive_enabled = True  #: Old API meaning "can extract .conda" (now without libarchive)
 
 
 def _collect_paths(prefix):
@@ -119,6 +127,10 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 
 def _convert(fn, out_ext, out_folder, **kw):
+    # allow package to work in degraded mode when zstandard is not available
+    import conda_package_streaming.transmute
+    import zstandard
+
     basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match
 
