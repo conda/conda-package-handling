@@ -29,7 +29,7 @@ requirements:
   run:
     - python
     - tqdm
-    - conda-package-streaming >=0.4.0
+    - conda-package-streaming >=0.5.0
 
 test:
   source_files:
