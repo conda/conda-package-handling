@@ -10,7 +10,9 @@ on:
 
 jobs:
   sphinx:
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -18,17 +20,33 @@ jobs:
           python-version: "3.x"
           architecture: "x64"
           cache: "pip"
-      - uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-          path: build/html
       - name: Build Documentation
         run: |
           pip install -e .[docs]
           make html
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@068dc23d9710f1ba62e86896f84735d869951305 # tag=v3
-        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/html
+          # Upload entire repository
+          path: 'build/html'
+
+  pages:
+
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: [sphinx]
+
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
