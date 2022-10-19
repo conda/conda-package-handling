@@ -1,5 +1,6 @@
 # used in sphinx documentation build
 conda-package-streaming>=0.4.0
+tqdm
 # docs
 furo
 sphinx
