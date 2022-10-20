@@ -216,5 +216,5 @@ def get_pkg_details(in_file):
             details = format.get_pkg_details(in_file)
             break
     else:
-        raise ValueError("Don't know what to do with file {}".format(in_file))
+        raise ValueError(f"Don't know what to do with file {in_file}")
     return details

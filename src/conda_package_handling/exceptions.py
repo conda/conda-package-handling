@@ -10,7 +10,7 @@ class InvalidArchiveError(Exception):
             "or re-create this file.  Message was:\n\n%s" % (fn, msg)
         )
         self.errno = ENOENT
-        super(InvalidArchiveError, self).__init__(msg)
+        super().__init__(msg)
 
 
 class ArchiveCreationError(Exception):
@@ -34,7 +34,7 @@ class CaseInsensitiveFileSystemError(Exception):
         """
         self.package_location = package_location
         self.extract_location = extract_location
-        super(CaseInsensitiveFileSystemError, self).__init__(message, **kwargs)
+        super().__init__(message, **kwargs)
 
 
 class ConversionError(Exception):
@@ -49,4 +49,4 @@ class ConversionError(Exception):
             + "Mismatching sizes (corruption) in converted package: %s" % self.mismatching_sizes
         )
 
-        super(ConversionError, self).__init__(errors, *args, **kw)
+        super().__init__(errors, *args, **kw)

@@ -426,7 +426,7 @@ def test_api_transmute_fail_validation(tmpdir, mocker):
     # .tar.bz2 -> .conda would be a good idea.
     mocker.patch(
         "conda_package_handling.validate.validate_converted_files_match",
-        return_value=(None, set(["missing-file.txt"]), set(["mismatched-size.txt"])),
+        return_value=(None, {"missing-file.txt"}, {"mismatched-size.txt"}),
     )
 
     errors = api.transmute(tarfile, ".tar.bz2", tmpdir)
