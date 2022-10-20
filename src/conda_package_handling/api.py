@@ -34,7 +34,9 @@ def _collect_paths(prefix):
             file_paths.append(_os.path.relpath(_os.path.join(dp, f), prefix))
         dir_paths.extend(_os.path.relpath(_os.path.join(dp, _), prefix) for _ in dn)
     file_list = file_paths + [
-        dp for dp in dir_paths if not any(f.startswith(dp + _os.sep) for f in file_paths)
+        dp
+        for dp in dir_paths
+        if not any(f.startswith(dp + _os.sep) for f in file_paths)
     ]
     return file_list
 
@@ -58,7 +60,9 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
                 "prefix)"
             )
         if not _os.path.isabs(dest_dir):
-            dest_dir = _os.path.normpath(_os.path.join(prefix or _os.getcwd(), dest_dir))
+            dest_dir = _os.path.normpath(
+                _os.path.join(prefix or _os.getcwd(), dest_dir)
+            )
     else:
         dest_dir = _os.path.join(
             prefix or _os.path.dirname(fn),
@@ -123,7 +127,10 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
 
 def _convert(fn, out_ext, out_folder, **kw):
     basename = get_default_extracted_folder(fn, abspath=False)
-    from .validate import validate_converted_files_match
+    from .validate import (
+        validate_converted_files_match,
+        validate_converted_files_match_streaming,
+    )
 
     if not basename:
         print(
@@ -131,7 +138,7 @@ def _convert(fn, out_ext, out_folder, **kw):
             % (fn, SUPPORTED_EXTENSIONS)
         )
         return
-    out_fn = _os.path.join(out_folder, basename + out_ext)
+    out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
     if not _os.path.lexists(out_fn) or ("force" in kw and kw["force"]):
         if out_ext == ".conda":
@@ -142,7 +149,18 @@ def _convert(fn, out_ext, out_folder, **kw):
             )
             compressor = lambda: zstandard.ZstdCompressor(**compressor_args)
             try:
-                conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
+                conda_package_streaming.transmute.transmute(
+                    fn, out_folder, compressor=compressor
+                )
+                (
+                    _,
+                    missing_files,
+                    mismatching_sizes,
+                ) = validate_converted_files_match_streaming(
+                    out_fn, fn
+                )
+                if missing_files or mismatching_sizes:
+                    errors = str(ConversionError(missing_files, mismatching_sizes))
             except BaseException:
                 # don't leave partial `.conda` around
                 if _os.path.isfile(out_fn):
@@ -154,7 +172,13 @@ def _convert(fn, out_ext, out_folder, **kw):
                     extract(fn, dest_dir=tmp)
                     file_list = _collect_paths(tmp)
 
-                    create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
+                    create(
+                        tmp,
+                        file_list,
+                        _os.path.basename(out_fn),
+                        out_folder=out_folder,
+                        **kw
+                    )
                     (
                         _,
                         missing_files,
@@ -180,7 +204,9 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     failed_files = {}
     with _tqdm.tqdm(total=len(flist), leave=False) as t:
         with _get_executor(processes) as executor:
-            convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
+            convert_f = _functools.partial(
+                _convert, out_ext=out_ext, out_folder=out_folder, **kw
+            )
             for fn, out_fn, errors in executor.map(convert_f, flist):
                 t.set_description("Converted: %s" % fn)
                 t.update()
