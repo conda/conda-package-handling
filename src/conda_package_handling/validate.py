@@ -16,9 +16,7 @@ def validate_converted_files_match(src_file_or_folder, subject, reference_ext=""
         if os.path.isdir(src_file_or_folder):
             src_folder = src_file_or_folder
         else:
-            extract(
-                src_file_or_folder + reference_ext, dest_dir=os.path.join(tmpdir, "src")
-            )
+            extract(src_file_or_folder + reference_ext, dest_dir=os.path.join(tmpdir, "src"))
             src_folder = os.path.join(tmpdir, "src")
 
         converted_folder = os.path.join(tmpdir, "converted")
@@ -72,20 +70,14 @@ def validate_converted_files_match_streaming(
 
     def get_fileset(filename: str | Path):
         fileset = {}
-        components = (
-            ["info", "pkg"] if os.fspath(filename).endswith(".conda") else ["pkg"]
-        )
+        components = ["info", "pkg"] if os.fspath(filename).endswith(".conda") else ["pkg"]
         with open(filename, "rb") as conda_file:
             for component in components:
                 for tar, member in package_streaming.stream_conda_component(
                     filename, conda_file, component
                 ):
 
-                    info = {
-                        k: v
-                        for k, v in member.get_info().items()
-                        if k not in ignore_fields
-                    }
+                    info = {k: v for k, v in member.get_info().items() if k not in ignore_fields}
 
                     if member.isfile():
                         hasher = hash_fn()
