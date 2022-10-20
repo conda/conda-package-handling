@@ -16,6 +16,7 @@ from conda_package_handling import api, exceptions
 
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
+version_file = pathlib.Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
 test_package_name = "mock-2.0.0-py37_1000"
 test_package_name_2 = "cph_test_data-0.0.1-0"
 
@@ -23,16 +24,12 @@ test_package_name_2 = "cph_test_data-0.0.1-0"
 @pytest.mark.skipif(
     bool(os.environ.get("GITHUB_ACTIONS", False)), reason="Fails on GitHub Actions"
 )
+@pytest.mark.skipif(not version_file.exists(), reason=f"Could not find {version_file}")
 def test_correct_version():
     """
     Prevent accidentally running tests against a globally installed different version.
     """
-    assert (
-        conda_package_handling.__version__
-        in (
-            pathlib.Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
-        ).read_text()
-    )
+    assert conda_package_handling.__version__ in version_file.read_text()
 
 
 def test_api_extract_tarball_implicit_path(testing_workdir):
