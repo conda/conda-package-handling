@@ -1,4 +1,4 @@
-$ACTIVITIES = ["authors", "changelog"]
+$ACTIVITIES = ["version_bump", "authors", "changelog"]
 
 # Basic settings
 $PROJECT = $GITHUB_REPO = $(basename $(git remote get-url origin)).split('.')[0]
