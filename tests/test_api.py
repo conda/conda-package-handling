@@ -420,23 +420,37 @@ def test_create_filelist(tmpdir, mocker):
 
 
 def test_api_transmute_fail_validation(tmpdir, mocker):
-    tarfile = os.path.join(data_dir, test_package_name + ".conda")
+    package = os.path.join(data_dir, test_package_name + ".conda")
 
     # this code is only called for .conda -> .tar.bz2; a streaming validate for
     # .tar.bz2 -> .conda would be a good idea.
     mocker.patch(
         "conda_package_handling.validate.validate_converted_files_match",
-        return_value=(None, {"missing-file.txt"}, {"mismatched-size.txt"}),
+        return_value=(str(package), {"missing-file.txt"}, {"mismatched-size.txt"}),
     )
 
-    errors = api.transmute(tarfile, ".tar.bz2", tmpdir)
+    errors = api.transmute(package, ".tar.bz2", tmpdir)
+    assert errors
+
+
+def test_api_transmute_fail_validation_to_conda(tmpdir, mocker):
+    package = os.path.join(data_dir, test_package_name + ".tar.bz2")
+
+    # this code is only called for .conda -> .tar.bz2; a streaming validate for
+    # .tar.bz2 -> .conda would be a good idea.
+    mocker.patch(
+        "conda_package_handling.validate.validate_converted_files_match_streaming",
+        return_value=(str(package), {"missing-file.txt"}, {"mismatched-size.txt"}),
+    )
+
+    errors = api.transmute(package, ".conda", tmpdir)
     assert errors
 
 
 def test_api_transmute_fail_validation_2(tmpdir, mocker):
-    tarfile = os.path.join(data_dir, test_package_name + ".conda")
-    tmptarfile = tmpdir / pathlib.Path(tarfile).name
-    shutil.copy(tarfile, tmptarfile)
+    package = os.path.join(data_dir, test_package_name + ".conda")
+    tmptarfile = tmpdir / pathlib.Path(package).name
+    shutil.copy(package, tmptarfile)
 
     mocker.patch(
         "conda_package_handling.validate.validate_converted_files_match",
