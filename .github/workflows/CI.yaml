@@ -27,7 +27,6 @@ jobs:
         df -h
         ulimit -a
 
-
     # More info on options: https://github.com/conda-incubator/setup-miniconda
     - uses: conda-incubator/setup-miniconda@v2
       with:
@@ -47,6 +46,8 @@ jobs:
       shell: bash -l {0}
       run: |
         conda build -c conda conda.recipe
+
+        python -m conda_package_handling
 
 # TODO: Re-enable codecov when we figure out how to grab coverage from the conda build
 #       environment
