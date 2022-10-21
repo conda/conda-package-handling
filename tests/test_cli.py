@@ -38,3 +38,11 @@ def test_cli(tmpdir, mocker):
             f"--out-folder={tmpdir}",
         ]
         cli.main(args=command)
+
+
+def test_import_main():
+    """
+    e.g. python -m conda_package_handling
+    """
+    with pytest.raises(SystemExit):
+        import conda_package_handling.__main__

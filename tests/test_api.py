@@ -146,7 +146,9 @@ def check_conda_v2_metadata(condafile):
 
 def test_api_transmute_tarball_to_conda_v2(testing_workdir):
     tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
-    errors = api.transmute(tarfile, ".conda", testing_workdir)
+    # lower compress level makes the test run much faster, even 15 is much
+    # better than 22
+    errors = api.transmute(tarfile, ".conda", testing_workdir, zstd_compress_level=3)
     assert not errors
     condafile = os.path.join(testing_workdir, test_package_name + ".conda")
     assert os.path.isfile(condafile)
@@ -190,7 +192,7 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
 
     tar_path = os.path.join(data_dir, test_package_name_2 + ".tar.bz2")
     conda_path = os.path.join(testing_workdir, test_package_name_2 + ".conda")
-    api.transmute(tar_path, ".conda", testing_workdir)
+    api.transmute(tar_path, ".conda", testing_workdir, zstd_compress_level=3)
 
     # Verify original contents were all put in the right place
     pkg_tarbz2 = tarfile.open(tar_path, mode="r:bz2")
@@ -443,7 +445,7 @@ def test_api_transmute_fail_validation_to_conda(tmpdir, mocker):
         return_value=(str(package), {"missing-file.txt"}, {"mismatched-size.txt"}),
     )
 
-    errors = api.transmute(package, ".conda", tmpdir)
+    errors = api.transmute(package, ".conda", tmpdir, zstd_compress_level=3)
     assert errors
 
 
