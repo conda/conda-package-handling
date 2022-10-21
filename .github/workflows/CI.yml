@@ -103,7 +103,7 @@ jobs:
         if: always()
         id: allure-report
         with:
-          allure_results: allure-results
+          allure_results: allure-results/allure-results
           gh_pages: gh-pages
           # XXX use variables
           allure_report: allure-report
