@@ -96,12 +96,12 @@ jobs:
       - name: List test results
         run: ls -R allure-results
 
-      - name: Make folders
-        run: |
-          mkdir -p allure-history
-          mkdir -p allure-report
-          chmod go+rwx allure-* || true
-          sudo chmod go+rwx allure-* || true
+      # - name: Make folders
+      #   run: |
+      #     mkdir -p allure-history
+      #     mkdir -p allure-report
+      #     chmod go+rwx allure-* || true
+      #     sudo chmod go+rwx allure-* || true
 
       - name: Setup allure report
         uses: simple-elf/allure-report-action@master
@@ -114,10 +114,6 @@ jobs:
           allure_report: allure-report
           allure_history: allure-history
           keep_reports: 20
-
-      # adapted from https://github.com/actions/starter-workflows/blob/main/pages/static.yml
-      - name: Checkout
-        uses: actions/checkout@v3
 
       - name: Setup Pages
         uses: actions/configure-pages@v2
