@@ -32,13 +32,13 @@ jobs:
             hashFiles('conda.recipe/meta.yaml') }}
 
       # # can we cache twice
-      # - name: Cache pip
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.cache/pip
-      #     key:
-      #       ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-      #       hashFiles('setup.py') }}
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key:
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+            hashFiles('setup.py') }}
 
       - name: Additional info about the build
         shell: bash
@@ -92,6 +92,12 @@ jobs:
         run: ls -R
         working-directory: allure-results
 
+      - name: Make folders
+        run: |
+          mkdir -p allure-history
+          mkdir -p allure-report
+        working-directory: allure-results
+
       - name: Setup allure report
         uses: simple-elf/allure-report-action@master
         if: always()
@@ -100,8 +106,8 @@ jobs:
           allure_results: allure-results
           gh_pages: gh-pages
           # XXX use variables
-          allure_report: /home/runner/work/allure-report
-          allure_history: /home/runner/work/allure-history
+          allure_report: allure-report
+          allure_history: allure-history
           keep_reports: 20
 
       # adapted from https://github.com/actions/starter-workflows/blob/main/pages/static.yml
