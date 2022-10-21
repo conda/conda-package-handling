@@ -58,8 +58,8 @@ jobs:
         run: |
           conda build -c conda conda.recipe --no-test --output-folder build
 
-          # or .conda?
-          conda install build/conda-package-handling-*.tar.bz2
+          # or .conda? from build/subdir/package-name.extension
+          conda install build/*/conda-package-handling-*.tar.bz2
 
           python -m pip install allure-pytest
           pytest --allure-dir=allure-results
