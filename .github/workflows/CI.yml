@@ -99,8 +99,9 @@ jobs:
         with:
           allure_results: allure-results
           gh_pages: gh-pages
-          allure_report: ~/work/allure-report
-          allure_history: ~/work/allure-history
+          # XXX use variables
+          allure_report: /home/runner/work/allure-report
+          allure_history: /home/runner/work/allure-history
           keep_reports: 20
 
       # adapted from https://github.com/actions/starter-workflows/blob/main/pages/static.yml
@@ -114,7 +115,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: '.'
+          path: /home/runner/work/allure-report
 
       - name: Deploy to GitHub Pages
         id: deployment
