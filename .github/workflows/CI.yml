@@ -70,6 +70,8 @@ jobs:
           # or .conda? from build/subdir/package-name.extension
           conda install build/*/conda-package-handling-*.tar.bz2
 
+          # it doesn't find conda-package-handling[test] if we split this into a
+          # separate step?
           python -m pip install allure-pytest conda-package-handling[test]
           pytest --alluredir=allure-results
           tar -zcf allure-results.tar.gz allure-results
