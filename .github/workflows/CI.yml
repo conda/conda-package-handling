@@ -29,7 +29,7 @@ jobs:
           path: ~/conda_pkgs_dir
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('etc/example-environment.yml') }}
+            hashFiles('conda.recipe/meta.yml') }}
 
       - name: Additional info about the build
         shell: bash
@@ -61,7 +61,7 @@ jobs:
           # or .conda? from build/subdir/package-name.extension
           conda install build/*/conda-package-handling-*.tar.bz2
 
-          python -m pip install allure-pytest
+          python -m pip install allure-pytest conda-package-handling[test]
           pytest --allure-dir=allure-results
 
       - name: Upload allure-results
