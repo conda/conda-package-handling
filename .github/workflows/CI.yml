@@ -73,11 +73,13 @@ jobs:
           python -m pip install allure-pytest conda-package-handling[test]
           pytest --alluredir=allure-results
 
+          tar -zcf allure-results.tar.gz allure-results
+
       - name: Upload allure-results
         uses: actions/upload-artifact@v2
         with:
           name: allure-${{ matrix.python-version }}_${{ matrix.os }}
-          path: allure-results
+          path: allure-results.tar.gz
 
   allure-report:
     needs: [test]
@@ -88,20 +90,13 @@ jobs:
         with:
           path: allure-results
 
-      # if they were tarballs for faster dl's
-      # - name: unpack tarballs
-      # run: find allure-results -name *.tar.gz -exec tar -xf {} \;
-      # workdir: allure-results
+      - name: Unpack test results
+        working-directory: allure-results
+        run: |
+          find -name \*.tar.gz -exec tar -xf {} \;
 
       - name: List test results
         run: ls -R allure-results
-
-      # - name: Make folders
-      #   run: |
-      #     mkdir -p allure-history
-      #     mkdir -p allure-report
-      #     chmod go+rwx allure-* || true
-      #     sudo chmod go+rwx allure-* || true
 
       - name: Setup allure report
         uses: simple-elf/allure-report-action@master
@@ -115,15 +110,12 @@ jobs:
           allure_history: allure-history
           keep_reports: 20
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Upload history
+        uses: actions/upload-artifact@v2
         with:
-          # Upload entire repository
-          path: /home/runner/work/allure-report
+          path: allure-history
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+      - name: Upload report
+        uses: actions/upload-artifact@v2
+        with:
+          path: allure-report
