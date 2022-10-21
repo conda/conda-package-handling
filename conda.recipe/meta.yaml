@@ -16,6 +16,7 @@ build:
   script: {{ PYTHON }} -m pip install . --no-deps -vv
   entry_points:
     - cph = conda_package_handling.cli:main
+  # by skipping nooarch: python, tests run under build python
 
 requirements:
   build:
@@ -41,8 +42,7 @@ test:
   imports:
     - conda_package_handling
   commands:
-    # This test is skipped until Dec 2019 which is weird. Skip for now.
-    - pytest -v --cov=tests/ --cov-report=xml --color=yes tests/ -k "not test_secure_refusal_to_extract_abs_paths"
+    - pytest -v --cov=conda_package_handling --color=yes tests/
 
 about:
   home: https://github.com/conda/conda-package-handling
