@@ -18,7 +18,7 @@ jobs:
         python-version: [3.7, 3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Cache conda
         uses: actions/cache@v3
@@ -35,6 +35,7 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v3
         with:
+          # not correct on Windows
           path: ~/.cache/pip
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
