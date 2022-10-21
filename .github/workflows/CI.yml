@@ -14,8 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: [3.7, 3.8, 3.9]
+        os: [ubuntu-latest] #, windows-latest]
+        python-version: [3.7] #, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
           path: ~/conda_pkgs_dir
           key:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-            hashFiles('conda.recipe/meta.yml') }}
+            hashFiles('conda.recipe/meta.yaml') }}
 
       # # can we cache twice
       # - name: Cache pip
@@ -99,8 +99,8 @@ jobs:
         with:
           allure_results: allure-results
           gh_pages: gh-pages
-          allure_report: allure-report
-          allure_history: allure-history
+          allure_report: ~/work/allure-report
+          allure_history: ~/work/allure-history
           keep_reports: 20
 
       # adapted from https://github.com/actions/starter-workflows/blob/main/pages/static.yml
