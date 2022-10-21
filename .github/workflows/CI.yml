@@ -60,7 +60,7 @@ jobs:
           auto-activate-base: false
           show-channel-urls: true
 
-      - name: Install package
+      - name: Install and test package
 
         # conda setup requires this special shell
         shell: bash -l {0}
@@ -70,8 +70,6 @@ jobs:
           # or .conda? from build/subdir/package-name.extension
           conda install build/*/conda-package-handling-*.tar.bz2
 
-      - name: Test with pytest
-        run: |
           python -m pip install allure-pytest conda-package-handling[test]
           pytest --alluredir=allure-results
           tar -zcf allure-results.tar.gz allure-results
