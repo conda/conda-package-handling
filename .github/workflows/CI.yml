@@ -96,7 +96,6 @@ jobs:
         run: |
           mkdir -p allure-history
           mkdir -p allure-report
-        working-directory: allure-results
 
       - name: Setup allure report
         uses: simple-elf/allure-report-action@master
