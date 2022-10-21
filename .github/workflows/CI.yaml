@@ -60,6 +60,7 @@ jobs:
         # or .conda?
         conda install build/conda-package-handling-*.tar.bz2
 
+        python -m pip install allure-pytest
         pytest --allure-dir=allure-results
 
   allure-report:
