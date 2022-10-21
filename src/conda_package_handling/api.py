@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools as _functools
 import os as _os
 import warnings as _warnings

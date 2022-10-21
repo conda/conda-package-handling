@@ -129,9 +129,7 @@ def rmtree(path, *args, **kwargs):
             # out = check_output('DEL /F/Q/S *.* > NUL 2> NUL'.format(path), shell=True,
             #                    stderr=STDOUT, cwd=path)
 
-            out = check_output(
-                f'RD /S /Q "{path}" > NUL 2> NUL', shell=True, stderr=STDOUT
-            )
+            out = check_output(f'RD /S /Q "{path}" > NUL 2> NUL', shell=True, stderr=STDOUT)
         except:
             try:
                 # Try to delete in Unicode
@@ -169,9 +167,7 @@ def rmtree(path, *args, **kwargs):
                     )
                     raise
                 else:
-                    log.debug(
-                        f"removing dir contents the fast way failed.  Output was: {out}"
-                    )
+                    log.debug(f"removing dir contents the fast way failed.  Output was: {out}")
     else:
         try:
             os.makedirs(".empty")
