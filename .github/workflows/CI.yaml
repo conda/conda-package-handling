@@ -17,57 +17,57 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.8, 3.9]
 
-  steps:
-    - uses: actions/checkout@v2
-    - name: Cache conda
-      uses: actions/cache@v2
-      env:
-        # Increase this value to reset cache if etc/example-environment.yml has not changed
-        CACHE_NUMBER: 0
-      with:
-        path: ~/conda_pkgs_dir
-        key:
-          ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
-          hashFiles('etc/example-environment.yml') }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache conda
+        uses: actions/cache@v2
+        env:
+          # Increase this value to reset cache if etc/example-environment.yml has not changed
+          CACHE_NUMBER: 0
+        with:
+          path: ~/conda_pkgs_dir
+          key:
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+            hashFiles('etc/example-environment.yml') }}
 
-    - name: Additional info about the build
-      shell: bash
-      run: |
-        uname -a
-        df -h
-        ulimit -a
+      - name: Additional info about the build
+        shell: bash
+        run: |
+          uname -a
+          df -h
+          ulimit -a
 
-    # More info on options: https://github.com/conda-incubator/setup-miniconda
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        environment-file: devtools/conda-envs/test_env.yaml
+      # More info on options: https://github.com/conda-incubator/setup-miniconda
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          environment-file: devtools/conda-envs/test_env.yaml
 
-        channels: defaults
+          channels: defaults
 
-        activate-environment: test_env
-        auto-update-conda: false
-        auto-activate-base: false
-        show-channel-urls: true
+          activate-environment: test_env
+          auto-update-conda: false
+          auto-activate-base: false
+          show-channel-urls: true
 
-    - name: Build conda package
+      - name: Build conda package
 
-      # conda setup requires this special shell
-      shell: bash -l {0}
-      run: |
-        conda build -c conda conda.recipe --no-test --output-folder build
+        # conda setup requires this special shell
+        shell: bash -l {0}
+        run: |
+          conda build -c conda conda.recipe --no-test --output-folder build
 
-        # or .conda?
-        conda install build/conda-package-handling-*.tar.bz2
+          # or .conda?
+          conda install build/conda-package-handling-*.tar.bz2
 
-        python -m pip install allure-pytest
-        pytest --allure-dir=allure-results
+          python -m pip install allure-pytest
+          pytest --allure-dir=allure-results
 
-    - name: Upload allure-results
-      uses: actions/upload-artifact@v2
-      with:
-        name: allure-${{ matrix.python-version }}_${{ matrix.os }}
-        path: allure-results
+      - name: Upload allure-results
+        uses: actions/upload-artifact@v2
+        with:
+          name: allure-${{ matrix.python-version }}_${{ matrix.os }}
+          path: allure-results
 
   allure-report:
     needs: [test]
