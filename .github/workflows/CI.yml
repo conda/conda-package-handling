@@ -88,14 +88,20 @@ jobs:
         with:
           path: allure-results
 
+      # if they were tarballs for faster dl's
+      # - name: unpack tarballs
+      # run: find allure-results -name *.tar.gz -exec tar -xf {} \;
+      # workdir: allure-results
+
       - name: List test results
-        run: ls -R
-        working-directory: allure-results
+        run: ls -R allure-results
 
       - name: Make folders
         run: |
           mkdir -p allure-history
           mkdir -p allure-report
+          chmod go+rwx allure-* || true
+          sudo chmod go+rwx allure-* || true
 
       - name: Setup allure report
         uses: simple-elf/allure-report-action@master
