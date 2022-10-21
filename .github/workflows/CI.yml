@@ -90,10 +90,23 @@ jobs:
         with:
           path: allure-results
 
+# the artifacts will be in folders per artifact name.
+#
+# download-artifact@v3 doesn't know how to download "just the allure results"
+#
+# Run ls -R allure-results
+# allure-results:
+# allure-3.7_ubuntu-latest
+# allure-results
+
+# allure-results/allure-3.7_ubuntu-latest:
+# allure-results.tar.gz
+
       - name: Unpack test results
         working-directory: allure-results
         run: |
-          find -name \*.tar.gz -exec tar -xf {} \;
+          # strip the existing allure-results/ embedded in the .tar.gz
+          find -name allure-\*.tar.gz -exec tar -xf {} --strip-components=1 \;
 
       - name: List test results
         run: ls -R allure-results
@@ -103,7 +116,7 @@ jobs:
         if: always()
         id: allure-report
         with:
-          allure_results: allure-results/allure-results
+          allure_results: allure-results
           gh_pages: gh-pages
           # XXX use variables
           allure_report: allure-report
