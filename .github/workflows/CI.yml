@@ -31,6 +31,15 @@ jobs:
             ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
             hashFiles('conda.recipe/meta.yml') }}
 
+      # # can we cache twice
+      # - name: Cache pip
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/pip
+      #     key:
+      #       ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+      #       hashFiles('setup.py') }}
+
       - name: Additional info about the build
         shell: bash
         run: |
@@ -62,7 +71,7 @@ jobs:
           conda install build/*/conda-package-handling-*.tar.bz2
 
           python -m pip install allure-pytest conda-package-handling[test]
-          pytest --allure-dir=allure-results
+          pytest --alluredir=allure-results
 
       - name: Upload allure-results
         uses: actions/upload-artifact@v2
