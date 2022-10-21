@@ -14,8 +14,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest] #, windows-latest]
-        python-version: [3.7] #, 3.8, 3.9]
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +60,7 @@ jobs:
           auto-activate-base: false
           show-channel-urls: true
 
-      - name: Build conda package
+      - name: Install package
 
         # conda setup requires this special shell
         shell: bash -l {0}
@@ -70,9 +70,10 @@ jobs:
           # or .conda? from build/subdir/package-name.extension
           conda install build/*/conda-package-handling-*.tar.bz2
 
+      - name: Test with pytest
+        run: |
           python -m pip install allure-pytest conda-package-handling[test]
           pytest --alluredir=allure-results
-
           tar -zcf allure-results.tar.gz allure-results
 
       - name: Upload allure-results
