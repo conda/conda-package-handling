@@ -17,8 +17,18 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.8, 3.9]
 
-    steps:
-    - uses: actions/checkout@v1
+  steps:
+    - uses: actions/checkout@v2
+    - name: Cache conda
+      uses: actions/cache@v2
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/conda_pkgs_dir
+        key:
+          ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+          hashFiles('etc/example-environment.yml') }}
 
     - name: Additional info about the build
       shell: bash
@@ -40,20 +50,15 @@ jobs:
         auto-activate-base: false
         show-channel-urls: true
 
-    - name: Install package
+    - name: Build conda package
 
       # conda setup requires this special shell
       shell: bash -l {0}
       run: |
-        conda build -c conda conda.recipe
+        conda build -c conda conda.recipe --no-test --output-folder build
 
-        python -m conda_package_handling
+        # or .conda?
+        conda install build/conda-package-handling-*.tar.bz2
 
-# TODO: Re-enable codecov when we figure out how to grab coverage from the conda build
-#       environment
-#     - name: CodeCov
-#       uses: codecov/codecov-action@v1
-#       with:
-#         file: ./coverage.xml
-#         flags: unittests
-#         name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
+        pytest --allure-dir=allure-results
+
