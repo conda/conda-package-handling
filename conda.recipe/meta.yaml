@@ -41,6 +41,7 @@ test:
     - pytest-mock
   imports:
     - conda_package_handling
+    - conda_package_handling.api
   commands:
     - pytest -v --cov=conda_package_handling --color=yes tests/
 
