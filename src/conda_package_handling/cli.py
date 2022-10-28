@@ -16,9 +16,10 @@ def parse_args(parse_this=None):
         version=f"conda-package-handling {__version__}",
     )
     parser.add_argument(
-        "--ci",
+        "-q",
+        "--quiet",
         action="store_true",
-        help="Disable interactive terminal printing.",
+        help="Do not display progress bar.",
     )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
 
@@ -129,6 +130,7 @@ def main(args=None):
             force=args.force,
             zstd_compress_level=args.zstd_compression_level,
             zstd_compress_threads=args.zstd_compression_threads,
+            quiet=args.quiet,
         )
         if failed_files:
             print("failed files:")
