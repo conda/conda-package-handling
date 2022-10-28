@@ -15,6 +15,12 @@ def parse_args(parse_this=None):
         help="Show the conda-package-handling version number and exit.",
         version=f"conda-package-handling {__version__}",
     )
+    parser.add_argument(
+        "--ci",
+        action="store_true",
+        type=bool,
+        help="Disable interactive terminal printing.",
+    )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
 
     extract_parser = sp.add_parser("extract", help="extract package contents", aliases=["x"])
@@ -144,13 +150,14 @@ def main(args=None):
                 "zstd",
                 f"zstd:compression-level={args.zstd_compression_level}",
             ),
+            ci=args.ci,
         )
         if failed_files:
             print("failed files:")
             pprint(failed_files)
             sys.exit(1)
     elif args.subcommand in ("verify", "v"):
-        failed_files = api.verify_conversion(args.glob, args.target_dir, args.reference_ext)
+        failed_files = api.verify_conversion(args.glob, args.target_dir, args.reference_ext, ci=args.ci)
         if failed_files:
             print("failed files:")
             pprint(failed_files)

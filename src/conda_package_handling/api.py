@@ -132,7 +132,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     return fn, out_fn, errors
 
 
-def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
+def transmute(in_file, out_ext, out_folder=None, processes=1, ci=False, **kw):
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
@@ -143,7 +143,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
         flist = flist - set(_glob(in_file.replace(".conda", out_ext)))
 
     failed_files = {}
-    with _tqdm.tqdm(total=len(flist), leave=False) as t:
+    with _tqdm.tqdm(total=len(flist), leave=False, disable=ci) as t:
         with _get_executor(processes) as executor:
             convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
             for fn, out_fn, errors in executor.map(convert_f, flist):
@@ -156,7 +156,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
 
 
 def verify_conversion(
-    glob_pattern, target_dir, reference_ext, tmpdir_root=_tempfile.gettempdir(), processes=None
+    glob_pattern, target_dir, reference_ext, tmpdir_root=_tempfile.gettempdir(), processes=None, ci=False,
 ):
     from .validate import validate_converted_files_match
 
@@ -173,7 +173,7 @@ def verify_conversion(
     other_exts = set(SUPPORTED_EXTENSIONS) - {reference_ext}
 
     errors = {}
-    with _tqdm.tqdm(total=(len(matches) * len(SUPPORTED_EXTENSIONS) - 1), leave=False) as t:
+    with _tqdm.tqdm(total=(len(matches) * len(SUPPORTED_EXTENSIONS) - 1), leave=False, disable=ci) as t:
         with _Executor(max_workers=processes) as executor:
             for other_ext in other_exts:
                 verify_fn = lambda fn: validate_converted_files_match(
