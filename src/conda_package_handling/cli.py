@@ -18,7 +18,6 @@ def parse_args(parse_this=None):
     parser.add_argument(
         "--ci",
         action="store_true",
-        type=bool,
         help="Disable interactive terminal printing.",
     )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
