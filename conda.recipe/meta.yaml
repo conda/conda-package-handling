@@ -17,7 +17,6 @@ build:
   entry_points:
     - cph = conda_package_handling.cli:main
   # by skipping nooarch: python, tests run under build python
-  noarch: python
 
 requirements:
   build:
