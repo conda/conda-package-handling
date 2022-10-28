@@ -188,7 +188,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     return fn, out_fn, errors
 
 
-def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
+def transmute(in_file, out_ext, out_folder=None, processes=1, quiet=False, **kw):
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
@@ -199,10 +199,12 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
         flist = flist - set(_glob(in_file.replace(".conda", out_ext)))
 
     failed_files = {}
-    with _tqdm.tqdm(total=len(flist), leave=False) as t:
+    with _tqdm.tqdm(total=len(flist), leave=False, disable=quiet) as t:
         with _get_executor(processes) as executor:
             convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
             for fn, out_fn, errors in executor.map(convert_f, flist):
+                if quiet:
+                    print("Converted: %s" % fn)
                 t.set_description("Converted: %s" % fn)
                 t.update()
                 if errors:

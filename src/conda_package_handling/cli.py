@@ -15,6 +15,11 @@ def parse_args(parse_this=None):
         help="Show the conda-package-handling version number and exit.",
         version=f"conda-package-handling {__version__}",
     )
+    parser.add_argument(
+        "--ci",
+        action="store_true",
+        help="Disable interactive terminal printing.",
+    )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
 
     extract_parser = sp.add_parser("extract", help="extract package contents", aliases=["x"])
