@@ -65,7 +65,7 @@ def test_api_extract_tarball_explicit_path(testing_workdir):
     assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
 
 
-def test_api_extract_tarball_with_libarchive_import_error(testing_workdir, mocker):
+def test_api_extract_tarball_with_libarchive_import_error(testing_workdir):
     try:
         api.libarchive_enabled = False
         conda_package_handling.tarball.libarchive_enabled = False
@@ -162,10 +162,13 @@ def test_api_transmute_tarball_info_sorts_first(testing_workdir):
         test_packages += test_packages_with_symlinks
     for test_package in test_packages:
         test_file = os.path.join(data_dir, test_package + ".tar.bz2")
-        # skip 'don't transmute to same extension' logic
-        fn, out_fn, errors = api._convert(test_file, ".tar.bz2", testing_workdir)
-        assert fn == test_file
-        assert not errors
+
+        # transmute/convert doesn't re-sort files; extract to folder.
+        api.extract(test_file, testing_workdir)
+        out_fn = os.path.join(testing_workdir, test_package + ".tar.bz2")
+        out = api.create(testing_workdir, None, out_fn)
+        assert out == out_fn
+
         # info must be first
         with tarfile.open(out_fn, "r:bz2") as repacked:
             info_seen = False
@@ -427,7 +430,7 @@ def test_api_transmute_fail_validation(tmpdir, mocker):
     # this code is only called for .conda -> .tar.bz2; a streaming validate for
     # .tar.bz2 -> .conda would be a good idea.
     mocker.patch(
-        "conda_package_handling.validate.validate_converted_files_match",
+        "conda_package_handling.validate.validate_converted_files_match_streaming",
         return_value=(str(package), {"missing-file.txt"}, {"mismatched-size.txt"}),
     )
 
@@ -438,8 +441,6 @@ def test_api_transmute_fail_validation(tmpdir, mocker):
 def test_api_transmute_fail_validation_to_conda(tmpdir, mocker):
     package = os.path.join(data_dir, test_package_name + ".tar.bz2")
 
-    # this code is only called for .conda -> .tar.bz2; a streaming validate for
-    # .tar.bz2 -> .conda would be a good idea.
     mocker.patch(
         "conda_package_handling.validate.validate_converted_files_match_streaming",
         return_value=(str(package), {"missing-file.txt"}, {"mismatched-size.txt"}),
@@ -455,7 +456,7 @@ def test_api_transmute_fail_validation_2(tmpdir, mocker):
     shutil.copy(package, tmptarfile)
 
     mocker.patch(
-        "conda_package_handling.validate.validate_converted_files_match",
+        "conda_package_handling.validate.validate_converted_files_match_streaming",
         side_effect=Exception("not today"),
     )
 

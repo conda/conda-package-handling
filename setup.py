@@ -19,13 +19,9 @@ setup(
     package_dir={"": "src"},
     entry_points={"console_scripts": ["cph=conda_package_handling.cli:main"]},
     keywords="conda-package-handling",
-    classifiers=[
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-    ],
+    classifiers=["Programming Language :: Python :: 3"],
     python_requires=">=3.7",
-    install_requires=["conda-package-streaming >= 0.5.0", "tqdm"],
+    install_requires=["conda-package-streaming >= 0.6.0", "tqdm"],
     extras_require={
         "docs": ["furo", "sphinx", "myst-parser", "mdit-py-plugins>=0.3.0"],
         "test": ["mock", "pytest", "pytest-cov", "pytest-mock"],

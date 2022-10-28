@@ -12,6 +12,7 @@ import tqdm as _tqdm
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
 from .utils import TemporaryDirectory as _TemporaryDirectory
+from .utils import filter_info_files
 from .utils import get_executor as _get_executor
 from .utils import rm_rf as _rm_rf
 
@@ -134,10 +135,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     import zstandard
 
     basename = get_default_extracted_folder(fn, abspath=False)
-    from .validate import (
-        validate_converted_files_match,
-        validate_converted_files_match_streaming,
-    )
+    from .validate import validate_converted_files_match_streaming
 
     if not basename:
         print(
@@ -148,6 +146,7 @@ def _convert(fn, out_ext, out_folder, **kw):
     out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
     if not _os.path.lexists(out_fn) or ("force" in kw and kw["force"]):
+        kwargs = {}
         if out_ext == ".conda":
             # streaming transmute, not extracted to the filesystem
             compressor_args = dict(
@@ -155,36 +154,33 @@ def _convert(fn, out_ext, out_folder, **kw):
                 threads=kw.get("zstd_compress_threads", ZSTD_COMPRESS_THREADS),
             )
             compressor = lambda: zstandard.ZstdCompressor(**compressor_args)
-            try:
-                conda_package_streaming.transmute.transmute(fn, out_folder, compressor=compressor)
-                (
-                    _,
-                    missing_files,
-                    mismatching_sizes,
-                ) = validate_converted_files_match_streaming(out_fn, fn)
-                if missing_files or mismatching_sizes:
-                    errors = str(ConversionError(missing_files, mismatching_sizes))
-            except BaseException:
-                # don't leave partial `.conda` around
-                if _os.path.isfile(out_fn):
-                    _rm_rf(out_fn)
-                raise
-        else:
-            with _TemporaryDirectory(dir=out_folder) as tmp:
-                try:
-                    extract(fn, dest_dir=tmp)
-                    file_list = _collect_paths(tmp)
 
-                    create(tmp, file_list, _os.path.basename(out_fn), out_folder=out_folder, **kw)
-                    (
-                        _,
-                        missing_files,
-                        mismatching_sizes,
-                    ) = validate_converted_files_match(tmp, out_fn)
-                    if missing_files or mismatching_sizes:
-                        errors = str(ConversionError(missing_files, mismatching_sizes))
-                except Exception as e:
-                    errors = str(e)
+            def is_info(filename):
+                return filter_info_files([filename], prefix=".") == []
+
+            kwargs = {"compressor": compressor, "is_info": is_info}
+
+            transmute = conda_package_streaming.transmute.transmute
+        else:
+            transmute = conda_package_streaming.transmute.transmute_tar_bz2
+
+        try:
+            transmute(fn, out_folder, **kwargs)
+            (
+                _,
+                missing_files,
+                mismatching_sizes,
+            ) = validate_converted_files_match_streaming(out_fn, fn)
+            if missing_files or mismatching_sizes:
+                errors = str(ConversionError(missing_files, mismatching_sizes))
+        except BaseException as e:
+            # don't leave partial package around
+            if _os.path.isfile(out_fn):
+                _rm_rf(out_fn)
+            if not isinstance(e, Exception):
+                raise
+            errors = str(e)
+
     return fn, out_fn, errors
 
 

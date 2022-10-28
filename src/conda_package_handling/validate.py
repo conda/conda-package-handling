@@ -10,7 +10,10 @@ from conda_package_streaming import package_streaming
 from .utils import TemporaryDirectory
 
 
-def validate_converted_files_match(src_file_or_folder, subject, reference_ext=""):
+def validate_converted_files_match(
+    src_file_or_folder, subject, reference_ext=""
+):  # pragma: nocover
+    # No longer used by conda-package-handling
     from .api import extract
 
     with TemporaryDirectory() as tmpdir:
