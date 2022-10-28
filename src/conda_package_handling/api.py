@@ -147,6 +147,8 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, ci=False, **kw):
         with _get_executor(processes) as executor:
             convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
             for fn, out_fn, errors in executor.map(convert_f, flist):
+                if ci:
+                    print("Converted: %s" % fn)
                 t.set_description("Converted: %s" % fn)
                 t.update()
                 if errors:
@@ -180,6 +182,8 @@ def verify_conversion(
                     ref_ext=reference_ext, subject=fn + other_ext
                 )
                 for fn, missing, mismatching in executor.map(verify_fn, matches):
+                    if ci:
+                        print("Validating %s" % fn)
                     t.set_description("Validating %s" % fn)
                     t.update()
                     if missing or mismatching:
