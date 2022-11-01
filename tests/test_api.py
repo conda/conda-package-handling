@@ -1,9 +1,11 @@
 import json
 import os
 import pathlib
+import platform
 import shutil
 import sys
 import tarfile
+import time
 import zipfile
 from datetime import datetime
 from tempfile import TemporaryDirectory
@@ -241,9 +243,18 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
 
 def test_api_transmute_conda_v2_to_tarball(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + ".conda")
+    outfile = pathlib.Path(testing_workdir, test_package_name + ".tar.bz2")
     # one quiet=True in the test suite for coverage
     api.transmute(condafile, ".tar.bz2", testing_workdir, quiet=True)
-    assert os.path.isfile(os.path.join(testing_workdir, test_package_name + ".tar.bz2"))
+    assert outfile.is_file()
+
+    # test that no-force keeps file, and force overwrites file
+    for force in False, True:
+        mtime = outfile.stat().st_mtime
+        time.sleep(2 if platform.platform() == "Windows" else 0)
+        api.transmute(condafile, ".tar.bz2", testing_workdir, force=force)
+        mtime2 = outfile.stat().st_mtime
+        assert (mtime2 == mtime) != force
 
 
 def test_warning_when_bundling_no_metadata(testing_workdir):

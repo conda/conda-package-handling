@@ -129,7 +129,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
     return out
 
 
-def _convert(fn, out_ext, out_folder, **kw):
+def _convert(fn, out_ext, out_folder, force=False, **kw):
     # allow package to work in degraded mode when zstandard is not available
     import conda_package_streaming.transmute
     import zstandard
@@ -145,7 +145,9 @@ def _convert(fn, out_ext, out_folder, **kw):
         return
     out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
-    if not _os.path.lexists(out_fn) or ("force" in kw and kw["force"]):
+    if not _os.path.lexists(out_fn) or force:
+        if force and _os.path.lexists(out_fn):
+            _os.unlink(out_fn)
         kwargs = {}
         if out_ext == ".conda":
             # streaming transmute, not extracted to the filesystem
