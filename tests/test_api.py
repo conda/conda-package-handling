@@ -241,7 +241,8 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
 
 def test_api_transmute_conda_v2_to_tarball(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + ".conda")
-    api.transmute(condafile, ".tar.bz2", testing_workdir)
+    # one quiet=True in the test suite for coverage
+    api.transmute(condafile, ".tar.bz2", testing_workdir, quiet=True)
     assert os.path.isfile(os.path.join(testing_workdir, test_package_name + ".tar.bz2"))
 
 
