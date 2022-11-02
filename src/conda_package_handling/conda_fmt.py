@@ -4,6 +4,8 @@ The 'new' conda format, introduced in late 2018/early 2019.
 https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/packages.html
 """
 
+from __future__ import annotations
+
 import json
 import os
 import tarfile
