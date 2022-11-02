@@ -4,7 +4,6 @@ import functools as _functools
 import os as _os
 import warnings as _warnings
 from glob import glob as _glob
-from typing import Any
 
 import tqdm as _tqdm
 
@@ -137,11 +136,12 @@ def _convert(fn, out_ext, out_folder, force=False, **kw):
     from .validate import validate_converted_files_match_streaming
 
     if not basename:
-        print(
+        return (
+            fn,
+            "",
             "Input file %s doesn't have a supported extension (%s), skipping it"
-            % (fn, SUPPORTED_EXTENSIONS)
+            % (fn, SUPPORTED_EXTENSIONS),
         )
-        return
     out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
     if not _os.path.lexists(out_fn) or force:

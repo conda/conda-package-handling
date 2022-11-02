@@ -3,9 +3,12 @@ import re
 
 from setuptools import find_packages, setup
 
-version = re.search(
-    r'__version__\s+=\s+"(.*)"',
-    pathlib.Path("src/conda_package_handling/__init__.py").read_text(),
+version = (
+    re.search(
+        r'__version__\s+=\s+"(.*)"',
+        pathlib.Path("src/conda_package_handling/__init__.py").read_text(),
+    )
+    or []  # typing
 )[1]
 
 setup(

@@ -67,20 +67,6 @@ def test_api_extract_tarball_explicit_path(testing_workdir):
     assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
 
 
-def test_api_extract_tarball_with_libarchive_import_error(testing_workdir):
-    try:
-        api.libarchive_enabled = False
-        conda_package_handling.tarball.libarchive_enabled = False
-        tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
-        local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
-        shutil.copy2(tarfile, local_tarfile)
-        api.extract(local_tarfile, "manual_path")
-        assert os.path.isfile(os.path.join(testing_workdir, "manual_path", "info", "index.json"))
-    finally:
-        api.libarchive_enabled = True
-        conda_package_handling.tarball.libarchive_enabled = True
-
-
 def test_api_extract_conda_v2_implicit_path(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + ".conda")
     local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
