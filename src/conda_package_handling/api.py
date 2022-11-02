@@ -11,7 +11,6 @@ import tqdm as _tqdm
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
-from .utils import TemporaryDirectory as _TemporaryDirectory
 from .utils import filter_info_files
 from .utils import get_executor as _get_executor
 from .utils import rm_rf as _rm_rf

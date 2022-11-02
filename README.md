@@ -66,6 +66,15 @@ a standard conda package needs. The .conda file it creates, however, uses all
 the nice new compression formats, though, and you could use cph on some other
 computer to extract it.
 
+## Development
+
+Install this package and its test dependencies; run tests.
+
+```
+pip install -e ".[test]"
+pytest
+```
+
 ## Releasing
 
 Conda-package-handling releases may be performed via the `rever command
