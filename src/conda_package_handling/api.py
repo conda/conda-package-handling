@@ -154,7 +154,9 @@ def _convert(fn, out_ext, out_folder, force=False, **kw):
                 level=kw.get("zstd_compress_level", ZSTD_COMPRESS_LEVEL),
                 threads=kw.get("zstd_compress_threads", ZSTD_COMPRESS_THREADS),
             )
-            compressor = lambda: zstandard.ZstdCompressor(**compressor_args)
+
+            def compressor():
+                return zstandard.ZstdCompressor(**compressor_args)
 
             def is_info(filename):
                 return filter_info_files([filename], prefix=".") == []
