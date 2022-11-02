@@ -10,13 +10,13 @@ import tqdm as _tqdm
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
+from .interface import AbstractBaseFormat
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
 from .utils import filter_info_files
 from .utils import get_executor as _get_executor
 from .utils import rm_rf as _rm_rf
 
-# type checker thinks _CondaTarBZ2 is an ABC and not an AbstractFormat?
-SUPPORTED_EXTENSIONS: dict[str, Any] = {".tar.bz2": _CondaTarBZ2}
+SUPPORTED_EXTENSIONS: dict[str, type[AbstractBaseFormat]] = {".tar.bz2": _CondaTarBZ2}
 
 libarchive_enabled = False  #: Old API meaning "can extract .conda" (now without libarchive)
 
