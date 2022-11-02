@@ -63,7 +63,7 @@ class CondaFormat_v2(AbstractBaseFormat):
         info_files = set(file_list) - set(pkg_files)
 
         # legacy libarchive-ish compatibility
-        ext, comp_filter, filter_opts = compression_tuple = kw.get(
+        ext, comp_filter, filter_opts = kw.get(
             "compression_tuple", (None, None, None)
         )
         if filter_opts and filter_opts.startswith("zstd:compression-level="):
