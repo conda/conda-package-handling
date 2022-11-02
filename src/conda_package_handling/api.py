@@ -147,7 +147,7 @@ def _convert(fn, out_ext, out_folder, force=False, **kw):
     if not _os.path.lexists(out_fn) or force:
         if force and _os.path.lexists(out_fn):
             _os.unlink(out_fn)
-        kwargs = {}
+
         if out_ext == ".conda":
             # streaming transmute, not extracted to the filesystem
             compressor_args = dict(
@@ -161,19 +161,23 @@ def _convert(fn, out_ext, out_folder, force=False, **kw):
             def is_info(filename):
                 return filter_info_files([filename], prefix=".") == []
 
-            kwargs = {"compressor": compressor, "is_info": is_info}
+            transmute = _functools.partial(
+                conda_package_streaming.transmute.transmute,
+                fn,
+                out_folder,
+                compressor=compressor,
+                is_info=is_info,
+            )
 
-            transmute = conda_package_streaming.transmute.transmute
         else:
-            transmute = conda_package_streaming.transmute.transmute_tar_bz2
+            transmute = _functools.partial(
+                conda_package_streaming.transmute.transmute_tar_bz2, fn, out_folder
+            )
 
         try:
-            transmute(fn, out_folder, **kwargs)
-            (
-                _,
-                missing_files,
-                mismatching_sizes,
-            ) = validate_converted_files_match_streaming(out_fn, fn)
+            transmute()
+            result = validate_converted_files_match_streaming(out_fn, fn)
+            _, missing_files, mismatching_sizes = result
             if missing_files or mismatching_sizes:
                 errors = str(ConversionError(missing_files, mismatching_sizes))
         except BaseException as e:

@@ -7,6 +7,7 @@ https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/packages.html
 import json
 import os
 import tarfile
+from typing import Callable
 from zipfile import ZIP_STORED, ZipFile
 
 import zstandard
@@ -52,28 +53,33 @@ class CondaFormat_v2(AbstractBaseFormat):
         file_list,
         out_fn,
         out_folder=os.getcwd(),
-        compressor=lambda: zstandard.ZstdCompressor(
-            level=ZSTD_COMPRESS_LEVEL, threads=ZSTD_COMPRESS_THREADS
-        ),
-        **kw,
+        compressor: Callable[[], zstandard.ZstdCompressor] | None = None,
+        compression_tuple=(None, None, None),
     ):
         if os.path.isabs(out_fn):
             out_folder = os.path.dirname(out_fn)
             out_fn = os.path.basename(out_fn)
         conda_pkg_fn = os.path.join(out_folder, out_fn)
-        file_id = out_fn = out_fn.replace(".conda", "")
+        file_id = out_fn.replace(".conda", "")
         pkg_files = utils.filter_info_files(file_list, prefix)
         info_files = set(file_list) - set(pkg_files)
 
-        # legacy libarchive-ish compatibility
-        ext, comp_filter, filter_opts = kw.get(
-            "compression_tuple", (None, None, None)
-        )
-        if filter_opts and filter_opts.startswith("zstd:compression-level="):
+        if compressor and (compression_tuple != (None, None, None)):
+            raise ValueError("Supply one of compressor= or (deprecated) compression_tuple=")
+
+        if compressor is None:
             compressor = lambda: zstandard.ZstdCompressor(
-                level=int(filter_opts.split("=", 1)[-1]),
+                level=ZSTD_COMPRESS_LEVEL,
                 threads=ZSTD_COMPRESS_THREADS,
             )
+
+            # legacy libarchive-ish compatibility
+            ext, comp_filter, filter_opts = compression_tuple
+            if filter_opts and filter_opts.startswith("zstd:compression-level="):
+                compressor = lambda: zstandard.ZstdCompressor(
+                    level=int(filter_opts.split("=", 1)[-1]),
+                    threads=ZSTD_COMPRESS_THREADS,
+                )
 
         with ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file, utils.tmp_chdir(
             prefix
