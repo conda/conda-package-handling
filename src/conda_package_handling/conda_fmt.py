@@ -1,5 +1,8 @@
-"""The 'new' conda format, introduced in late 2018/early 2019.  Spec at
-https://anaconda.atlassian.net/wiki/spaces/AD/pages/90210540/Conda+package+format+v2"""
+"""
+The 'new' conda format, introduced in late 2018/early 2019.
+
+https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/packages.html
+"""
 
 import json
 import os
