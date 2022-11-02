@@ -4,8 +4,6 @@ Exception-compatible adapter from conda_package_streaming.
 
 from __future__ import annotations
 
-import os
-import os.path
 from tarfile import TarError
 from zipfile import BadZipFile
 
