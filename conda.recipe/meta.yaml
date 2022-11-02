@@ -53,7 +53,5 @@ about:
 
 extra:
   recipe-maintainers:
-    - msarahan
-    - beckermr
-    - dbast
     - dholth
+    - jezdez
