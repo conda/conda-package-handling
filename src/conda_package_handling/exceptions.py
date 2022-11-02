@@ -19,7 +19,7 @@ class ArchiveCreationError(Exception):
     pass
 
 
-class CaseInsensitiveFileSystemError(Exception):
+class CaseInsensitiveFileSystemError(InvalidArchiveError):
     def __init__(self, package_location, extract_location, **kwargs):
         message = """
         Cannot extract package to a case-insensitive file system. Your install
@@ -34,7 +34,7 @@ class CaseInsensitiveFileSystemError(Exception):
         """
         self.package_location = package_location
         self.extract_location = extract_location
-        super().__init__(message, **kwargs)
+        super().__init__(package_location, message, **kwargs)
 
 
 class ConversionError(Exception):
