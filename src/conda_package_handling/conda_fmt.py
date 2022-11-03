@@ -64,7 +64,9 @@ class CondaFormat_v2(AbstractBaseFormat):
         conda_pkg_fn = os.path.join(out_folder, out_fn)
         file_id = out_fn.replace(".conda", "")
         pkg_files = utils.filter_info_files(file_list, prefix)
-        info_files = set(file_list) - set(pkg_files)
+        # preserve order
+        pkg_files_set = set(pkg_files)
+        info_files = list(f for f in file_list if f not in pkg_files_set)
 
         if compressor and (compression_tuple != (None, None, None)):
             raise ValueError("Supply one of compressor= or (deprecated) compression_tuple=")
@@ -90,11 +92,13 @@ class CondaFormat_v2(AbstractBaseFormat):
             pkg_metadata = {"conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION}
             conda_file.writestr("metadata.json", json.dumps(pkg_metadata))
 
-            # put the info last, for parity with updated transmute.
-            for component, files in (f"pkg-{file_id}.tar.zst", pkg_files), (
+            components_files = (f"pkg-{file_id}.tar.zst", pkg_files), (
                 f"info-{file_id}.tar.zst",
                 info_files,
-            ):
+            )
+
+            # put the info last, for parity with updated transmute.
+            for component, files in components_files:
                 compress = compressor()
                 with conda_file.open(component, "w") as component_file:
                     component_stream = compress.stream_writer(component_file, closefd=False)
