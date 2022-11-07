@@ -45,6 +45,7 @@ test:
 about:
   home: https://github.com/conda/conda-package-handling
   dev_url: https://github.com/conda/conda-package-handling
+  doc_url: https://conda.github.io/conda-package-handling/
   license: BSD-3-Clause
   license_family: BSD
   license_file:
