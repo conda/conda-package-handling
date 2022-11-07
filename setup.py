@@ -1,15 +1,14 @@
+import importlib.util
 import pathlib
-import re
 
 from setuptools import find_packages, setup
 
-version = (
-    re.search(
-        r'__version__\s+=\s+"(.*)"',
-        pathlib.Path("src/conda_package_handling/__init__.py").read_text(),
-    )
-    or []  # typing
-)[1]
+spec = importlib.util.spec_from_file_location(
+    "conda_package_handling", pathlib.Path("src/conda_package_handling/__init__.py")
+)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+version = module.__version__
 
 setup(
     name="conda-package-handling",
