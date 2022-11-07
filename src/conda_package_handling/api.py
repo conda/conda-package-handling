@@ -125,7 +125,15 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
     return out
 
 
-def _convert(fn, out_ext, out_folder, force=False, **kw):
+def _convert(
+    fn,
+    out_ext,
+    out_folder,
+    force=False,
+    zstd_compress_level=None,
+    zstd_compress_threads=None,
+    **kw,
+):
     # allow package to work in degraded mode when zstandard is not available
     import conda_package_streaming.transmute
     import zstandard
@@ -147,14 +155,16 @@ def _convert(fn, out_ext, out_folder, force=False, **kw):
             _os.unlink(out_fn)
 
         if out_ext == ".conda":
-            # streaming transmute, not extracted to the filesystem
-            compressor_args = dict(
-                level=kw.get("zstd_compress_level", ZSTD_COMPRESS_LEVEL),
-                threads=kw.get("zstd_compress_threads", ZSTD_COMPRESS_THREADS),
-            )
+            # ZSTD_COMPRESS_* constants are only defined if we have zstandard
+            if zstd_compress_level is None:
+                zstd_compress_level = ZSTD_COMPRESS_LEVEL
+            if zstd_compress_threads is None:
+                zstd_compress_threads = ZSTD_COMPRESS_THREADS
 
             def compressor():
-                return zstandard.ZstdCompressor(**compressor_args)
+                return zstandard.ZstdCompressor(
+                    level=zstd_compress_level, threads=zstd_compress_threads
+                )
 
             def is_info(filename):
                 return filter_info_files([filename], prefix=".") == []
