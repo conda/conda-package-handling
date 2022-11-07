@@ -15,12 +15,6 @@ def parse_args(parse_this=None):
         help="Show the conda-package-handling version number and exit.",
         version=f"conda-package-handling {__version__}",
     )
-    parser.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Do not display progress bar.",
-    )
     sp = parser.add_subparsers(title="subcommands", dest="subcommand", required=True)
 
     extract_parser = sp.add_parser("extract", help="extract package contents", aliases=["x"])
@@ -130,7 +124,6 @@ def main(args=None):
             force=args.force,
             zstd_compress_level=args.zstd_compression_level,
             zstd_compress_threads=args.zstd_compression_threads,
-            quiet=args.quiet,
         )
         if failed_files:
             print("failed files:")

@@ -5,8 +5,6 @@ import os as _os
 import warnings as _warnings
 from glob import glob as _glob
 
-import tqdm as _tqdm
-
 # expose these two exceptions as part of the API.  Everything else should feed into these.
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .interface import AbstractBaseFormat
@@ -191,7 +189,7 @@ def _convert(fn, out_ext, out_folder, force=False, **kw):
     return fn, out_fn, errors
 
 
-def transmute(in_file, out_ext, out_folder=None, processes=1, quiet=False, **kw):
+def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     if not out_folder:
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
@@ -202,17 +200,12 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, quiet=False, **kw)
         flist = flist - set(_glob(in_file.replace(".conda", out_ext)))
 
     failed_files = {}
-    with _tqdm.tqdm(total=len(flist), leave=False, disable=quiet) as t:
-        with _get_executor(processes) as executor:
-            convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
-            for fn, out_fn, errors in executor.map(convert_f, flist):
-                if quiet:
-                    print("Converted: %s" % fn)
-                t.set_description("Converted: %s" % fn)
-                t.update()
-                if errors:
-                    failed_files[fn] = errors
-                    _rm_rf(out_fn)
+    with _get_executor(processes) as executor:
+        convert_f = _functools.partial(_convert, out_ext=out_ext, out_folder=out_folder, **kw)
+        for fn, out_fn, errors in executor.map(convert_f, flist):
+            if errors:
+                failed_files[fn] = errors
+                _rm_rf(out_fn)
     return failed_files
 
 
