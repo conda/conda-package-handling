@@ -17,6 +17,8 @@ subcommands:
 
 ```
 
+Full documentation at https://conda.github.io/conda-package-handling/
+
 cph is an abstraction of conda package handling and a tool for extracting,
 creating, and converting between formats.
 
