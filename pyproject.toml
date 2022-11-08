@@ -1,0 +1,3 @@
+[tool.black]
+# consider reverting to standard line length
+line-length = 99

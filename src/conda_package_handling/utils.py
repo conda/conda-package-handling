@@ -129,23 +129,21 @@ def rmtree(path, *args, **kwargs):
             # out = check_output('DEL /F/Q/S *.* > NUL 2> NUL'.format(path), shell=True,
             #                    stderr=STDOUT, cwd=path)
 
-            out = check_output(
-                'RD /S /Q "{}" > NUL 2> NUL'.format(path), shell=True, stderr=STDOUT
-            )
+            out = check_output(f'RD /S /Q "{path}" > NUL 2> NUL', shell=True, stderr=STDOUT)
         except:
             try:
                 # Try to delete in Unicode
                 name = None
 
                 with NamedTemporaryFile(suffix=".bat", delete=False) as batch_file:
-                    batch_file.write("RD /S {}\n".format(quote_for_shell([path])))
+                    batch_file.write(f"RD /S {quote_for_shell([path])}\n")
                     batch_file.write("chcp 65001\n")
-                    batch_file.write("RD /S {}\n".format(quote_for_shell([path])))
+                    batch_file.write(f"RD /S {quote_for_shell([path])}\n")
                     batch_file.write("EXIT 0\n")
                     name = batch_file.name
                 # If the above is bugged we can end up deleting hard-drives, so we check
                 # that 'path' appears in it. This is not bulletproof but it could save you (me).
-                with open(name, "r") as contents:
+                with open(name) as contents:
                     content = contents.read()
                     assert path in content
                 comspec = os.environ["COMSPEC"]
@@ -169,9 +167,7 @@ def rmtree(path, *args, **kwargs):
                     )
                     raise
                 else:
-                    log.debug(
-                        "removing dir contents the fast way failed.  Output was: {}".format(out)
-                    )
+                    log.debug(f"removing dir contents the fast way failed.  Output was: {out}")
     else:
         try:
             os.makedirs(".empty")
@@ -195,7 +191,7 @@ def rmtree(path, *args, **kwargs):
                     stderr=STDOUT,
                 )
             except CalledProcessError:
-                log.debug("removing dir contents the fast way failed.  Output was: {}".format(out))
+                log.debug(f"removing dir contents the fast way failed.  Output was: {out}")
             shutil.rmtree(".empty")
     shutil.rmtree(path)
 
@@ -209,10 +205,10 @@ def unlink_or_rename_to_trash(path):
     try:
         make_writable(path)
         os.unlink(path)
-    except EnvironmentError:
+    except OSError:
         try:
             os.rename(path, path + ".conda_trash")
-        except EnvironmentError:
+        except OSError:
             if on_win:
                 # on windows, it is important to use the rename program, as just using python's
                 #    rename leads to permission errors when files are in use.
@@ -226,12 +222,19 @@ def unlink_or_rename_to_trash(path):
                     dest_fn = path + ".conda_trash"
                     counter = 1
                     while isfile(dest_fn):
-                        dest_fn = dest_fn.splitext[0] + ".conda_trash_{}".format(counter)
+                        dest_fn = dest_fn.splitext[0] + f".conda_trash_{counter}"
                         counter += 1
                     out = "< empty >"
                     try:
                         out = check_output(
-                            ["cmd.exe", "/C", trash_script, _dirname, _fn, basename(dest_fn)],
+                            [
+                                "cmd.exe",
+                                "/C",
+                                trash_script,
+                                _dirname,
+                                _fn,
+                                basename(dest_fn),
+                            ],
                             stderr=STDOUT,
                         )
                     except CalledProcessError:
@@ -289,7 +292,7 @@ try_rmdir_all_empty = move_to_trash = move_path_to_trash = rm_rf
 def delete_trash(prefix):
     if not prefix:
         prefix = sys.prefix
-    exclude = set(["envs"])
+    exclude = {"envs"}
     for root, dirs, files in os.walk(prefix, topdown=True):
         dirs[:] = [d for d in dirs if d not in exclude]
         for fn in files:
@@ -300,7 +303,7 @@ def delete_trash(prefix):
                 try:
                     os.unlink(filename)
                     remove_empty_parent_paths(filename)
-                except (OSError, IOError) as e:
+                except OSError as e:
                     log.debug("%r errno %d\nCannot unlink %s.", e, e.errno, filename)
 
 
@@ -320,7 +323,7 @@ def rmdir(dirpath):
 
 
 # we have our own TemporaryDirectory class because it's faster and handles disk issues better.
-class TemporaryDirectory(object):
+class TemporaryDirectory:
     """Create and return a temporary directory.  This has the same
     behavior as mkdtemp but can be used as a context manager.  For
     example:
@@ -340,7 +343,7 @@ class TemporaryDirectory(object):
         self.name = mkdtemp(suffix, prefix, dir)
 
     def __repr__(self):
-        return "<{} {!r}>".format(self.__class__.__name__, self.name)
+        return f"<{self.__class__.__name__} {self.name!r}>"
 
     def __enter__(self):
         return self.name
@@ -358,7 +361,8 @@ class TemporaryDirectory(object):
             self._closed = True
             if _warn and _warnings.warn:
                 _warnings.warn(
-                    "Implicitly cleaning up {!r}".format(self), _warnings.ResourceWarning
+                    f"Implicitly cleaning up {self!r}",
+                    _warnings.ResourceWarning,
                 )
 
     def __exit__(self, exc, value, tb):
@@ -445,7 +449,7 @@ def filter_info_files(files_list, prefix):
 def _checksum(fd, algorithm, buffersize=65536):
     hash_impl = getattr(hashlib, algorithm)
     if not hash_impl:
-        raise ValueError("Unrecognized hash algorithm: {}".format(algorithm))
+        raise ValueError(f"Unrecognized hash algorithm: {algorithm}")
     else:
         hash_impl = hash_impl()
     for block in iter(lambda: fd.read(buffersize), b""):
@@ -477,3 +481,15 @@ def checksums(fn, algorithms, buffersize=1 << 18):
         # take care not to share hash_impl between threads
         results = [e.submit(checksum, fn, algorithm, buffersize) for algorithm in algorithms]
     return [result.result() for result in results]
+
+
+def anonymize_tarinfo(tarinfo):
+    """
+    Remove user id, name from tarinfo.
+    """
+    # also remove timestamps?
+    tarinfo.uid = 0
+    tarinfo.uname = ""
+    tarinfo.gid = 0
+    tarinfo.gname = ""
+    return tarinfo

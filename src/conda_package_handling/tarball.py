@@ -1,20 +1,11 @@
 import logging
 import os
 import re
-import subprocess
-import sys
 import tarfile
 from errno import ELOOP
 from tempfile import NamedTemporaryFile
 
-try:
-    from . import archive_utils
-
-    libarchive_enabled = True
-except ImportError:
-    libarchive_enabled = False
-
-from . import utils
+from . import streaming, utils
 from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 from .interface import AbstractBaseFormat
 
@@ -22,7 +13,7 @@ LOG = logging.getLogger(__file__)
 
 
 def _sort_file_order(prefix, files):
-    """Sort by filesize or by binsort, to optimize compression"""
+    """Sort by filesize, to optimize compression?"""
     info_slash = "info" + os.path.sep
 
     def order(f):
@@ -41,44 +32,15 @@ def _sort_file_order(prefix, files):
                 info_order = 1 + abs(hash(ext)) % (10**8)
         return info_order, fsize
 
-    binsort = os.path.join(sys.prefix, "bin", "binsort")
-    if os.path.exists(binsort):
-        with NamedTemporaryFile(mode="w", suffix=".filelist", delete=False) as fl:
-            with utils.tmp_chdir(prefix):
-                fl.writelines(map(lambda x: "." + os.sep + x + "\n", files))
-                fl.close()
-                cmd = binsort + " -t 1 -q -d -o 1000 {}".format(fl.name)
-                out, _ = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()
-                files_list = out.decode("utf-8").strip().split("\n")
-                # binsort returns the absolute paths.
-                files_list = [f.split(prefix + os.sep, 1)[-1] for f in files_list]
-                os.unlink(fl.name)
-        # Binsort does not handle symlinks gracefully. It will follow them. We must correct that.
-        s1 = set(files)
-        s2 = set(files_list)
-        followed = s2 - s1
-        for f in followed:
-            files_list.remove(f)
-        s2 = set(files_list)
-        if len(s1) > len(s2):
-            files_list.extend(s1 - s2)
-        # move info/ to front, otherwise preserving current order fi[0]
-        # (Python's sort algorithm is guaranteed to be stable, maintains
-        # existing order of items with the same sort key)
-        files_list = list(sorted(files, key=lambda f: not f.startswith(info_slash)))
-    else:
-        files_list = list(sorted(files, key=order))
+    files_list = list(sorted(files, key=order))
+
     return files_list
 
 
 def _create_no_libarchive(fullpath, files):
     with tarfile.open(fullpath, "w:bz2") as t:
         for f in files:
-            t.add(f)
-
-
-def _create_libarchive(fullpath, files, compression_filter, filter_opts):
-    archive_utils.create_archive(fullpath, files, compression_filter, filter_opts)
+            t.add(f, filter=utils.anonymize_tarinfo)
 
 
 def create_compressed_tarball(
@@ -92,55 +54,8 @@ def create_compressed_tarball(
     # possible large binary or data files
     fullpath = tmp_path + ext
     with utils.tmp_chdir(prefix):
-        if libarchive_enabled:
-            _create_libarchive(fullpath, files, compression_filter, filter_opts)
-        else:
-            _create_no_libarchive(fullpath, files)
+        _create_no_libarchive(fullpath, files)
     return fullpath
-
-
-def _tar_xf(tarball, dir_path):
-    if not os.path.isabs(tarball):
-        tarball = os.path.join(os.getcwd(), tarball)
-    with utils.tmp_chdir(dir_path):
-        archive_utils.extract_file(tarball)
-
-
-def _tar_xf_no_libarchive(tarball_full_path, destination_directory=None):
-    if destination_directory is None:
-        destination_directory = tarball_full_path[:-8]
-
-    with open(tarball_full_path, "rb") as fileobj:
-        with tarfile.open(fileobj=fileobj) as tar_file:
-            for member in tar_file.getmembers():
-                if os.path.isabs(member.name) or not os.path.realpath(member.name).startswith(
-                    os.getcwd()
-                ):
-                    raise InvalidArchiveError(
-                        tarball_full_path, "contains unsafe path: {}".format(member.name)
-                    )
-            try:
-                tar_file.extractall(path=destination_directory)
-            except IOError as e:
-                if e.errno == ELOOP:
-                    raise CaseInsensitiveFileSystemError(
-                        package_location=tarball_full_path,
-                        extract_location=destination_directory,
-                        caused_by=e,
-                    )
-                else:
-                    raise InvalidArchiveError(
-                        tarball_full_path, "failed with error: {}".format(str(e))
-                    )
-
-    if sys.platform.startswith("linux") and os.getuid() == 0:
-        # When extracting as root, tarfile will by restore ownership
-        # of extracted files.  However, we want root to be the owner
-        # (our implementation of --no-same-owner).
-        for root, dirs, files in os.walk(destination_directory):
-            for fn in files:
-                p = os.path.join(root, fn)
-                os.lchown(p, 0, 0)
 
 
 class CondaTarBZ2(AbstractBaseFormat):
@@ -155,17 +70,7 @@ class CondaTarBZ2(AbstractBaseFormat):
         if not os.path.isabs(fn):
             fn = os.path.normpath(os.path.join(os.getcwd(), fn))
 
-        if libarchive_enabled:
-            try:
-                _tar_xf(fn, dest_dir)
-            except InvalidArchiveError:
-                LOG.warning(
-                    "Failed extraction with libarchive... falling back to python implementation"
-                )
-                _tar_xf_no_libarchive(fn, dest_dir)
-
-        else:
-            _tar_xf_no_libarchive(fn, dest_dir)
+        streaming._extract(str(fn), str(dest_dir), components=["pkg"])
 
     @staticmethod
     def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):

@@ -1,0 +1,7 @@
+# used in sphinx documentation build
+conda-package-streaming>=0.6.0
+# docs
+furo
+sphinx
+myst-parser
+mdit-py-plugins>=0.3.0

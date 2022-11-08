@@ -7,10 +7,10 @@ class InvalidArchiveError(Exception):
     def __init__(self, fn, msg, *args, **kw):
         msg = (
             "Error with archive %s.  You probably need to delete and re-download "
-            "or re-create this file.  Message from libarchive was:\n\n%s" % (fn, msg)
+            "or re-create this file.  Message was:\n\n%s" % (fn, msg)
         )
         self.errno = ENOENT
-        super(InvalidArchiveError, self).__init__(msg)
+        super().__init__(msg)
 
 
 class ArchiveCreationError(Exception):
@@ -19,7 +19,7 @@ class ArchiveCreationError(Exception):
     pass
 
 
-class CaseInsensitiveFileSystemError(Exception):
+class CaseInsensitiveFileSystemError(InvalidArchiveError):
     def __init__(self, package_location, extract_location, **kwargs):
         message = """
         Cannot extract package to a case-insensitive file system. Your install
@@ -32,9 +32,9 @@ class CaseInsensitiveFileSystemError(Exception):
           package location: %(package_location)s
           extract location: %(extract_location)s
         """
-        super(CaseInsensitiveFileSystemError, self).__init__(
-            message, package_location=package_location, extract_location=extract_location, **kwargs
-        )
+        self.package_location = package_location
+        self.extract_location = extract_location
+        super().__init__(package_location, message, **kwargs)
 
 
 class ConversionError(Exception):
@@ -49,4 +49,4 @@ class ConversionError(Exception):
             + "Mismatching sizes (corruption) in converted package: %s" % self.mismatching_sizes
         )
 
-        super(ConversionError, self).__init__(errors, *args, **kw)
+        super().__init__(errors, *args, **kw)

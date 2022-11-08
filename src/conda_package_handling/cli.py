@@ -50,7 +50,8 @@ def parse_args(parse_this=None):
         "conda package",
     )
     create_parser.add_argument(
-        "out_fn", help="Filename of archive to be created.  Extension " "determines package type."
+        "out_fn",
+        help="Filename of archive to be created.  Extension determines package type.",
     )
     create_parser.add_argument(
         "--file-list",
@@ -60,42 +61,15 @@ def parse_args(parse_this=None):
     )
     create_parser.add_argument("--out-folder", help="Folder to dump final archive to")
 
-    verify_parser = sp.add_parser(
-        "verify", help="verify converted files against their reference", aliases=["v"]
-    )
-    verify_parser.add_argument(
-        "glob",
-        help="filename glob pattern to match pairs and verify.  Use"
-        "the --reference-ext argument to change which extension is used "
-        "as the ground truth, and which is considered corrupt in any "
-        "mismatch",
-    )
-    verify_parser.add_argument(
-        "--target-dir",
-        help="folder for finding pairs of files.  Defaults " "to cwd.",
-        default=os.getcwd(),
-    )
-    verify_parser.add_argument(
-        "--reference-ext",
-        "-r",
-        help="file extension to consider as "
-        "'ground truth' in comparison.  Use this with the --all flag.",
-        default=".tar.bz2",
-    )
-    verify_parser.add_argument(
-        "--processes",
-        type=int,
-        help="Max number of processes to use.  If " "not set, defaults to your CPU count.",
-    )
-
     convert_parser = sp.add_parser(
         "transmute", help="convert from one package type to another", aliases=["t"]
     )
     convert_parser.add_argument(
-        "in_file", help="existing file to convert from.  Glob patterns " "accepted."
+        "in_file", help="existing file to convert from.  Glob patterns accepted."
     )
     convert_parser.add_argument(
-        "out_ext", help="extension of file to convert to.  " "Examples: .tar.bz2, .conda"
+        "out_ext",
+        help="extension of file to convert to.  Examples: .tar.bz2, .conda",
     )
     convert_parser.add_argument("--out-folder", help="Folder to dump final archive to")
     convert_parser.add_argument(
@@ -104,7 +78,7 @@ def parse_args(parse_this=None):
     convert_parser.add_argument(
         "--processes",
         type=int,
-        help="Max number of processes to use.  If " "not set, defaults to your CPU count.",
+        help="Max number of processes to use.  If not set, defaults to 1.",
     )
     convert_parser.add_argument(
         "--zstd-compression-level",
@@ -113,8 +87,17 @@ def parse_args(parse_this=None):
             "conda-package-handling. Defaults to the maximum."
         ),
         type=int,
-        choices=range(1, 22),
+        choices=range(1, 23),
         default=22,
+    )
+    convert_parser.add_argument(
+        "--zstd-compression-threads",
+        help=(
+            "When building v2 packages, set the compression threads used by "
+            "conda-package-handling. Defaults to 1. -1=automatic."
+        ),
+        type=int,
+        default=1,
     )
     return parser.parse_args(parse_this)
 
@@ -139,23 +122,14 @@ def main(args=None):
             args.out_folder,
             args.processes or 1,
             force=args.force,
-            compression_tuple=(
-                ".tar.zst",
-                "zstd",
-                f"zstd:compression-level={args.zstd_compression_level}",
-            ),
+            zstd_compress_level=args.zstd_compression_level,
+            zstd_compress_threads=args.zstd_compression_threads,
         )
         if failed_files:
             print("failed files:")
             pprint(failed_files)
             sys.exit(1)
-    elif args.subcommand in ("verify", "v"):
-        failed_files = api.verify_conversion(args.glob, args.target_dir, args.reference_ext)
-        if failed_files:
-            print("failed files:")
-            pprint(failed_files)
-            sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main(args=None)

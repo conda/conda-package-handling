@@ -1,38 +1,31 @@
-import sys
+import importlib.util
+import pathlib
 
-from Cython.Build import cythonize
 from setuptools import find_packages, setup
-from setuptools.extension import Extension
 
-import versioneer
-
-_libraries = ["archive_and_deps"]
-if sys.platform == "win32":
-    _libraries.append("advapi32")
-    _libraries.append("user32")
-archive_utils_cy_extension = Extension(
-    name="conda_package_handling.archive_utils_cy",
-    sources=["src/conda_package_handling/archive_utils_cy.pyx"],
-    libraries=_libraries,
+spec = importlib.util.spec_from_file_location(
+    "conda_package_handling", pathlib.Path("src/conda_package_handling/__init__.py")
 )
-
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+version = module.__version__
 
 setup(
     name="conda-package-handling",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version=version,
     description="Create and extract conda packages of various formats",
     author="Anaconda, Inc.",
     author_email="conda@anaconda.com",
     url="https://github.com/conda/conda-package-handling",
-    ext_modules=cythonize([archive_utils_cy_extension]),
     packages=find_packages("src", exclude=["tests"]),
     package_dir={"": "src"},
     entry_points={"console_scripts": ["cph=conda_package_handling.cli:main"]},
     keywords="conda-package-handling",
-    classifiers=[
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-    ],
+    classifiers=["Programming Language :: Python :: 3"],
+    python_requires=">=3.7",
+    install_requires=["conda-package-streaming >= 0.6.0"],
+    extras_require={
+        "docs": ["furo", "sphinx", "myst-parser", "mdit-py-plugins>=0.3.0"],
+        "test": ["mock", "pytest", "pytest-cov", "pytest-mock"],
+    },
 )
