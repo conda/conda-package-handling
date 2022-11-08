@@ -1,5 +1,39 @@
 [//]: # (current developments)
 
+## 2.0.0b2 (2022-11-08)
+
+### Enhancements
+
+* Disable progress bars.
+* Based on conda-package-streaming >= 0.6.0 instead of libarchive.
+* Requires the `python-zstandard` (`zstandard`) library.
+* Threadsafe `extract()` function.
+* More efficient `.conda` handling.
+
+### Deprecations
+
+* Remove broken `verify` subcommand.
+* Remove support for `binsort` (was supposed to help with `tar.bz2`
+  compression). (Use `.conda` instead.)
+
+### Docs
+
+* Add sphinx documentation.
+
+### Other
+
+* Reformat entire codebase with `black`, `isort`. (#132)
+
+### Contributors
+
+* @conda-bot
+* @dholth
+* @jezdez
+* @kenodegard
+* @mariusvniekerk
+
+
+
 ## 1.9.0 (2022-09-06)
 
 ### Enhancements
