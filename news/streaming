@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Based on conda-package-streaming >= 0.5.0 instead of libarchive.
+* Based on conda-package-streaming >= 0.6.0 instead of libarchive.
 * Requires the `python-zstandard` (`zstandard`) library.
 * Threadsafe `extract()` function.
 * More efficient `.conda` handling.

@@ -25,8 +25,7 @@ requirements:
     - wheel
   run:
     - python
-    - tqdm
-    - conda-package-streaming >=0.5.0
+    - conda-package-streaming >=0.6.0
 
 test:
   source_files:

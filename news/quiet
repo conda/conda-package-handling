@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Add `cph transmute --quiet` to disable progress bars.
+* Disable progress bars.
 
 ### Bug fixes
 
