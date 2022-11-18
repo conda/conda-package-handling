@@ -23,7 +23,7 @@ setup(
     keywords="conda-package-handling",
     classifiers=["Programming Language :: Python :: 3"],
     python_requires=">=3.7",
-    install_requires=["conda-package-streaming >= 0.6.0"],
+    install_requires=["conda-package-streaming >= 0.6.1"],
     extras_require={
         "docs": ["furo", "sphinx", "myst-parser", "mdit-py-plugins>=0.3.0"],
         "test": ["mock", "pytest", "pytest-cov", "pytest-mock"],

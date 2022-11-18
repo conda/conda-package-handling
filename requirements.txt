@@ -1,5 +1,5 @@
 # used in sphinx documentation build
-conda-package-streaming>=0.6.0
+conda-package-streaming>=0.6.1
 # docs
 furo
 sphinx
