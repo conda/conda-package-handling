@@ -1,7 +1,7 @@
 $ACTIVITIES = ["version_bump", "authors", "changelog"]
 
 # Basic settings
-$PROJECT = $GITHUB_REPO = $(basename $(git remote get-url origin)).split('.')[0]
+$PROJECT = $GITHUB_REPO = $(basename $(git remote get-url origin)).split('.')[0].strip()
 $GITHUB_ORG = "conda"
 
 # Authors settings

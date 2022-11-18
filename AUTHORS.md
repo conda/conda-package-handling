@@ -1,6 +1,4 @@
-All of the people who have made at least one contribution to conda-package-handling
-
-.
+All of the people who have made at least one contribution to conda-package-handling.
 Authors are sorted alphabetically.
 
 * Alan Du
