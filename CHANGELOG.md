@@ -4,7 +4,8 @@
 
 ### Bug fixes
 
-* Require conda-package-streaming 0.6.1 for Windows c:\ vs C:\ check
+* Require conda-package-streaming 0.7.0 for Windows c:\ vs C:\ check, pypy
+  support
 
 ### Contributors
 
