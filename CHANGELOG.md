@@ -1,5 +1,18 @@
 [//]: # (current developments)
 
+## 2.0.1 (2022-11-18)
+
+### Bug fixes
+
+* Require conda-package-streaming 0.7.0 for Windows c:\ vs C:\ check, pypy
+  support
+
+### Contributors
+
+* @dholth
+
+
+
 ## 2.0.0 (2022-11-17)
 
 ### Enhancements
