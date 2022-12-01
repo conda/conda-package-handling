@@ -84,11 +84,11 @@ def parse_args(parse_this=None):
         "--zstd-compression-level",
         help=(
             "When building v2 packages, set the compression level used by "
-            "conda-package-handling. Defaults to the maximum."
+            "conda-package-handling. Defaults to 19."
         ),
         type=int,
         choices=range(1, 23),
-        default=22,
+        default=19,
     )
     convert_parser.add_argument(
         "--zstd-compression-threads",

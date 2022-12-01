@@ -19,10 +19,10 @@ from .interface import AbstractBaseFormat
 from .streaming import _extract
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
-DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=22")
+DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=19")
 
 # increase to reduce speed and increase compression (22 = conda's default)
-ZSTD_COMPRESS_LEVEL = 22
+ZSTD_COMPRESS_LEVEL = 19
 # increase to reduce compression (slightly) and increase speed
 ZSTD_COMPRESS_THREADS = 1
 
