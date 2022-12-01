@@ -98,9 +98,10 @@ class CondaFormat_v2(AbstractBaseFormat):
             )
 
             # put the info last, for parity with updated transmute.
+            compress = compressor()
             for component, files in components_files:
-                compress = compressor()
                 with conda_file.open(component, "w") as component_file:
+                    # only one stream_writer() per compressor() must be in use at a time
                     component_stream = compress.stream_writer(component_file, closefd=False)
                     component_tar = tarfile.TarFile(fileobj=component_stream, mode="w")
 
