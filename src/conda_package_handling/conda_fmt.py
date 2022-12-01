@@ -19,10 +19,10 @@ from .interface import AbstractBaseFormat
 from .streaming import _extract
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
-DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=22")
+DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=19")
 
 # increase to reduce speed and increase compression (22 = conda's default)
-ZSTD_COMPRESS_LEVEL = 22
+ZSTD_COMPRESS_LEVEL = 19
 # increase to reduce compression (slightly) and increase speed
 ZSTD_COMPRESS_THREADS = 1
 
@@ -98,9 +98,10 @@ class CondaFormat_v2(AbstractBaseFormat):
             )
 
             # put the info last, for parity with updated transmute.
+            compress = compressor()
             for component, files in components_files:
-                compress = compressor()
                 with conda_file.open(component, "w") as component_file:
+                    # only one stream_writer() per compressor() must be in use at a time
                     component_stream = compress.stream_writer(component_file, closefd=False)
                     component_tar = tarfile.TarFile(fileobj=component_stream, mode="w")
 
