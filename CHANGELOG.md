@@ -1,5 +1,19 @@
 [//]: # (current developments)
 
+## 2.0.2 (2022-12-01)
+
+### Bug fixes
+
+* Reduce memory usage when creating `.conda`. Allocate only one zstd comperssor
+  when creating `.conda`. Lower default compression level to 19 from 22.
+  (#168)
+
+### Contributors
+
+* @dholth
+
+
+
 ## 2.0.1 (2022-11-18)
 
 ### Bug fixes
