@@ -1,4 +1,4 @@
-name: Lock
+name: Lock closed issues and pull requests after a period of inactivity
 
 on:
   # NOTE: github.event is workflow_dispatch payload:
@@ -12,7 +12,7 @@ on:
     #     default: true
 
   schedule:
-    - cron: 0 6 * * *
+    - cron: 37 3 * * *
 
 permissions:
   issues: write
