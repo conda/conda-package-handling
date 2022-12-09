@@ -1,18 +1,13 @@
-{% set name = "conda-package-handling" %}
-{% set version_match = load_file_regex(
-  load_file="src/conda_package_handling/__init__.py",
-  regex_pattern='^__version__ = "(.+)"') %}
-{% set version = version_match[1] %}
-
 package:
-  name: {{ name }}
-  version: {{ version }}
+  name: conda-package-handling
+  version: {{ GIT_DESCRIBE_TAG }}+{{ GIT_BUILD_STR }}
 
 source:
   - path: ..
 
 build:
   number: 0
+  noarch: python
   script: {{ PYTHON }} -m pip install . --no-deps -vv
   entry_points:
     - cph = conda_package_handling.cli:main
@@ -20,11 +15,11 @@ build:
 
 requirements:
   host:
-    - python
+    - python >=3.7
     - pip
     - wheel
   run:
-    - python
+    - python >=3.7
     - conda-package-streaming >=0.7.0
 
 test:
