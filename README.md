@@ -1,7 +1,7 @@
 # conda-package-handling
 Create and extract conda packages of various formats
 
-Full documentation at https://conda.github.io/conda-package-handling/
+Full documentation at [https://conda.github.io/conda-package-handling/](https://conda.github.io/conda-package-handling/)
 
 `conda` and `conda-build` use `conda_package_handling.api` to create and extract
 conda packages. This package also provides the `cph` command line tool to
