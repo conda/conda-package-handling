@@ -22,6 +22,3 @@ help:
 style:
 	isort --profile=black .
 	black .
-
-usage:
-	python update_usage.py && echo "updated README.md" || echo "unchanged README.md"

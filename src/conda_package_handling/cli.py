@@ -7,6 +7,11 @@ from . import __version__, api
 
 
 def parse_args(parse_this=None):
+    parser = build_parser()
+    return parser.parse_args(parse_this)
+
+
+def build_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-V",
@@ -99,7 +104,8 @@ def parse_args(parse_this=None):
         type=int,
         default=1,
     )
-    return parser.parse_args(parse_this)
+
+    return parser
 
 
 def main(args=None):
