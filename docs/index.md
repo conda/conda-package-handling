@@ -1,11 +1,8 @@
 # Welcome to conda-package-handling's documentation!
 
-`conda-package-handling` is the library `conda` uses to handle `.conda` and
-`.tar.bz2` [conda
+`conda-package-handling` is a library and command line utility used to handle
+`.conda` and `.tar.bz2` [conda
 packages](https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/packages.html).
-
-It includes a `cph` command-line utility for manipulating new- and old-format
-conda packages.
 
 See also
 [conda-package-streaming](https://github.com/conda-incubator/conda-package-streaming)
