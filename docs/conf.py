@@ -30,6 +30,7 @@ author = "Anaconda, Inc."
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinxarg.ext",
     "myst_parser",
 ]
 
