@@ -45,4 +45,4 @@ def test_import_main():
     e.g. python -m conda_package_handling
     """
     with pytest.raises(SystemExit):
-        import conda_package_handling.__main__
+        import conda_package_handling.__main__  # noqa

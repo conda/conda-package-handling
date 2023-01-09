@@ -164,8 +164,9 @@ def test_api_transmute_tarball_info_sorts_first(testing_workdir):
             for member in repacked:
                 if member.name.startswith("info"):
                     assert (
-                        not_info_seen == False
-                    ), f"{test_package} package info/ must sort first, but {[m.name for m in repacked.getmembers()]}"
+                        not_info_seen is False
+                    ), f"{test_package} package info/ must sort first, "
+                    f"but {[m.name for m in repacked.getmembers()]}"
                     info_seen = True
                 else:
                     not_info_seen = True
@@ -280,9 +281,10 @@ def test_create_package_with_uncommon_conditions_captures_all_content(testing_wo
             "symlink_stuff/symlink_to_text_file",
         )
 
-    cph_created = api.create("src", None, "thebrain.tar.bz2")
+    api.create("src", None, "thebrain.tar.bz2")
 
-    # test against both archives created manually and those created by cph.  They should be equal in all ways.
+    # test against both archives created manually and those created by cph.
+    # They should be equal in all ways.
     for fn in ("pinkie.tar.bz2", "thebrain.tar.bz2"):
         api.extract(fn)
         target_dir = fn[:-8]
@@ -306,7 +308,7 @@ def test_create_package_with_uncommon_conditions_captures_all_content(testing_wo
             path_that_should_be_there = os.path.join(testing_workdir, target_dir, f)
             if not (
                 os.path.exists(path_that_should_be_there)
-                or os.path.lexists(path_that_should_be_there)
+                or os.path.lexists(path_that_should_be_there)  # noqa
             ):
                 missing_content.append(f)
         if missing_content:

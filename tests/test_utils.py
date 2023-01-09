@@ -31,7 +31,7 @@ def test_rename_to_trash(testing_workdir, mocker, errno):
 
         with open("dummy", "w") as f:
             f.write("weeee")
-        rename = mocker.patch("os.rename")
+        mocker.patch("os.rename")
         unlink.side_effect = EnvironmentError(errno, "")
         utils.unlink_or_rename_to_trash("dummy")
         assert os.path.isfile("dummy.conda_trash")
@@ -42,7 +42,7 @@ def test_delete_trash(testing_workdir, mocker):
     isdir.return_value = True
     lexists = mocker.patch("conda_package_handling.utils.lexists")
     lexists.return_value = False
-    rmdir = mocker.patch("conda_package_handling.utils.rmdir")
+    mocker.patch("conda_package_handling.utils.rmdir")
 
     os.makedirs("folder")
     with open("folder/dummy.conda_trash", "w") as f:

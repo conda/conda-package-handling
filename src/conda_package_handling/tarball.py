@@ -2,11 +2,8 @@ import logging
 import os
 import re
 import tarfile
-from errno import ELOOP
-from tempfile import NamedTemporaryFile
 
 from . import streaming, utils
-from .exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 from .interface import AbstractBaseFormat
 
 LOG = logging.getLogger(__file__)
