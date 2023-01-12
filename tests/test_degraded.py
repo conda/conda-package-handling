@@ -21,7 +21,7 @@ def test_degraded():
 
         importlib.reload(conda_package_handling.api)
 
-        assert conda_package_handling.api.libarchive_enabled == False
+        assert conda_package_handling.api.libarchive_enabled is False
 
     finally:
         sys.modules.pop("zstandard", None)
@@ -31,7 +31,7 @@ def test_degraded():
 
         importlib.reload(conda_package_handling.api)
 
-        assert conda_package_handling.api.libarchive_enabled == True
+        assert conda_package_handling.api.libarchive_enabled is True
 
 
 def test_degraded_subprocess():

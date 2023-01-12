@@ -46,7 +46,8 @@ class ConversionError(Exception):
             errors = "Missing files in converted package: %s\n" % self.missing_files
         errors = (
             errors
-            + "Mismatching sizes (corruption) in converted package: %s" % self.mismatching_sizes
+            + "Mismatching sizes (corruption) in converted package: %s"  # noqa
+            % self.mismatching_sizes
         )
 
         super().__init__(errors, *args, **kw)
