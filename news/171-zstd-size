@@ -1,0 +1,22 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* Include decompressed size when creating `.conda` archives with
+  `CondaFormat_v2.create()`, to reduce memory usage on decompression. (#171)
+  Transmuted archives (converted from `.tar.bz2`) do not contain the
+  decompressed size.
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
