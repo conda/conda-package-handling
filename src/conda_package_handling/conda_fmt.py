@@ -85,6 +85,21 @@ class CondaFormat_v2(AbstractBaseFormat):
                     threads=ZSTD_COMPRESS_THREADS,
                 )
 
+        class NullWriter:
+            """
+            zstd uses less memory on extract if size is known.
+            """
+
+            def __init__(self):
+                self.size = 0
+
+            def write(self, bytes):
+                self.size += len(bytes)
+                return len(bytes)
+
+            def tell(self):
+                return self.size
+
         with ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file, utils.tmp_chdir(
             prefix
         ):
@@ -100,9 +115,20 @@ class CondaFormat_v2(AbstractBaseFormat):
             # put the info last, for parity with updated transmute.
             compress = compressor()
             for component, files in components_files:
+
+                # If size is known, the decompressor may be able to allocate less memory.
+                # The compressor will error if size is not correct.
+                with tarfile.TarFile(fileobj=NullWriter(), mode="w") as sizer:  # type: ignore
+                    for file in files:
+                        sizer.add(file, filter=utils.anonymize_tarinfo)
+                    sizer.close()
+                    size = sizer.fileobj.size  # type: ignore
+
                 with conda_file.open(component, "w") as component_file:
                     # only one stream_writer() per compressor() must be in use at a time
-                    component_stream = compress.stream_writer(component_file, closefd=False)
+                    component_stream = compress.stream_writer(
+                        component_file, size=size, closefd=False
+                    )
                     component_tar = tarfile.TarFile(fileobj=component_stream, mode="w")
 
                     for file in files:
