@@ -121,8 +121,7 @@ class CondaFormat_v2(AbstractBaseFormat):
                 with tarfile.TarFile(fileobj=NullWriter(), mode="w") as sizer:  # type: ignore
                     for file in files:
                         sizer.add(file, filter=utils.anonymize_tarinfo)
-                    sizer.close()
-                    size = sizer.fileobj.size  # type: ignore
+                size = sizer.fileobj.size  # type: ignore
 
                 with conda_file.open(component, "w") as component_file:
                     # only one stream_writer() per compressor() must be in use at a time
