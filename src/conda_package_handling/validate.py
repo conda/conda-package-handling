@@ -81,7 +81,6 @@ def validate_converted_files_match_streaming(
                 for tar, member in package_streaming.stream_conda_component(
                     filename, conda_file, component
                 ):
-
                     info = {k: v for k, v in member.get_info().items() if k not in ignore_fields}
 
                     if member.isfile():

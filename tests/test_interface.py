@@ -23,7 +23,6 @@ def test_extract_create(tmpdir):
         (CondaFormat_v2, TEST_CONDA, "newmock.conda"),
         (CondaTarBZ2, TEST_TARBZ, "newmock.tar.bz2"),
     ):
-
         both_path = Path(tmpdir, f"mkdirs-{outfile.split('.', 1)[-1]}")
 
         # these old APIs don't guarantee Path-like's
