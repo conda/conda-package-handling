@@ -28,7 +28,6 @@ def test_rename_to_trash(testing_workdir, mocker, errno):
 
     # force a second error for the inner rename try (after unlink fails)
     if sys.platform == "win32":
-
         with open("dummy", "w") as f:
             f.write("weeee")
         mocker.patch("os.rename")
