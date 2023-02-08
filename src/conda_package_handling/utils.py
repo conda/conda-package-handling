@@ -419,27 +419,27 @@ def filter_info_files(files_list, prefix):
         files_list,
         prefix,
         filter_patterns=(
-            "info[\\\\/]index.json",
+            "info[\\\\/]index\\.json",
             "info[\\\\/]files",
-            "info[\\\\/]paths.json",
-            "info[\\\\/]about.json",
+            "info[\\\\/]paths\\.json",
+            "info[\\\\/]about\\.json",
             "info[\\\\/]has_prefix",
             "info[\\\\/]hash_input_files",  # legacy, not used anymore
-            "info[\\\\/]hash_input.json",
-            "info[\\\\/]run_exports.yaml",  # legacy
-            "info[\\\\/]run_exports.json",  # current
+            "info[\\\\/]hash_input\\.json",
+            "info[\\\\/]run_exports\\.yaml",  # legacy
+            "info[\\\\/]run_exports\\.json",  # current
             "info[\\\\/]git",
             "info[\\\\/]recipe[\\\\/].*",
             "info[\\\\/]recipe_log.json",
             "info[\\\\/]recipe.tar",
             "info[\\\\/]test[\\\\/].*",
-            "info[\\\\/]LICENSE.txt",
+            "info[\\\\/]LICENSE.*",
             "info[\\\\/]requires",
             "info[\\\\/]meta",
             "info[\\\\/]platform",
             "info[\\\\/]no_link",
-            "info[\\\\/]link.json",
-            "info[\\\\/]icon.png",
+            "info[\\\\/]link\\.json",
+            "info[\\\\/]icon\\.png",
         ),
     )
 
