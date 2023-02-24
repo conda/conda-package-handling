@@ -114,7 +114,6 @@ class CondaFormat_v2(AbstractBaseFormat):
             # put the info last, for parity with updated transmute.
             compress = compressor()
             for component, files in components_files:
-
                 # If size is known, the decompressor may be able to allocate less memory.
                 # The compressor will error if size is not correct.
                 with tarfile.TarFile(fileobj=NullWriter(), mode="w") as sizer:  # type: ignore
