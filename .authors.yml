@@ -8,7 +8,7 @@
   aliases:
   - Mike Sarahan
   - Michael Sarahan
-  num_commits: 194
+  num_commits: 149
   first_commit: 2019-01-03 20:00:40
 - name: Nehal J Wani
   email: nehaljw.kkd1@gmail.com
@@ -56,12 +56,12 @@
   github: seemethere
 - name: Daniel Bast
   email: 2790401+dbast@users.noreply.github.com
-  num_commits: 2
+  num_commits: 3
   first_commit: 2021-04-12 11:49:45
   github: dbast
 - name: Conda Bot
   email: 18747875+conda-bot@users.noreply.github.com
-  num_commits: 26
+  num_commits: 17
   first_commit: 2022-01-17 20:22:29
   github: conda-bot
   aliases:
@@ -86,7 +86,7 @@
   first_commit: 2022-02-17 10:23:53
 - name: Daniel Holth
   email: dholth@anaconda.com
-  num_commits: 18
+  num_commits: 21
   first_commit: 2021-08-20 21:11:50
   github: dholth
 - name: Vadim Zayakin
@@ -122,3 +122,5 @@
 - name: pre-commit-ci[bot]
   email: 66853113+pre-commit-ci[bot]@users.noreply.github.com
   github: pre-commit-ci[bot]
+  num_commits: 4
+  first_commit: 2023-01-20 04:55:56

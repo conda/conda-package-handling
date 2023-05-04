@@ -21,3 +21,4 @@ Authors are sorted alphabetically.
 * Ray Donnelly
 * Tobias "Tobi" Koch
 * Vadim Zayakin
+* pre-commit-ci[bot]
