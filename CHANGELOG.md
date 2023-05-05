@@ -1,5 +1,24 @@
 [//]: # (current developments)
 
+## 2.1.0 (2023-05-04)
+
+### Bug fixes
+
+* Include decompressed size when creating `.conda` archives with
+  `CondaFormat_v2.create()`, to reduce memory usage on decompression. (#171)
+  Transmuted archives (converted from `.tar.bz2`) do not contain the
+  decompressed size.
+* Include LICENSE, not just LICENSE.txt in info/ section (#172)
+
+### Contributors
+
+* @conda-bot
+* @dbast
+* @dholth
+* @pre-commit-ci[bot]
+
+
+
 ## 2.0.2 (2022-12-01)
 
 ### Bug fixes
