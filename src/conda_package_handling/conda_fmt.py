@@ -7,6 +7,7 @@ https://docs.conda.io/projects/conda/en/latest/user-guide/concepts/packages.html
 from __future__ import annotations
 
 import json
+import logging
 import os
 import tarfile
 from typing import Callable
@@ -25,6 +26,9 @@ DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=19")
 ZSTD_COMPRESS_LEVEL = 19
 # increase to reduce compression (slightly) and increase speed
 ZSTD_COMPRESS_THREADS = 1
+
+
+LOG = logging.getLogger(__name__)
 
 
 class CondaFormat_v2(AbstractBaseFormat):
@@ -133,6 +137,10 @@ class CondaFormat_v2(AbstractBaseFormat):
 
                     component_tar.close()
                     component_stream.close()
+
+        LOG.info(
+            "Created '%s' with sha256 '%s'", conda_pkg_fn, CondaFormat_v2.get_sha256(conda_pkg_fn)
+        )
 
         return conda_pkg_fn
 

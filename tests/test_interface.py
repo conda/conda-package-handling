@@ -4,6 +4,8 @@ Test format classes.
 (Some of their code is unreachable through api.py)
 """
 
+import hashlib
+import logging
 import os
 from pathlib import Path
 
@@ -18,7 +20,7 @@ TEST_CONDA = Path(data_dir, test_package_name + ".conda")
 TEST_TARBZ = Path(data_dir, test_package_name + ".tar.bz2")
 
 
-def test_extract_create(tmpdir):
+def test_extract_create(tmpdir, caplog):
     for format, infile, outfile in (
         (CondaFormat_v2, TEST_CONDA, "newmock.conda"),
         (CondaTarBZ2, TEST_TARBZ, "newmock.tar.bz2"),
@@ -35,16 +37,27 @@ def test_extract_create(tmpdir):
             assert os.listdir(info_path) == ["info"]
 
         filelist = [str(p.relative_to(both_path)) for p in both_path.rglob("*")]
-        format.create(
-            both_path,
-            filelist,
-            tmpdir / outfile,
-            # compression_tuple is for libarchive compatibility. Instead, pass
-            # compressor=(compressor factory function)
-            compression_tuple=(".tar.zst", "zstd", "zstd:compression-level=1"),
-        )
+        with caplog.at_level(logging.INFO):
+            out = format.create(
+                both_path,
+                filelist,
+                tmpdir / outfile,
+                # compression_tuple is for libarchive compatibility. Instead, pass
+                # compressor=(compressor factory function)
+                compression_tuple=(".tar.zst", "zstd", "zstd:compression-level=1"),
+            )
 
         assert (tmpdir / outfile).exists()
+
+        sha256 = hashlib.sha256()
+        with open(out, "rb") as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                sha256.update(chunk)
+
+        assert f"Created '{out}' with sha256 '{sha256.hexdigest()}'" in caplog.text
 
         with pytest.raises(ValueError):
             CondaFormat_v2.create(

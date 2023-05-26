@@ -6,7 +6,7 @@ import tarfile
 from . import streaming, utils
 from .interface import AbstractBaseFormat
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 
 def _sort_file_order(prefix, files):
@@ -81,6 +81,9 @@ class CondaTarBZ2(AbstractBaseFormat):
             ".tar.bz2",
             "bzip2",
         )
+
+        LOG.info("Created '%s' with sha256 '%s'", out_file, CondaTarBZ2.get_sha256(out_file))
+
         return out_file
 
     @staticmethod

@@ -1,0 +1,19 @@
+### Enhancements
+
+* Log sha256 of created packages. It allows to co-relate build/transmute logs with cryptographic safety, meaning any package in the wild can via its sha256 traced back to its build log with very high probability as sha256 collisions are very unlikely/hard to generate. (#209)
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
