@@ -29,6 +29,6 @@ $CHANGELOG_AUTHORS_FORMAT = "* @{github}\n"
 
 try:
     # allow repository to customize synchronized-from-infa rever config
-    from rever_custom import *
+    from rever_overrides import *
 except ImportError:
     pass
