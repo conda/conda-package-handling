@@ -61,7 +61,7 @@
   github: dbast
 - name: Conda Bot
   email: 18747875+conda-bot@users.noreply.github.com
-  num_commits: 17
+  num_commits: 23
   first_commit: 2022-01-17 20:22:29
   github: conda-bot
   aliases:
@@ -86,7 +86,7 @@
   first_commit: 2022-02-17 10:23:53
 - name: Daniel Holth
   email: dholth@anaconda.com
-  num_commits: 21
+  num_commits: 24
   first_commit: 2021-08-20 21:11:50
   github: dholth
 - name: Vadim Zayakin
@@ -122,5 +122,5 @@
 - name: pre-commit-ci[bot]
   email: 66853113+pre-commit-ci[bot]@users.noreply.github.com
   github: pre-commit-ci[bot]
-  num_commits: 4
+  num_commits: 7
   first_commit: 2023-01-20 04:55:56
