@@ -49,7 +49,7 @@ about:
   license_family: BSD
   license_file:
     - LICENSE
-  summary: Create and extract conda packages of various formats
+  summary: Create and extract conda packages of various formats.
 
 extra:
   recipe-maintainers:
