@@ -1,0 +1,19 @@
+### Enhancements
+
+* <news item>
+
+### Bug fixes
+
+* Respect umask when unpacking packages, by requiring `conda-package-streaming >= 0.9.0`.
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* Include README.md in pypi metadata. (#215)
+
+### Other
+
+* <news item>
