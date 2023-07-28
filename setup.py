@@ -15,7 +15,7 @@ setup(
     version=version,
     description="Create and extract conda packages of various formats.",
     long_description=open("README.md").read(),
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     author="Anaconda, Inc.",
     author_email="conda@anaconda.com",
     url="https://github.com/conda/conda-package-handling",
