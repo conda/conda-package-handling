@@ -1,5 +1,24 @@
 [//]: # (current developments)
 
+## 2.2.0 (2023-07-28)
+
+### Bug fixes
+
+* Respect umask when unpacking packages, by requiring `conda-package-streaming >= 0.9.0`.
+
+### Docs
+
+* Include README.md in pypi metadata. (#215)
+
+### Contributors
+
+* @conda-bot
+* @dbast
+* @dholth
+* @pre-commit-ci[bot]
+
+
+
 ## 2.1.0 (2023-05-04)
 
 ### Bug fixes

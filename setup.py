@@ -13,7 +13,9 @@ version = module.__version__
 setup(
     name="conda-package-handling",
     version=version,
-    description="Create and extract conda packages of various formats",
+    description="Create and extract conda packages of various formats.",
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     author="Anaconda, Inc.",
     author_email="conda@anaconda.com",
     url="https://github.com/conda/conda-package-handling",
@@ -23,7 +25,7 @@ setup(
     keywords="conda-package-handling",
     classifiers=["Programming Language :: Python :: 3"],
     python_requires=">=3.7",
-    install_requires=["conda-package-streaming >= 0.7.0"],
+    install_requires=["conda-package-streaming >= 0.9.0"],
     extras_require={
         "docs": ["furo", "sphinx", "sphinx-argparse", "myst-parser", "mdit-py-plugins>=0.3.0"],
         "test": ["mock", "pytest", "pytest-cov", "pytest-mock"],
