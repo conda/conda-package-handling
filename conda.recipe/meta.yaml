@@ -25,7 +25,7 @@ requirements:
     - wheel
   run:
     - python
-    - conda-package-streaming >=0.7.0
+    - conda-package-streaming >=0.9.0
 
 test:
   source_files:
