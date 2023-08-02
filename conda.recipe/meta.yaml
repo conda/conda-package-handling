@@ -25,6 +25,7 @@ requirements:
     - wheel
   run:
     - python
+    - zstandard >=0.15
     - conda-package-streaming >=0.9.0
 
 test:
@@ -47,9 +48,12 @@ about:
   doc_url: https://conda.github.io/conda-package-handling/
   license: BSD-3-Clause
   license_family: BSD
-  license_file:
-    - LICENSE
+  license_file: LICENSE
   summary: Create and extract conda packages of various formats.
+  description: |
+    `conda` and `conda-build` use `conda_package_handling.api` to create and extract
+    conda packages. This package also provides the `cph` command line tool to
+    extract, create, and convert between formats.
 
 extra:
   recipe-maintainers:
