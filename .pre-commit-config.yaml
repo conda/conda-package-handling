@@ -3,7 +3,7 @@ ci:
     autofix_prs: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       # standard end of line/end of file cleanup
       - id: mixed-line-ending
@@ -16,7 +16,7 @@ repos:
       # catch git merge/rebase problems
       - id: check-merge-conflict
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.13.0
+    rev: v3.15.0
     hooks:
       - id: pyupgrade
         args: ["--py37-plus"]
