@@ -1,4 +1,0 @@
-global-exclude tests/*
-include AUTHORS.rst CHANGELOG.rst
-include versioneer.py
-include src/conda_package_handling/_version.py
