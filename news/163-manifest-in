@@ -16,4 +16,6 @@
 
 ### Other
 
-* Simplify MANIFEST.in used for Python sdists (#163)
+* Remove MANIFEST.in, used for Python sdists, which referenced
+  non-existent files. Source distributions appear correct without
+  MANIFEST.in. (#163)
