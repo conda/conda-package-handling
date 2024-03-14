@@ -1,6 +1,7 @@
 """
 Simple test for evaluating zstandard binding memory usage.
 """
+
 import io
 import sys
 
