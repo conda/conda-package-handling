@@ -24,7 +24,7 @@ setup(
     entry_points={"console_scripts": ["cph=conda_package_handling.cli:main"]},
     keywords="conda-package-handling",
     classifiers=["Programming Language :: Python :: 3"],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=["conda-package-streaming >= 0.9.0"],
     extras_require={
         "docs": ["furo", "sphinx", "sphinx-argparse", "myst-parser", "mdit-py-plugins>=0.3.0"],
