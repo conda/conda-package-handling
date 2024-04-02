@@ -233,8 +233,5 @@ def get_pkg_details(in_file):
 def list_contents(in_file, verbose=False):
     for format in SUPPORTED_EXTENSIONS.values():
         if format.supported(in_file):
-            details = format.list_contents(in_file, verbose=verbose)
-            break
-    else:
-        raise ValueError(f"Don't know what to do with file {in_file}")
-    return details
+            return format.list_contents(in_file, verbose=verbose)
+    raise ValueError(f"Don't know what to do with file {in_file}")
