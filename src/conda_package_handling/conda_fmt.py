@@ -147,5 +147,5 @@ class CondaFormat_v2(AbstractBaseFormat):
     def list_contents(fn, verbose=False, **kw):
         components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
         if not os.path.isabs(fn):
-            fn = os.path.normpath(os.path.join(os.getcwd(), fn))
+            fn = os.path.abspath(fn)
         _list(fn, components=components, verbose=verbose)

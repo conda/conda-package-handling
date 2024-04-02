@@ -55,10 +55,8 @@ def test_import_main():
     "artifact,n_files",
     [("mock-2.0.0-py37_1000.conda", 43), ("mock-2.0.0-py37_1000.tar.bz2", 43)],
 )
-def test_list(artifact, n_files):
+def test_list(artifact, n_files, capsys):
     "Integration test to ensure `cph list` works correctly."
-    memfile = io.StringIO()
-    with redirect_stdout(memfile):
-        cli.main(["list", os.path.join(data_dir, artifact)])
-    memfile.seek(0)
-    assert n_files == sum(1 for line in memfile.readlines() if line.strip())
+    cli.main(["list", os.path.join(data_dir, artifact)])
+    stdout, stderr = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())

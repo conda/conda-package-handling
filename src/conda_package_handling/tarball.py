@@ -93,5 +93,5 @@ class CondaTarBZ2(AbstractBaseFormat):
     @staticmethod
     def list_contents(fn, verbose=False, **kw):
         if not os.path.isabs(fn):
-            fn = os.path.normpath(os.path.join(os.getcwd(), fn))
+            fn = os.path.abspath(fn)
         streaming._list(str(fn), components=["pkg"], verbose=verbose)
