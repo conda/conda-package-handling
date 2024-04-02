@@ -7,7 +7,7 @@ from __future__ import annotations
 import io
 from contextlib import redirect_stdout
 from tarfile import TarError, TarFile, TarInfo
-from typing import Generator
+from typing import Iterator
 from zipfile import BadZipFile
 
 from conda_package_streaming.extract import exceptions as cps_exceptions
@@ -20,7 +20,7 @@ def _stream_components(
     filename: str,
     components: list[str],
     dest_dir: str = "",
-) -> Generator[tuple[TarFile, TarInfo], None, None]:
+) -> Iterator[tuple[TarFile, TarInfo]]:
     if str(filename).endswith(".tar.bz2"):
         assert components == ["pkg"]
 
@@ -63,7 +63,10 @@ def _list(filename: str, components: list[str], verbose=True):
         for tar, _ in component:
             with redirect_stdout(memfile):
                 tar.list(verbose=verbose)
+            # next iteraton of for loop raises GeneratorExit in stream
+            # see comments in conda_package_streaming.extract:extract_stream
+            # and docstring in conda_package_streaming.package_streaming:stream_conda_info
             component.close()
     memfile.seek(0)
     lines = sorted(memfile.readlines(), key=lambda line: line.split(None, 5)[-1])
-    print("".join(lines))
+    print("".join(lines), end="")

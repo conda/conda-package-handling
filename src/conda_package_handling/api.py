@@ -223,11 +223,8 @@ def get_pkg_details(in_file):
     """For the new pkg format, we return the size and hashes of the inner pkg part of the file"""
     for format in SUPPORTED_EXTENSIONS.values():
         if format.supported(in_file):
-            details = format.get_pkg_details(in_file)
-            break
-    else:
-        raise ValueError(f"Don't know what to do with file {in_file}")
-    return details
+            return format.get_pkg_details(in_file)
+    raise ValueError(f"Don't know what to do with file {in_file}")
 
 
 def list_contents(in_file, verbose=False):
