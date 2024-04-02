@@ -1,7 +1,7 @@
 import io
+import os
 from contextlib import redirect_stdout
 from pathlib import Path
-from urllib.request import urlretrieve
 
 import pytest
 
@@ -52,26 +52,13 @@ def test_import_main():
 
 
 @pytest.mark.parametrize(
-    "url,n_files",
-    [
-        (
-            "https://conda.anaconda.org/conda-forge/noarch/"
-            "conda-package-handling-2.2.0-pyh38be061_0.conda",
-            51,
-        ),
-        (
-            "https://conda.anaconda.org/conda-forge/linux-64/"
-            "conda-package-handling-1.9.0-py311hd4cff14_1.tar.bz2",
-            81,
-        ),
-    ],
+    "artifact,n_files",
+    [("mock-2.0.0-py37_1000.conda", 43), ("mock-2.0.0-py37_1000.tar.bz2", 43)],
 )
-def test_list(tmp_path, url, n_files):
+def test_list(artifact, n_files):
     "Integration test to ensure `cph list` works correctly."
-    localpath = tmp_path / url.split("/")[-1]
-    urlretrieve(url, localpath)
     memfile = io.StringIO()
     with redirect_stdout(memfile):
-        cli.main(["list", str(localpath)])
+        cli.main(["list", os.path.join(data_dir, artifact)])
     memfile.seek(0)
     assert n_files == sum(1 for line in memfile.readlines() if line.strip())
