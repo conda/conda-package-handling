@@ -17,7 +17,9 @@ from . import exceptions
 
 
 def _stream_components(
-    filename: str, components: list[str], dest_dir: str = "",
+    filename: str,
+    components: list[str],
+    dest_dir: str = "",
 ) -> Generator[tuple[TarFile, TarInfo], None, None]:
     if str(filename).endswith(".tar.bz2"):
         assert components == ["pkg"]
