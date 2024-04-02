@@ -104,13 +104,17 @@ def build_parser():
         type=int,
         default=1,
     )
-    list_parser = sp.add_parser("list", help="list package contents", aliases=["l"])
+    list_parser = sp.add_parser(
+        "list",
+        aliases=["l"],
+        help="List package contents like `python -m tarfile --list ...` would do.",
+    )
     list_parser.add_argument("archive_path", help="path to archive to inspect")
     list_parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="Increase verbosity of output",
+        help="Report more details, similar to 'ls -l'. Otherwise, only the filenames are printed.",
     )
 
     return parser

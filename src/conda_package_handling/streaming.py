@@ -72,7 +72,7 @@ def _list(filename: str, components: list[str], verbose=True):
         lines = sorted(
             memfile.readlines(),
             # verbose Tarfile.list() produces lines like:
-            # ?rw-r--r-- 502/20 2342 2018-10-04 14:02:00 info/about.json 
+            # ?rw-r--r-- 502/20 2342 2018-10-04 14:02:00 info/about.json
             # We only want the last part but we need to be mindful of paths containing spaces
             key=lambda line: line.split(None, 5)[-1],
         )
