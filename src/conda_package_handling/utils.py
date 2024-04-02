@@ -27,7 +27,7 @@ from subprocess import STDOUT, CalledProcessError, check_output, list2cmdline
 from tempfile import NamedTemporaryFile, mkdtemp
 
 on_win = sys.platform == "win32"
-log = logging.getLogger(__file__)
+log = logging.getLogger(__name__)
 CONDA_TEMP_EXTENSION = ".c~"
 
 

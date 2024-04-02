@@ -6,7 +6,7 @@ import tarfile
 from . import streaming, utils
 from .interface import AbstractBaseFormat
 
-LOG = logging.getLogger(__file__)
+LOG = logging.getLogger(__name__)
 
 
 def _sort_file_order(prefix, files):
