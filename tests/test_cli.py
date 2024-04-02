@@ -54,9 +54,17 @@ def test_import_main():
 @pytest.mark.parametrize(
     "url,n_files",
     [
-        ("https://conda.anaconda.org/conda-forge/noarch/conda-package-handling-2.2.0-pyh38be061_0.conda", 51),
-        ("https://conda.anaconda.org/conda-forge/linux-64/conda-package-handling-1.9.0-py311hd4cff14_1.tar.bz2", 81),
-    ]
+        (
+            "https://conda.anaconda.org/conda-forge/noarch/"
+            "conda-package-handling-2.2.0-pyh38be061_0.conda",
+            51,
+        ),
+        (
+            "https://conda.anaconda.org/conda-forge/linux-64/"
+            "conda-package-handling-1.9.0-py311hd4cff14_1.tar.bz2",
+            81,
+        ),
+    ],
 )
 def test_list(tmp_path, url, n_files):
     "Integration test to ensure `cph list` works correctly."
