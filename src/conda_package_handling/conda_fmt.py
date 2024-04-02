@@ -16,7 +16,7 @@ import zstandard
 
 from . import utils
 from .interface import AbstractBaseFormat
-from .streaming import _extract
+from .streaming import _extract, _list
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=19")
@@ -142,3 +142,10 @@ class CondaFormat_v2(AbstractBaseFormat):
         size = stat_result.st_size
         md5, sha256 = utils.checksums(in_file, ("md5", "sha256"))
         return {"size": size, "md5": md5, "sha256": sha256}
+
+    @staticmethod
+    def list_contents(fn, verbose=False, **kw):
+        components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
+        if not os.path.isabs(fn):
+            fn = os.path.normpath(os.path.join(os.getcwd(), fn))
+        _list(fn, components=components, verbose=verbose)

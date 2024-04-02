@@ -89,3 +89,9 @@ class CondaTarBZ2(AbstractBaseFormat):
         size = stat_result.st_size
         md5, sha256 = utils.checksums(in_file, ("md5", "sha256"))
         return {"size": size, "md5": md5, "sha256": sha256}
+
+    @staticmethod
+    def list_contents(fn, verbose=False, **kw):
+        if not os.path.isabs(fn):
+            fn = os.path.normpath(os.path.join(os.getcwd(), fn))
+        streaming._list(str(fn), components=["pkg"], verbose=verbose)

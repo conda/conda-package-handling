@@ -104,6 +104,14 @@ def build_parser():
         type=int,
         default=1,
     )
+    list_parser = sp.add_parser("list", help="list package contents", aliases=["l"])
+    list_parser.add_argument("archive_path", help="path to archive to inspect")
+    list_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Increase verbosity of output",
+    )
 
     return parser
 
@@ -135,6 +143,8 @@ def main(args=None):
             print("failed files:")
             pprint(failed_files)
             sys.exit(1)
+    elif args.subcommand in ("list", "l"):
+        api.list_contents(args.archive_path, verbose=args.verbose)
 
 
 if __name__ == "__main__":  # pragma: no cover
