@@ -68,5 +68,14 @@ def _list(filename: str, components: list[str], verbose=True):
             # and docstring in conda_package_streaming.package_streaming:stream_conda_info
             component.close()
     memfile.seek(0)
-    lines = sorted(memfile.readlines(), key=lambda line: line.split(None, 5)[-1])
+    if verbose:
+        lines = sorted(
+            memfile.readlines(),
+            # verbose Tarfile.list() produces lines like:
+            # ?rw-r--r-- 502/20 2342 2018-10-04 14:02:00 info/about.json 
+            # We only want the last part but we need to be mindful of paths containing spaces
+            key=lambda line: line.split(None, 5)[-1],
+        )
+    else:
+        lines = sorted(memfile.readlines())
     print("".join(lines), end="")
