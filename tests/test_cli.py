@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -46,3 +47,14 @@ def test_import_main():
     """
     with pytest.raises(SystemExit):
         import conda_package_handling.__main__  # noqa
+
+
+@pytest.mark.parametrize(
+    "artifact,n_files",
+    [("mock-2.0.0-py37_1000.conda", 43), ("mock-2.0.0-py37_1000.tar.bz2", 43)],
+)
+def test_list(artifact, n_files, capsys):
+    "Integration test to ensure `cph list` works correctly."
+    cli.main(["list", os.path.join(data_dir, artifact)])
+    stdout, stderr = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())

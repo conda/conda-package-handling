@@ -104,6 +104,18 @@ def build_parser():
         type=int,
         default=1,
     )
+    list_parser = sp.add_parser(
+        "list",
+        aliases=["l"],
+        help="List package contents like `python -m tarfile --list ...` would do.",
+    )
+    list_parser.add_argument("archive_path", help="path to archive to inspect")
+    list_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Report more details, similar to 'ls -l'. Otherwise, only the filenames are printed.",
+    )
 
     return parser
 
@@ -135,6 +147,8 @@ def main(args=None):
             print("failed files:")
             pprint(failed_files)
             sys.exit(1)
+    elif args.subcommand in ("list", "l"):
+        api.list_contents(args.archive_path, verbose=args.verbose)
 
 
 if __name__ == "__main__":  # pragma: no cover

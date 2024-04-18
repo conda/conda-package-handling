@@ -22,3 +22,8 @@ class AbstractBaseFormat(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_pkg_details(in_file):  # pragma: no cover
         raise NotImplementedError
+
+    @staticmethod
+    @abc.abstractmethod
+    def list_contents(in_file, verbose=False, **kw):  # pragma: no cover
+        raise NotImplementedError
