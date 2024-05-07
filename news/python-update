@@ -1,6 +1,6 @@
 ### Enhancements
 
-* Added formal support for Python 3.10, 3.11, and 3.12
+* Added formal support for Python 3.10, 3.11, and 3.12. (#231)
 
 ### Bug fixes
 
