@@ -72,7 +72,7 @@ class CondaTarBZ2(AbstractBaseFormat):
     @staticmethod
     def create(prefix, file_list, out_fn, out_folder=None, **kw):
         if out_folder is None:
-            out_folder=os.getcwd()
+            out_folder = os.getcwd()
         if os.path.isabs(out_fn):
             out_folder = os.path.dirname(out_fn)
         out_file = create_compressed_tarball(
