@@ -54,10 +54,12 @@ class CondaFormat_v2(AbstractBaseFormat):
         prefix,
         file_list,
         out_fn,
-        out_folder=os.getcwd(),
+        out_folder=None,
         compressor: Callable[[], zstandard.ZstdCompressor] | None = None,
         compression_tuple=(None, None, None),
     ):
+        if out_folder is None:
+            out_folder = os.getcwd()
         if os.path.isabs(out_fn):
             out_folder = os.path.dirname(out_fn)
             out_fn = os.path.basename(out_fn)
