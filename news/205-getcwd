@@ -5,7 +5,7 @@
 ### Bug fixes
 
 * Delay ``os.getcwd()`` call to body of ``CondaFormat_v2.create()`` when
-  ``out_folder`` is not passed. (#206)
+  ``out_folder`` is not passed. (#205)
 
 ### Deprecations
 
