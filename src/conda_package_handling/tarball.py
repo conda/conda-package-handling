@@ -70,7 +70,9 @@ class CondaTarBZ2(AbstractBaseFormat):
         streaming._extract(str(fn), str(dest_dir), components=["pkg"])
 
     @staticmethod
-    def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):
+    def create(prefix, file_list, out_fn, out_folder=None, **kw):
+        if out_folder is None:
+            out_folder=os.getcwd()
         if os.path.isabs(out_fn):
             out_folder = os.path.dirname(out_fn)
         out_file = create_compressed_tarball(
