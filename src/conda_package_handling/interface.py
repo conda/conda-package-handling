@@ -14,7 +14,7 @@ class AbstractBaseFormat(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def create(prefix, file_list, out_fn, out_folder: str, **kw):  # pragma: no cover
+    def create(prefix, file_list, out_fn, out_folder: str | None = None, **kw):  # pragma: no cover
         raise NotImplementedError
 
     @staticmethod
