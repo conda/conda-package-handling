@@ -27,7 +27,13 @@ setup(
     python_requires=">=3.8",
     install_requires=["conda-package-streaming >= 0.9.0"],
     extras_require={
-        "docs": ["furo", "sphinx", "sphinx-argparse", "myst-parser", "mdit-py-plugins>=0.3.0"],
+        "docs": [
+            "furo",
+            "sphinx",
+            "sphinx-argparse",
+            "myst-parser",
+            "mdit-py-plugins>=0.3.0",
+        ],
         "test": ["mock", "pytest", "pytest-cov", "pytest-mock"],
     },
 )
