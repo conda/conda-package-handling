@@ -58,3 +58,6 @@ def test_list(artifact, n_files, capsys):
     cli.main(["list", os.path.join(data_dir, artifact)])
     stdout, stderr = capsys.readouterr()
     assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
+
+    with pytest.raises(ValueError):
+        cli.main(["list", "setup.py"])
