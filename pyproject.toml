@@ -5,3 +5,16 @@ line-length = 99
 [tool.isort]
 profile = "black"
 line_length = 99
+
+[tool.pytest]
+norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
+addopts = [
+    "--junitxml=junit.xml",
+    "--ignore setup.py",
+    "--ignore run_test.py",
+    "--cov-report term-missing",
+    "--tb native",
+    "--strict-markers",
+    "--durations=20",
+]
+markers = ["serial: execute test serially (to avoid race conditions)"]

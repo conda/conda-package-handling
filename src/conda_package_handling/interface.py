@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import abc
-import os
 
 
 class AbstractBaseFormat(metaclass=abc.ABCMeta):
@@ -15,7 +16,7 @@ class AbstractBaseFormat(metaclass=abc.ABCMeta):
 
     @staticmethod
     @abc.abstractmethod
-    def create(prefix, file_list, out_fn, out_folder=os.getcwd(), **kw):  # pragma: no cover
+    def create(prefix, file_list, out_fn, out_folder: str | None = None, **kw):  # pragma: no cover
         raise NotImplementedError
 
     @staticmethod
