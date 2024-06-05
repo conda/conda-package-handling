@@ -12,6 +12,7 @@ Authors are sorted alphabetically.
 * Jannis Leidel
 * John Lee
 * Jonathan J. Helmus
+* Justin Wood (Callek)
 * Ken Odegard
 * Marius van Niekerk
 * Matthew R. Becker
@@ -21,4 +22,5 @@ Authors are sorted alphabetically.
 * Ray Donnelly
 * Tobias "Tobi" Koch
 * Vadim Zayakin
+* jaimergp
 * pre-commit-ci[bot]

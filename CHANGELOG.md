@@ -1,5 +1,38 @@
 [//]: # (current developments)
 
+## 2.3.0 (2024-06-05)
+
+### Enhancements
+
+* Add `cph list` to report artifact contents without prior extraction. (#236)
+* Added formal support for Python 3.10, 3.11, and 3.12. (#231)
+
+### Bug fixes
+
+* Delay ``os.getcwd()`` call to body of ``CondaFormat_v2.create()`` when
+  ``out_folder`` is not passed. (#205)
+
+### Deprecations
+
+* Removed formal support for Python 3.7. (#231)
+
+### Other
+
+* Remove MANIFEST.in, used for Python sdists, which referenced
+  non-existent files. Source distributions appear correct without
+  MANIFEST.in. (#163)
+* Add explicit `zstandard` dependency. ([#222](https://github.com/conda/conda-package-handling/issues/222))
+
+### Contributors
+
+* @conda-bot
+* @dholth
+* @callek
+* @jaimergp
+* @pre-commit-ci[bot]
+
+
+
 ## 2.2.0 (2023-07-28)
 
 ### Bug fixes
