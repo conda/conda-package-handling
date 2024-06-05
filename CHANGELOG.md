@@ -27,10 +27,9 @@
 
 * @conda-bot
 * @dholth
-* @callek
-* @jaimergp
+* @callek made their first contribution in https://github.com/conda/conda-package-handling/pull/231
+* @jaimergp made their first contribution in https://github.com/conda/conda-package-handling/pull/235
 * @pre-commit-ci[bot]
-
 
 
 ## 2.2.0 (2023-07-28)
