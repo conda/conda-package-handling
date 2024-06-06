@@ -92,6 +92,7 @@ pytest
 ```{toctree}
 :maxdepth: 2
 modules
+changelog
 ```
 
 # Indices and tables
