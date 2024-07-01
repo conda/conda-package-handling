@@ -2,3 +2,4 @@ name: test_env
 dependencies:
   - anaconda-client
   - conda-build
+  - requests
