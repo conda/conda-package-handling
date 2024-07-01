@@ -116,6 +116,12 @@ def build_parser():
         action="store_true",
         help="Report more details, similar to 'ls -l'. Otherwise, only the filenames are printed.",
     )
+    list_parser.add_argument(
+        "--no-info",
+        action="store_false",
+        dest="info",
+        help="Do not list files from the 'info/' directory (.conda artifacts only).",
+    )
 
     return parser
 
@@ -148,7 +154,8 @@ def main(args=None):
             pprint(failed_files)
             sys.exit(1)
     elif args.subcommand in ("list", "l"):
-        api.list_contents(args.archive_path, verbose=args.verbose)
+        components = ("info", "pkg") if args.info else ("pkg",)
+        api.list_contents(args.archive_path, verbose=args.verbose, components=components)
 
 
 if __name__ == "__main__":  # pragma: no cover
