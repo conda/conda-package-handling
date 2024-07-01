@@ -82,3 +82,11 @@ def test_list(artifact, n_files, capsys):
 
     with pytest.raises(ValueError):
         cli.main(["list", "setup.py"])
+
+    cli.main(["list", os.path.join(data_dir, artifact), "--components=pkg"])
+    stdout, stderr = capsys.readouterr()
+    listed_files = sum(bool(line.strip()) for line in stdout.splitlines())
+    if artifact.endswith(".conda"):
+        assert listed_files < n_files  # info folder filtered out
+    else:
+        assert listed_files == n_files  # no info filtering in tar.bz2

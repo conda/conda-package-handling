@@ -9,7 +9,7 @@ from glob import glob as _glob
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .interface import AbstractBaseFormat
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
-from .utils import filter_info_files
+from .utils import ensure_list, filter_info_files
 from .utils import get_executor as _get_executor
 from .utils import rm_rf as _rm_rf
 
@@ -227,8 +227,9 @@ def get_pkg_details(in_file):
     raise ValueError(f"Don't know what to do with file {in_file}")
 
 
-def list_contents(in_file, verbose=False):
+def list_contents(in_file, verbose=False, components=None):
+    components = ensure_list(components or ("info", "pkg"))
     for format in SUPPORTED_EXTENSIONS.values():
         if format.supported(in_file):
-            return format.list_contents(in_file, verbose=verbose)
+            return format.list_contents(in_file, verbose=verbose, components=components)
     raise ValueError(f"Don't know what to do with file {in_file}")
