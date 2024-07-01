@@ -117,10 +117,11 @@ def build_parser():
         help="Report more details, similar to 'ls -l'. Otherwise, only the filenames are printed.",
     )
     list_parser.add_argument(
-        "--no-info",
-        action="store_false",
-        dest="info",
-        help="Do not list files from the 'info/' directory (.conda artifacts only).",
+        "--components",
+        dest="components",
+        default="info,pkg",
+        help="Comma-separated list of components to read (.conda artifacts only; "
+        "ignored for .tar.bz2). Allowed values: info, pkg."
     )
 
     return parser
@@ -154,7 +155,7 @@ def main(args=None):
             pprint(failed_files)
             sys.exit(1)
     elif args.subcommand in ("list", "l"):
-        components = ("info", "pkg") if args.info else ("pkg",)
+        components = [component.strip() for component in (args.components or "info,pkg").split(",")]
         api.list_contents(args.archive_path, verbose=args.verbose, components=components)
 
 
