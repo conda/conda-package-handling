@@ -121,7 +121,7 @@ def build_parser():
         dest="components",
         default="info,pkg",
         help="Comma-separated list of components to read (.conda artifacts only; "
-        "ignored for .tar.bz2). Allowed values: info, pkg."
+        "ignored for .tar.bz2). Allowed values: info, pkg.",
     )
 
     return parser
@@ -155,7 +155,9 @@ def main(args=None):
             pprint(failed_files)
             sys.exit(1)
     elif args.subcommand in ("list", "l"):
-        components = [component.strip() for component in (args.components or "info,pkg").split(",")]
+        components = [
+            component.strip() for component in (args.components or "info,pkg").split(",")
+        ]
         api.list_contents(args.archive_path, verbose=args.verbose, components=components)
 
 

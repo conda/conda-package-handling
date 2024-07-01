@@ -9,8 +9,7 @@ from glob import glob as _glob
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .interface import AbstractBaseFormat
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
-from .utils import ensure_list
-from .utils import filter_info_files
+from .utils import ensure_list, filter_info_files
 from .utils import get_executor as _get_executor
 from .utils import rm_rf as _rm_rf
 
