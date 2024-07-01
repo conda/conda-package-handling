@@ -27,6 +27,7 @@ requirements:
     - python
     - zstandard >=0.15
     - conda-package-streaming >=0.9.0
+    - requests
 
 test:
   source_files:

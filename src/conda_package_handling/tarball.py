@@ -94,6 +94,8 @@ class CondaTarBZ2(AbstractBaseFormat):
 
     @staticmethod
     def list_contents(fn, verbose=False, **kw):
+        if "://" in fn:
+            raise ValueError("Remote .tar.bz2 artifact listing is not supported.")
         if not os.path.isabs(fn):
             fn = os.path.abspath(fn)
         streaming._list(str(fn), components=["pkg"], verbose=verbose)

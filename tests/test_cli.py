@@ -82,3 +82,27 @@ def test_list(artifact, n_files, capsys):
 
     with pytest.raises(ValueError):
         cli.main(["list", "setup.py"])
+
+
+@pytest.mark.parametrize(
+    "url,n_files",
+    [
+        ("https://conda.anaconda.org/conda-forge/win-64/7zip-23.01-h91493d7_2.conda", 27),
+        ("https://conda.anaconda.org/conda-forge/win-64/7zip-19.00-h74a9793_2.tar.bz2", -1),
+    ],
+)
+def test_list_remote(url, n_files, capsys):
+    "Integration test to ensure `cph list <URL>` works correctly."
+    if url.endswith(".tar.bz2"):
+        # This is not supported in streaming mode
+        with pytest.raises(ValueError):
+            cli.main(["list", url])
+        return
+
+    cli.main(["list", url])
+    stdout, stderr = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
+
+    cli.main(["list", url, "-v"])
+    stdout, stderr = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())

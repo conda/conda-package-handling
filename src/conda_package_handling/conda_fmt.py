@@ -8,11 +8,16 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tarfile
+import time
+from contextlib import closing
 from typing import Callable
 from zipfile import ZIP_STORED, ZipFile
 
 import zstandard
+from conda_package_streaming.package_streaming import stream_conda_component
+from conda_package_streaming.url import conda_reader_for_url
 
 from . import utils
 from .interface import AbstractBaseFormat
@@ -145,9 +150,46 @@ class CondaFormat_v2(AbstractBaseFormat):
         md5, sha256 = utils.checksums(in_file, ("md5", "sha256"))
         return {"size": size, "md5": md5, "sha256": sha256}
 
-    @staticmethod
-    def list_contents(fn, verbose=False, **kw):
+    @classmethod
+    def list_contents(cls, fn, verbose=False, **kw):
         components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
+        if "://" in fn:
+            return cls._list_remote_contents(fn, components=components, verbose=verbose)
+        # local resource
         if not os.path.isabs(fn):
             fn = os.path.abspath(fn)
         _list(fn, components=components, verbose=verbose)
+
+    @staticmethod
+    def _list_remote_contents(url, verbose=False, components=("info", "pkg")):
+        """
+        List contents of a remote .conda artifact (by URL). It only fetches the 'info' component
+        and uses the metadata to infer details of the 'pkg' component. Some fields like
+        modification time or permissions will be missing in verbose mode.
+        """
+        components = utils.ensure_list(components or ("info", "pkg"))
+        lines = {}
+        filename, conda = conda_reader_for_url(url)
+        with closing(conda):
+            for tar, member in stream_conda_component(filename, conda, component="info"):
+                path = member.name + ("/" if member.isdir() else "")
+                if "info" in components:
+                    line = ""
+                    if verbose:
+                        line = (
+                            f"{stat.filemode(member.mode)} "
+                            f"{member.uname or member.uid}/{member.gname or member.gid} "
+                            f"{member.size:10d} "
+                        )
+                        line += "%d-%02d-%02d %02d:%02d:%02d " % time.localtime(member.mtime)[:6]
+                    lines[path] = line + path
+                if "pkg" in components and member.name == "info/paths.json":
+                    data = json.loads(tar.extractfile(member).read().decode())
+                    assert data.get("paths_version", 1) == 1, data
+                    for path in data.get("paths", ()):
+                        line = ""
+                        if verbose:
+                            size = path["size_in_bytes"]
+                            line = f"?????????? ?/? {size:10d} ????-??-?? ??:??:?? "
+                        lines[path["_path"]] = line + path["_path"]
+        print(*[line for _, line in sorted(lines.items())], sep="\n")
