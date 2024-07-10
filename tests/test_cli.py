@@ -111,7 +111,7 @@ def test_list_remote(capsys, localserver, fn, n_files):
     cli.main(["list", url])
     stdout, _ = capsys.readouterr()
     assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
-    
+
     # Local list should be the same as a 'remote' list
     cli.main(["list", str(Path(__file__).parent / "data" / fn)])
     stdout_local, _ = capsys.readouterr()

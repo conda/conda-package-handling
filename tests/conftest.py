@@ -40,6 +40,7 @@ def testing_workdir(tmpdir, request):
 def localserver(xprocess):
     port = 8000
     datadir = Path(__file__).parent / "data"
+
     class Starter(ProcessStarter):
         pattern = "Hit Ctrl-C to quit."
         terminate_on_interrupt = True
@@ -65,7 +66,7 @@ def localserver(xprocess):
 
                 run(port={port})
                 """
-            )
+            ),
         ]
 
     logfile = xprocess.ensure("bottle.server", Starter)
