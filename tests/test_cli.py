@@ -85,14 +85,15 @@ def test_list(artifact, n_files, capsys):
 
 
 @pytest.mark.parametrize(
-    "url,n_files",
+    "fn,n_files",
     [
-        ("https://conda.anaconda.org/conda-forge/win-64/7zip-23.01-h91493d7_2.conda", 27),
-        ("https://conda.anaconda.org/conda-forge/win-64/7zip-19.00-h74a9793_2.tar.bz2", -1),
+        ("mock-2.0.0-py37_1000.conda", 43),
+        ("mock-2.0.0-py37_1000.tar.bz2", -1),
     ],
 )
-def test_list_remote(url, n_files, capsys):
+def test_list_remote(capsys, localserver, fn, n_files):
     "Integration test to ensure `cph list <URL>` works correctly."
+    url = "/".join([localserver, fn])
     if url.endswith(".tar.bz2"):
         # This is not supported in streaming mode
         with pytest.raises(ValueError):
@@ -100,9 +101,16 @@ def test_list_remote(url, n_files, capsys):
         return
 
     cli.main(["list", url])
-    stdout, stderr = capsys.readouterr()
+    stdout, _ = capsys.readouterr()
     assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
+    
+    # Local list should be the same as a 'remote' list
+    cli.main(["list", str(Path(__file__).parent / "data" / fn)])
+    stdout_local, _ = capsys.readouterr()
+    assert list(map(str.strip, stdout_local.splitlines())) == list(
+        map(str.strip, stdout.splitlines())
+    )
 
     cli.main(["list", url, "-v"])
-    stdout, stderr = capsys.readouterr()
-    assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
+    stdout_verbose, _ = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout_verbose.splitlines())
