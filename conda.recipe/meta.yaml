@@ -34,9 +34,11 @@ test:
     - tests
   requires:
     - mock
+    - bottle
     - pytest
     - pytest-cov
     - pytest-mock
+    - pytest-xprocess
   imports:
     - conda_package_handling
     - conda_package_handling.api
