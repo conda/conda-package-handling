@@ -69,7 +69,7 @@ def localserver(xprocess):
             ),
         ]
 
-    logfile = xprocess.ensure("bottle.server", Starter)
+    pid, logfile = xprocess.ensure("bottle.server", Starter)
     print("Logfile at", str(logfile))
     yield f"http://localhost:{port}"
     xprocess.getinfo("bottle.server").terminate()
