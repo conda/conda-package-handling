@@ -62,7 +62,7 @@ def localserver(xprocess):
                         mimetype = "application/x-tar"
                     elif filename.endswith(".conda"):
                         mimetype = "binary/octet-stream"
-                    return static_file(filename, root="{datadir}", mimetype=mimetype)
+                    return static_file(filename, root="{datadir.as_posix()}", mimetype=mimetype)
 
                 run(port={port})
                 """
