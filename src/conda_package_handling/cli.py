@@ -109,7 +109,7 @@ def build_parser():
         aliases=["l"],
         help="List package contents like `python -m tarfile --list ...` would do.",
     )
-    list_parser.add_argument("archive_path", help="path to archive to inspect")
+    list_parser.add_argument("archive_path", help="path or URL to archive to inspect")
     list_parser.add_argument(
         "-v",
         "--verbose",
