@@ -90,3 +90,35 @@ def test_list(artifact, n_files, capsys):
         assert listed_files < n_files  # info folder filtered out
     else:
         assert listed_files == n_files  # no info filtering in tar.bz2
+
+
+@pytest.mark.parametrize(
+    "fn,n_files",
+    [
+        ("mock-2.0.0-py37_1000.conda", 43),
+        ("mock-2.0.0-py37_1000.tar.bz2", -1),
+    ],
+)
+def test_list_remote(capsys, localserver, fn, n_files):
+    "Integration test to ensure `cph list <URL>` works correctly."
+    url = "/".join([localserver, fn])
+    if url.endswith(".tar.bz2"):
+        # This is not supported in streaming mode
+        with pytest.raises(ValueError):
+            cli.main(["list", url])
+        return
+
+    cli.main(["list", url])
+    stdout, _ = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
+
+    # Local list should be the same as a 'remote' list
+    cli.main(["list", str(Path(__file__).parent / "data" / fn)])
+    stdout_local, _ = capsys.readouterr()
+    assert list(map(str.strip, stdout_local.splitlines())) == list(
+        map(str.strip, stdout.splitlines())
+    )
+
+    cli.main(["list", url, "-v"])
+    stdout_verbose, _ = capsys.readouterr()
+    assert n_files == sum(bool(line.strip()) for line in stdout_verbose.splitlines())
