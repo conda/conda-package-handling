@@ -35,9 +35,7 @@ def _stream_components(
     except cps_exceptions.CaseInsensitiveFileSystemError as e:
         raise exceptions.CaseInsensitiveFileSystemError(filename, dest_dir) from e
     except (OSError, TarError, BadZipFile) as e:
-        raise exceptions.InvalidArchiveError(
-            filename, f"failed with error: {str(e)}"
-        ) from e
+        raise exceptions.InvalidArchiveError(filename, f"failed with error: {str(e)}") from e
 
 
 def _extract(filename: str, dest_dir: str, components: list[str]):
@@ -57,9 +55,7 @@ def _extract(filename: str, dest_dir: str, components: list[str]):
         except cps_exceptions.CaseInsensitiveFileSystemError as e:
             raise exceptions.CaseInsensitiveFileSystemError(filename, dest_dir) from e
         except (OSError, TarError, BadZipFile) as e:
-            raise exceptions.InvalidArchiveError(
-                filename, f"failed with error: {str(e)}"
-            ) from e
+            raise exceptions.InvalidArchiveError(filename, f"failed with error: {str(e)}") from e
 
 
 def _list(filename: str, components: list[str], verbose=True):
