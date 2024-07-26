@@ -5,9 +5,10 @@ Exception-compatible adapter from conda_package_streaming.
 from __future__ import annotations
 
 import io
+import tarfile
 from contextlib import redirect_stdout
-from tarfile import TarError, TarFile, TarInfo
-from typing import Iterator
+from tarfile import TarError
+from typing import Generator
 from zipfile import BadZipFile
 
 from conda_package_streaming.extract import exceptions as cps_exceptions
@@ -20,7 +21,7 @@ def _stream_components(
     filename: str,
     components: list[str],
     dest_dir: str = "",
-) -> Iterator[tuple[TarFile, TarInfo]]:
+) -> I[Generator[tuple[tarfile.TarFile, tarfile.TarInfo], None, None], None, None]:
     if str(filename).endswith(".tar.bz2"):
         assert components == ["pkg"]
 
@@ -34,7 +35,9 @@ def _stream_components(
     except cps_exceptions.CaseInsensitiveFileSystemError as e:
         raise exceptions.CaseInsensitiveFileSystemError(filename, dest_dir) from e
     except (OSError, TarError, BadZipFile) as e:
-        raise exceptions.InvalidArchiveError(filename, f"failed with error: {str(e)}") from e
+        raise exceptions.InvalidArchiveError(
+            filename, f"failed with error: {str(e)}"
+        ) from e
 
 
 def _extract(filename: str, dest_dir: str, components: list[str]):
@@ -54,7 +57,9 @@ def _extract(filename: str, dest_dir: str, components: list[str]):
         except cps_exceptions.CaseInsensitiveFileSystemError as e:
             raise exceptions.CaseInsensitiveFileSystemError(filename, dest_dir) from e
         except (OSError, TarError, BadZipFile) as e:
-            raise exceptions.InvalidArchiveError(filename, f"failed with error: {str(e)}") from e
+            raise exceptions.InvalidArchiveError(
+                filename, f"failed with error: {str(e)}"
+            ) from e
 
 
 def _list(filename: str, components: list[str], verbose=True):
