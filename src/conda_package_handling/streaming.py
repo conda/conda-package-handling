@@ -21,7 +21,7 @@ def _stream_components(
     filename: str,
     components: list[str],
     dest_dir: str = "",
-) -> Generator[Generator[tuple[tarfile.TarFile, tarfile.TarInfo], None, None], None, None]:
+) -> Generator[Generator[tuple[tarfile.TarFile, tarfile.TarInfo]]]:
     if str(filename).endswith(".tar.bz2"):
         assert components == ["pkg"]
 

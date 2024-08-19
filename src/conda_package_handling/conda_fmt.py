@@ -69,7 +69,7 @@ class CondaFormat_v2(AbstractBaseFormat):
             out_folder = os.path.dirname(out_fn)
             out_fn = os.path.basename(out_fn)
         conda_pkg_fn = os.path.join(out_folder, out_fn)
-        file_id = out_fn[:-len(".conda")]
+        file_id = out_fn[: -len(".conda")]
         pkg_files = utils.filter_info_files(file_list, prefix)
         # preserve order
         pkg_files_set = set(pkg_files)

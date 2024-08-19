@@ -206,7 +206,7 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
     flist = set(_glob(in_file))
     for in_ext in SUPPORTED_EXTENSIONS:
         if in_file.endswith(in_ext):
-            replacement = in_file[:-len(in_ext)] + out_ext
+            replacement = in_file[: -len(in_ext)] + out_ext
             flist = flist - set(_glob(replacement))
             break
 
