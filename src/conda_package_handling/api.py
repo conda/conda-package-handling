@@ -204,10 +204,11 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
         out_folder = _os.path.dirname(in_file) or _os.getcwd()
 
     flist = set(_glob(in_file))
-    if in_file.endswith(".tar.bz2"):
-        flist = flist - set(_glob(in_file.replace(".tar.bz2", out_ext)))
-    elif in_file.endswith(".conda"):
-        flist = flist - set(_glob(in_file.replace(".conda", out_ext)))
+    for in_ext in SUPPORTED_EXTENSIONS:
+        if in_file.endswith(in_ext):
+            replacement = in_file[: -len(in_ext)] + out_ext
+            flist = flist - set(_glob(replacement))
+            break
 
     failed_files = {}
     with _get_executor(processes) as executor:

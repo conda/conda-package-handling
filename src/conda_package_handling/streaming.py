@@ -5,9 +5,10 @@ Exception-compatible adapter from conda_package_streaming.
 from __future__ import annotations
 
 import io
+import tarfile
 from contextlib import redirect_stdout
-from tarfile import TarError, TarFile, TarInfo
-from typing import Iterator
+from tarfile import TarError
+from typing import Generator
 from zipfile import BadZipFile
 
 from conda_package_streaming.extract import exceptions as cps_exceptions
@@ -20,7 +21,7 @@ def _stream_components(
     filename: str,
     components: list[str],
     dest_dir: str = "",
-) -> Iterator[tuple[TarFile, TarInfo]]:
+) -> Generator[Generator[tuple[tarfile.TarFile, tarfile.TarInfo]]]:
     if str(filename).endswith(".tar.bz2"):
         assert components == ["pkg"]
 
