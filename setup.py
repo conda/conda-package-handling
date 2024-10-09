@@ -39,6 +39,7 @@ setup(
             "pytest",
             "pytest-cov",
             "pytest-mock",
+            "bottle",
         ],
     },
 )
