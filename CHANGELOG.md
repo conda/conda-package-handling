@@ -1,5 +1,33 @@
 [//]: # (current developments)
 
+## 2.4.0 (2024-10-08)
+
+### Enhancements
+
+* Expose API and CLI for which components will be listed as part of `cph list`. (#253)
+* Allow `cph list` on remote `.conda` artifact URLs. (#252 via #254)
+
+### Bug fixes
+
+* Use force_zip64=True when directly creating .conda files. Allows >2GB
+  (compressed) size. (#248)
+* Replace `.conda` or `.tar.bz2` extensions from end of string only instead of
+  `str.replace(...)` (#251)
+
+### Other
+
+* Improve type annotations on an internal function (#257)
+
+### Contributors
+
+* @conda-bot
+* @dholth
+* @jezdez
+* @jaimergp
+* @pre-commit-ci[bot]
+
+
+
 ## 2.3.0 (2024-06-05)
 
 ### Enhancements
