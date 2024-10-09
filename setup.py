@@ -34,6 +34,11 @@ setup(
             "myst-parser",
             "mdit-py-plugins>=0.3.0",
         ],
-        "test": ["mock", "pytest", "pytest-cov", "pytest-mock", "pytest-xprocess", "bottle"],
+        "test": [
+            "mock",
+            "pytest",
+            "pytest-cov",
+            "pytest-mock",
+        ],
     },
 )

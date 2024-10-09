@@ -48,5 +48,9 @@ def test_extract_create(tmpdir):
 
         with pytest.raises(ValueError):
             CondaFormat_v2.create(
-                "", [], "", compressor=True, compression_tuple=("1", "2", "3")  # type: ignore
+                "",
+                [],
+                "",
+                compressor=True,
+                compression_tuple=("1", "2", "3"),  # type: ignore
             )

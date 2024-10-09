@@ -113,9 +113,12 @@ class CondaFormat_v2(AbstractBaseFormat):
             pkg_metadata = {"conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION}
             conda_file.writestr("metadata.json", json.dumps(pkg_metadata))
 
-            components_files = (f"pkg-{file_id}.tar.zst", pkg_files), (
-                f"info-{file_id}.tar.zst",
-                info_files,
+            components_files = (
+                (f"pkg-{file_id}.tar.zst", pkg_files),
+                (
+                    f"info-{file_id}.tar.zst",
+                    info_files,
+                ),
             )
 
             # put the info last, for parity with updated transmute.
