@@ -19,3 +19,13 @@ addopts = [
     "--durations=20",
 ]
 markers = ["serial: execute test serially (to avoid race conditions)"]
+
+[tool.coverage.run]
+source = [ "src/", ]
+omit = [
+    "setup.py",
+    "src/conda_package_handling/__main__.py",
+    "src/conda_package_handling/_version.py",
+    "versioneer.py",
+    "tests/*",
+]
