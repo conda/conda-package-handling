@@ -11,7 +11,6 @@ from .interface import AbstractBaseFormat
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
 from .utils import ensure_list, filter_info_files
 from .utils import get_executor as _get_executor
-from .utils import rm_rf as _rm_rf
 
 SUPPORTED_EXTENSIONS: dict[str, type[AbstractBaseFormat]] = {".tar.bz2": _CondaTarBZ2}
 
@@ -113,7 +112,7 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 # don't leave broken files around
                 abs_out_fn = _os.path.join(out_folder, out_fn)
                 if _os.path.isfile(abs_out_fn):
-                    _rm_rf(abs_out_fn)
+                    _os.unlink(abs_out_fn)
                 raise err
     else:
         raise ValueError(
@@ -191,7 +190,7 @@ def _convert(
         except BaseException as e:
             # don't leave partial package around
             if _os.path.isfile(out_fn):
-                _rm_rf(out_fn)
+                _os.unlink(out_fn)
             if not isinstance(e, Exception):
                 raise
             errors = str(e)
@@ -216,7 +215,10 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
         for fn, out_fn, errors in executor.map(convert_f, flist):
             if errors:
                 failed_files[fn] = errors
-                _rm_rf(out_fn)
+                try:
+                    _os.unlink(out_fn)
+                except FileNotFoundError:
+                    pass
     return failed_files
 
 
