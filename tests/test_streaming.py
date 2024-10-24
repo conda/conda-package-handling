@@ -9,7 +9,6 @@ from conda_package_streaming.exceptions import (
     CaseInsensitiveFileSystemError as CPSCaseInsensitiveFileSystemError,
 )
 from pytest_mock import MockerFixture
-from pytest_mock.plugin import _mocker
 
 from conda_package_handling.exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 from conda_package_handling.streaming import _extract, _stream_components
@@ -38,7 +37,6 @@ def test__stream_components(tmp_path: Path, mocker: MockerFixture):
 
 def test__extract(tmp_path: Path, mocker: MockerFixture):
     # translates their exception to our exception of the same name
-    # Curiously a side effect on extract_stream doesn't work? compared to the more likely to be called accidentally realpath.
     mocker.patch(
         "conda_package_handling.streaming.extract_stream",
         side_effect=CPSCaseInsensitiveFileSystemError(),
