@@ -7,6 +7,7 @@ from __future__ import annotations
 import io
 import tarfile
 from contextlib import redirect_stdout
+from pathlib import Path
 from tarfile import TarError
 from typing import Generator
 from zipfile import BadZipFile
@@ -18,9 +19,9 @@ from . import exceptions
 
 
 def _stream_components(
-    filename: str,
+    filename: str | Path,
     components: list[str],
-    dest_dir: str = "",
+    dest_dir: str | Path = "",
 ) -> Generator[Generator[tuple[tarfile.TarFile, tarfile.TarInfo]]]:
     if str(filename).endswith(".tar.bz2"):
         assert components == ["pkg"]
@@ -38,7 +39,7 @@ def _stream_components(
         raise exceptions.InvalidArchiveError(filename, f"failed with error: {str(e)}") from e
 
 
-def _extract(filename: str, dest_dir: str, components: list[str]):
+def _extract(filename: str | Path, dest_dir: str | Path, components: list[str]):
     """
     Extract .conda or .tar.bz2 package to dest_dir.
 
