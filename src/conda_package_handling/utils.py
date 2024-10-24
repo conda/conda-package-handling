@@ -4,9 +4,7 @@ import logging
 import os
 import re
 import sys
-import warnings as _warnings
 from concurrent.futures import Executor, ProcessPoolExecutor, ThreadPoolExecutor
-from tempfile import mkdtemp
 
 on_win = sys.platform == "win32"
 log = logging.getLogger(__name__)
@@ -21,57 +19,6 @@ class DummyExecutor(Executor):
 
 def get_executor(processes):
     return DummyExecutor() if processes == 1 else ProcessPoolExecutor(max_workers=processes)
-
-
-# we have our own TemporaryDirectory class because it's faster and handles disk issues better.
-class TemporaryDirectory:
-    """Create and return a temporary directory.  This has the same
-    behavior as mkdtemp but can be used as a context manager.  For
-    example:
-
-        with TemporaryDirectory() as tmpdir:
-            ...
-
-    Upon exiting the context, the directory and everything contained
-    in it are removed.
-    """
-
-    # Handle mkdtemp raising an exception
-    name = None
-    _closed = False
-
-    def __init__(self, suffix="", prefix=".cph_tmp", dir=os.getcwd()):
-        self.name = mkdtemp(suffix, prefix, dir)
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} {self.name!r}>"
-
-    def __enter__(self):
-        return self.name
-
-    def cleanup(self, _warn=False, _warnings=_warnings):
-        if self.name and not self._closed:
-            try:
-                rm_rf(self.name)
-            except:
-                _warnings.warn(
-                    'Conda-package-handling says: "I tried to clean up, '
-                    "but I could not.  There is a mess in %s that you might "
-                    'want to clean up yourself.  Sorry..."' % self.name
-                )
-            self._closed = True
-            if _warn and _warnings.warn:
-                _warnings.warn(
-                    f"Implicitly cleaning up {self!r}",
-                    _warnings.ResourceWarning,
-                )
-
-    def __exit__(self, exc, value, tb):
-        self.cleanup()
-
-    def __del__(self):
-        # Issue a ResourceWarning if implicit cleanup needed
-        self.cleanup(_warn=True)
 
 
 @contextlib.contextmanager

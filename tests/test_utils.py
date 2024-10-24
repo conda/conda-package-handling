@@ -1,7 +1,3 @@
-import os
-import sys
-from errno import EACCES, ENOENT, EPERM, EROFS
-
 import pytest
 
 from conda_package_handling import utils
