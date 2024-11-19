@@ -1,6 +1,4 @@
-# used in sphinx documentation build
 conda-package-streaming>=0.9.0
-# docs
 furo
 sphinx
 sphinx-argparse
