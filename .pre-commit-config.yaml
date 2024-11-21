@@ -15,6 +15,14 @@ repos:
         exclude: ^(conda\.)?recipe/meta.yaml
       # catch git merge/rebase problems
       - id: check-merge-conflict
+      # sort requirements files
+      - id: file-contents-sorter
+        files: |
+          (?x)^(
+            docs/requirements.txt |
+            tests/requirements.*\.txt
+          )
+        args: [--unique]
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.18.0
     hooks:
@@ -32,3 +40,16 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
+  - repo: meta
+    # see https://pre-commit.com/#meta-hooks
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+  - repo: local
+    hooks:
+      - id: git-diff
+        name: git diff
+        entry: git diff --exit-code
+        language: system
+        pass_filenames: false
+        always_run: true
