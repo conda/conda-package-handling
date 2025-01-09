@@ -4,10 +4,9 @@ import hashlib
 import os
 from itertools import chain
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from conda_package_streaming import package_streaming
-
-from .utils import TemporaryDirectory
 
 
 def validate_converted_files_match(

@@ -1,51 +1,16 @@
-import os
-import sys
-from errno import EACCES, ENOENT, EPERM, EROFS
-
 import pytest
 
 from conda_package_handling import utils
 
 
-def test_rm_rf_file(testing_workdir):
-    with open("dummy", "w") as f:
-        f.write("weeee")
-    utils.rm_rf("dummy")
-
-    with open("dummy", "w") as f:
-        f.write("weeee")
-    utils.rm_rf(os.path.join(testing_workdir, "dummy"))
-
-
-@pytest.mark.parametrize("errno", (ENOENT, EACCES, EPERM, EROFS))
-def test_rename_to_trash(testing_workdir, mocker, errno):
-    unlink = mocker.patch("os.unlink")
-    unlink.side_effect = EnvironmentError(errno, "")
-    with open("dummy", "w") as f:
-        f.write("weeee")
-    utils.unlink_or_rename_to_trash("dummy")
-    assert os.path.isfile("dummy.conda_trash")
-
-    # force a second error for the inner rename try (after unlink fails)
-    if sys.platform == "win32":
-        with open("dummy", "w") as f:
-            f.write("weeee")
-        mocker.patch("os.rename")
-        unlink.side_effect = EnvironmentError(errno, "")
-        utils.unlink_or_rename_to_trash("dummy")
-        assert os.path.isfile("dummy.conda_trash")
-
-
-def test_delete_trash(testing_workdir, mocker):
-    isdir = mocker.patch("conda_package_handling.utils.isdir")
-    isdir.return_value = True
-    lexists = mocker.patch("conda_package_handling.utils.lexists")
-    lexists.return_value = False
-    mocker.patch("conda_package_handling.utils.rmdir")
-
-    os.makedirs("folder")
-    with open("folder/dummy.conda_trash", "w") as f:
-        f.write("weeee")
-
-    utils.rm_rf("folder")
-    assert not os.path.isfile("folder/dummy.conda_trash")
+def test_checksum(tmp_path):
+    tmp_file = tmp_path / "file"
+    tmp_file.write_text("file")
+    with tmp_file.open("rb") as f:
+        with pytest.raises(ValueError):
+            utils._checksum(f, "chicken")
+        assert (
+            utils.sha256_checksum(f)
+            == "3b9c358f36f0a31b6ad3e14f309c7cf198ac9246e8316f9ce543d5b19ac02b80"
+        )
+        assert utils.md5_checksum(f) == "d41d8cd98f00b204e9800998ecf8427e"

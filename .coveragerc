@@ -1,7 +1,0 @@
-[report]
-omit =
-    setup.py
-    src/conda_package_handling/__main__.py
-    src/conda_package_handling/_version.py
-    versioneer.py
-    tests/*
