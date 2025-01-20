@@ -1,3 +1,48 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "conda-package-handling"
+authors = [
+  { name = "Anaconda, Inc. & Contributors", email = "conda@anaconda.com" },
+]
+description = "Create and extract conda packages of various formats."
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+requires-python = ">=3.8"
+dependencies = ["conda-package-streaming >= 0.9.0", "requests", "zstandard >=0.15"]
+
+[project.scripts]
+cph = "conda_package_handling.cli:main"
+
+[project.optional-dependencies]
+test = [
+    "mock",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "bottle",
+]
+docs = [
+    "furo",
+    "sphinx",
+    "sphinx-argparse",
+    "myst-parser",
+    "mdit-py-plugins>=0.3.0",
+]
+
+[project.urls]
+Home = "https://github.com/conda/conda-package-handling"
+Documentation = "https://conda.github.io/conda-package-handling/"
+
 [tool.black]
 # consider reverting to standard line length
 line-length = 99
