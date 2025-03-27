@@ -23,6 +23,7 @@ requirements:
     - python
     - pip
     - wheel
+    - flit
   run:
     - python
     - zstandard >=0.15
