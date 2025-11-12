@@ -84,14 +84,8 @@ show-fixes = true
 
 [tool.ruff.lint]
 ignore = [
-  "E122",
-  "E123",
-  "E126",
-  "E127",
-  "E128",
-  "E731",
-  "E722",
-  "W503",
+  "E722",  # do not use bare 'except'
+  "E731",  # do not assign a lambda expression, use a def
 ]
 select = [
   "E",  # pycodestyle errors
