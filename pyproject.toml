@@ -43,15 +43,17 @@ docs = [
 Home = "https://github.com/conda/conda-package-handling"
 Documentation = "https://conda.github.io/conda-package-handling/"
 
-[tool.black]
-# consider reverting to standard line length
-line-length = 99
+[tool.coverage.run]
+source = [ "src/", ]
+omit = [
+    "setup.py",
+    "src/conda_package_handling/__main__.py",
+    "src/conda_package_handling/_version.py",
+    "versioneer.py",
+    "tests/*",
+]
 
-[tool.isort]
-profile = "black"
-line_length = 99
-
-[tool.pytest]
+[tool.pytest.ini_options]
 norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
 addopts = [
     "--junitxml=junit.xml",
@@ -65,12 +67,6 @@ addopts = [
 ]
 markers = ["serial: execute test serially (to avoid race conditions)"]
 
-[tool.coverage.run]
-source = [ "src/", ]
-omit = [
-    "setup.py",
-    "src/conda_package_handling/__main__.py",
-    "src/conda_package_handling/_version.py",
-    "versioneer.py",
-    "tests/*",
-]
+[tool.ruff]
+line-length = 99
+show-fixes = true

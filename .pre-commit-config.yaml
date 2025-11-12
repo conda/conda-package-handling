@@ -23,33 +23,27 @@ repos:
             tests/requirements.*\.txt
           )
         args: [--unique]
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.1
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: 1.20.0
     hooks:
-      - id: pyupgrade
-        args: ["--py38-plus"]
-  - repo: https://github.com/PyCQA/isort
-    rev: 7.0.0
+      # auto format Python codes within docstrings
+      - id: blacken-docs
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.4
     hooks:
-    -   id: isort
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.11.0
+      # lint & attempt to correct failures (e.g. pyupgrade)
+      - id: ruff-check
+        args: [--fix]
+      # compatible replacement for black
+      - id: ruff-format
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.34.1
     hooks:
-    -   id: black
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
+      # verify github syntaxes
+      - id: check-github-workflows
+      - id: check-dependabot
   - repo: meta
     # see https://pre-commit.com/#meta-hooks
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
-  - repo: local
-    hooks:
-      - id: git-diff
-        name: git diff
-        entry: git diff --exit-code
-        language: system
-        pass_filenames: false
-        always_run: true
