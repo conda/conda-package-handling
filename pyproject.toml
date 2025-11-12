@@ -68,5 +68,32 @@ addopts = [
 markers = ["serial: execute test serially (to avoid race conditions)"]
 
 [tool.ruff]
+exclude = [
+  "build",
+  "src/conda_package_handling/_version.py",
+  "tests",
+  "conda.recipe",
+  ".git",
+  "versioneer.py",
+  "benchmarks",
+  ".asv",
+  "rever",
+]
 line-length = 99
 show-fixes = true
+
+[tool.ruff.lint]
+ignore = [
+  "E122",
+  "E123",
+  "E126",
+  "E127",
+  "E128",
+  "E731",
+  "E722",
+  "W503",
+]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+]
