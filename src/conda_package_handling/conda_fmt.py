@@ -60,8 +60,10 @@ class CondaFormat_v2(AbstractBaseFormat):
         file_list,
         out_fn,
         out_folder=None,
+        *,
         compressor: Callable[[], zstandard.ZstdCompressor] | None = None,
         compression_tuple=(None, None, None),
+        **kw,  # to satisfy AbstractBaseFormat.create signature
     ):
         if out_folder is None:
             out_folder = os.getcwd()
@@ -79,7 +81,7 @@ class CondaFormat_v2(AbstractBaseFormat):
             raise ValueError("Supply one of compressor= or (deprecated) compression_tuple=")
 
         if compressor is None:
-            compressor = lambda: zstandard.ZstdCompressor(
+            compressor = lambda: zstandard.ZstdCompressor(  # noqa: E731
                 level=ZSTD_COMPRESS_LEVEL,
                 threads=ZSTD_COMPRESS_THREADS,
             )
@@ -87,7 +89,7 @@ class CondaFormat_v2(AbstractBaseFormat):
             # legacy libarchive-ish compatibility
             ext, comp_filter, filter_opts = compression_tuple
             if filter_opts and filter_opts.startswith("zstd:compression-level="):
-                compressor = lambda: zstandard.ZstdCompressor(
+                compressor = lambda: zstandard.ZstdCompressor(  # noqa: E731
                     level=int(filter_opts.split("=", 1)[-1]),
                     threads=ZSTD_COMPRESS_THREADS,
                 )
