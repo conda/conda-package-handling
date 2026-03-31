@@ -55,16 +55,7 @@ omit = [
 
 [tool.pytest.ini_options]
 norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
-addopts = [
-    "--junitxml=junit.xml",
-    "--ignore setup.py",
-    "--ignore run_test.py",
-    "--cov-report term-missing",
-    "--cov-branch",
-    "--tb native",
-    "--strict-markers",
-    "--durations=20",
-]
+addopts = "--junitxml=junit.xml --ignore setup.py --ignore run_test.py --cov-report term-missing --cov-branch --tb native --strict-markers --durations=20"
 markers = ["serial: execute test serially (to avoid race conditions)"]
 
 [tool.ruff]
