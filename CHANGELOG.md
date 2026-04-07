@@ -1,5 +1,28 @@
 [//]: # (current developments)
 
+## 2.5.0 (2026-04-07)
+
+### Bug fixes
+
+* Add `requests` to dependencies; convert to pyproject.toml instead of setup.py. (#280)
+
+### Other
+
+* Switch from black/isort/flake8 to ruff. (#301)
+* Improve test coverage. (#270)
+* Various dependency updates via dependabot and pre-commit.ci.
+* Infrastructure updates via conda-bot.
+
+### Contributors
+
+* @conda-bot
+* @dependabot[bot]
+* @dholth
+* @jezdez
+* @kenodegard
+* @pre-commit-ci[bot]
+
+
 ## 2.4.0 (2024-10-08)
 
 ### Enhancements
