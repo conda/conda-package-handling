@@ -7,6 +7,7 @@ Authors are sorted alphabetically.
 * Christopher Barber
 * Conda Bot
 * Daniel Bast
+* dependabot[bot]
 * Daniel Holth
 * Eli Uriegas
 * Jannis Leidel
