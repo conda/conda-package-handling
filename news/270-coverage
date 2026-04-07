@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* Add `requests` to dependencies; convert to pyproject.toml instead of setup.py. (#280)
+* <news item>
 
 ### Deprecations
 
@@ -16,4 +16,4 @@
 
 ### Other
 
-* <news item>
+* Improve test coverage. (#270)
