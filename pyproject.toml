@@ -57,11 +57,11 @@ omit = [
 norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
 addopts = [
     "--junitxml=junit.xml",
-    "--ignore setup.py",
-    "--ignore run_test.py",
-    "--cov-report term-missing",
+    "--ignore=setup.py",
+    "--ignore=run_test.py",
+    "--cov-report=term-missing",
     "--cov-branch",
-    "--tb native",
+    "--tb=native",
     "--strict-markers",
     "--durations=20",
 ]
