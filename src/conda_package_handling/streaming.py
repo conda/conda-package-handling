@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import io
 import tarfile
+import zipfile
 from contextlib import redirect_stdout
 from pathlib import Path
 from tarfile import TarError
@@ -28,11 +29,26 @@ def _stream_components(
 
     try:
         with open(filename, "rb") as fileobj:
-            for component in components:
-                # will parse zipfile twice
-                yield package_streaming.stream_conda_component(
-                    filename, fileobj, component=component
-                )
+            # Open the .conda's ZipFile once and reuse it for every
+            # component instead of letting ``stream_conda_component``
+            # rebuild it per component. Saves the central-directory
+            # parse on the second component; ~50 us per archive.
+            # .tar.bz2 ignores ``zf=``. See #318 (depends on
+            # conda/conda-package-streaming#173).
+            zf: zipfile.ZipFile | None = None
+            if str(filename).endswith(".conda"):
+                zf = zipfile.ZipFile(fileobj)
+            try:
+                for component in components:
+                    yield package_streaming.stream_conda_component(
+                        filename,
+                        fileobj,
+                        component=component,
+                        zf=zf,
+                    )
+            finally:
+                if zf is not None:
+                    zf.close()
     except cps_exceptions.CaseInsensitiveFileSystemError as e:
         raise exceptions.CaseInsensitiveFileSystemError(filename, dest_dir) from e
     except (OSError, TarError, BadZipFile) as e:
