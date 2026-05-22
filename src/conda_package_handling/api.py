@@ -9,7 +9,7 @@ from glob import glob as _glob
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .interface import AbstractBaseFormat
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
-from .utils import ensure_list, filter_info_files
+from .utils import ensure_list, is_info_member_path
 from .utils import get_executor as _get_executor
 
 SUPPORTED_EXTENSIONS: dict[str, type[AbstractBaseFormat]] = {".tar.bz2": _CondaTarBZ2}
@@ -165,15 +165,12 @@ def _convert(
                     level=zstd_compress_level, threads=zstd_compress_threads
                 )
 
-            def is_info(filename):
-                return filter_info_files([filename], prefix=".") == []
-
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,
                 fn,
                 out_folder,
                 compressor=compressor,
-                is_info=is_info,
+                is_info=is_info_member_path,
             )
 
         else:

@@ -16,6 +16,8 @@ import conda_package_handling
 import conda_package_handling.tarball
 from conda_package_handling import api, exceptions
 
+from .helpers import component_member_paths, write_package_dir
+
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
 version_file = pathlib.Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
@@ -226,6 +228,54 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
             if contents:
                 errors.append(f"extra files [{', '.join(contents)}] in {component} contents")
     assert not errors
+
+
+@pytest.mark.parametrize("via", ["create", "transmute"])
+def test_api_cep35_info_placement(testing_workdir, via):
+    package_name = "cep35-test-1.0.0-0"
+    prefix = os.path.join(testing_workdir, "prefix")
+    files = {
+        "info/licenses/LICENSE": "MIT License\n",
+        "bin/cep35-test": "#!/bin/sh\n",
+        "info/index.json": json.dumps(
+            {
+                "arch": "x86_64",
+                "build": "0",
+                "build_number": 0,
+                "name": "cep35-test",
+                "platform": "linux",
+                "version": "1.0.0",
+            }
+        ),
+    }
+    write_package_dir(prefix, files)
+
+    if via == "create":
+        conda_path = os.path.join(testing_workdir, f"{package_name}.conda")
+        api.create(prefix, None, f"{package_name}.conda", out_folder=testing_workdir)
+    else:
+        tar_path = os.path.join(testing_workdir, f"{package_name}.tar.bz2")
+        api.create(prefix, None, f"{package_name}.tar.bz2", out_folder=testing_workdir)
+        errors = api.transmute(tar_path, ".conda", testing_workdir, zstd_compress_level=3)
+        assert not errors
+        conda_path = os.path.join(testing_workdir, f"{package_name}.conda")
+
+    info_paths = component_member_paths(conda_path, "info")
+    pkg_paths = component_member_paths(conda_path, "pkg")
+
+    errors = []
+    for path in files:
+        if path.startswith("info/"):
+            if path in pkg_paths:
+                errors.append(f"{path} incorrectly placed in pkg-*")
+            elif path not in info_paths:
+                errors.append(f"{path} missing from info-*")
+        elif path in info_paths:
+            errors.append(f"{path} incorrectly placed in info-*")
+        elif path not in pkg_paths:
+            errors.append(f"{path} missing from pkg-*")
+
+    assert not errors, "CEP 35 component split failed:\n" + "\n".join(errors)
 
 
 def test_api_transmute_conda_v2_to_tarball(testing_workdir):
