@@ -46,7 +46,6 @@ Documentation = "https://conda.github.io/conda-package-handling/"
 [tool.coverage.run]
 source = [ "src/", ]
 omit = [
-    "setup.py",
     "src/conda_package_handling/__main__.py",
     "src/conda_package_handling/_version.py",
     "versioneer.py",
@@ -57,11 +56,9 @@ omit = [
 norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
 addopts = [
     "--junitxml=junit.xml",
-    "--ignore setup.py",
-    "--ignore run_test.py",
-    "--cov-report term-missing",
+    "--cov-report=term-missing",
     "--cov-branch",
-    "--tb native",
+    "--tb=native",
     "--strict-markers",
     "--durations=20",
 ]
