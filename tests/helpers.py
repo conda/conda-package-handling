@@ -1,11 +1,10 @@
 import os
-from collections.abc import Mapping
 from tempfile import TemporaryDirectory
 
 from conda_package_handling import api
 
 
-def write_package_dir(prefix, files: Mapping[str, str | bytes]):
+def write_package_dir(prefix, files):
     """Write a package directory tree under ``prefix``.
 
     ``files`` maps archive-relative paths to file contents. Parent directories

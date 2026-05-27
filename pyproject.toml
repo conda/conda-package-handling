@@ -17,7 +17,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 dependencies = ["conda-package-streaming >= 0.9.0", "requests", "zstandard >=0.15"]
 
 [project.scripts]
