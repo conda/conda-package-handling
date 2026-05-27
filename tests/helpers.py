@@ -34,5 +34,6 @@ def component_member_paths(conda_path, component):
         paths = set()
         for dirpath, _, filenames in os.walk(root):
             for filename in filenames:
-                paths.add(os.path.relpath(os.path.join(dirpath, filename), root))
+                relpath = os.path.relpath(os.path.join(dirpath, filename), root)
+                paths.add(relpath.replace("\\", "/"))
         return paths
