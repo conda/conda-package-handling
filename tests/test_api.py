@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import json
 import os
-import pathlib
 import platform
 import shutil
 import sys
@@ -9,6 +10,7 @@ import time
 import zipfile
 from datetime import datetime
 from tempfile import TemporaryDirectory
+from pathlib import Path
 
 import pytest
 
@@ -16,13 +18,41 @@ import conda_package_handling
 import conda_package_handling.tarball
 from conda_package_handling import api, exceptions
 
-from .helpers import component_member_paths, write_package_dir
 
 this_dir = os.path.dirname(__file__)
 data_dir = os.path.join(this_dir, "data")
-version_file = pathlib.Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
+version_file = Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
 test_package_name = "mock-2.0.0-py37_1000"
 test_package_name_2 = "cph_test_data-0.0.1-0"
+
+
+def _write_package_dir(prefix: Path | str, files: dict[str, str]):
+    """Write a package directory tree under ``prefix``.
+
+    ``files`` maps archive-relative paths to file contents. Parent directories
+    are created as needed.
+    """
+    root = Path(prefix)
+    for relpath, content in files.items():
+        path = root / relpath
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
+
+def _component_member_paths(
+    extract_dir: Path, conda_path: Path | str, component: str
+) -> set[str]:
+    """Return member paths from one .conda inner tarball.
+
+    Extracts only ``component`` (``"info"`` or ``"pkg"``) from ``conda_path``
+    into ``extract_dir`` and returns archive-relative paths of regular files.
+    """
+    api.extract(str(conda_path), extract_dir, components=component)
+    return {
+        path.relative_to(extract_dir).as_posix()
+        for path in extract_dir.rglob("*")
+        if path.is_file()
+    }
 
 
 @pytest.mark.skipif(
@@ -231,9 +261,9 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
 
 
 @pytest.mark.parametrize("via", ["create", "transmute"])
-def test_api_cep35_info_placement(testing_workdir, via):
+def test_api_cep35_info_placement(tmp_path: Path, via):
     package_name = "cep35-test-1.0.0-0"
-    prefix = os.path.join(testing_workdir, "prefix")
+    prefix = tmp_path / "prefix"
     files = {
         "info/licenses/LICENSE": "MIT License\n",
         "bin/cep35-test": "#!/bin/sh\n",
@@ -248,20 +278,20 @@ def test_api_cep35_info_placement(testing_workdir, via):
             }
         ),
     }
-    write_package_dir(prefix, files)
+    _write_package_dir(prefix, files)
 
     if via == "create":
-        conda_path = os.path.join(testing_workdir, f"{package_name}.conda")
-        api.create(prefix, None, f"{package_name}.conda", out_folder=testing_workdir)
+        conda_path = tmp_path / f"{package_name}.conda"
+        api.create(str(prefix), None, f"{package_name}.conda", out_folder=str(tmp_path))
     else:
-        tar_path = os.path.join(testing_workdir, f"{package_name}.tar.bz2")
-        api.create(prefix, None, f"{package_name}.tar.bz2", out_folder=testing_workdir)
-        errors = api.transmute(tar_path, ".conda", testing_workdir, zstd_compress_level=3)
+        tar_path = tmp_path / f"{package_name}.tar.bz2"
+        api.create(str(prefix), None, f"{package_name}.tar.bz2", out_folder=str(tmp_path))
+        errors = api.transmute(str(tar_path), ".conda", str(tmp_path), zstd_compress_level=3)
         assert not errors
-        conda_path = os.path.join(testing_workdir, f"{package_name}.conda")
+        conda_path = tmp_path / f"{package_name}.conda"
 
-    info_paths = component_member_paths(conda_path, "info")
-    pkg_paths = component_member_paths(conda_path, "pkg")
+    info_paths = _component_member_paths(tmp_path / "info", conda_path, "info")
+    pkg_paths = _component_member_paths(tmp_path / "pkg", conda_path, "pkg")
 
     errors = []
     for path in files:
@@ -280,7 +310,7 @@ def test_api_cep35_info_placement(testing_workdir, via):
 
 def test_api_transmute_conda_v2_to_tarball(testing_workdir):
     condafile = os.path.join(data_dir, test_package_name + ".conda")
-    outfile = pathlib.Path(testing_workdir, test_package_name + ".tar.bz2")
+    outfile = Path(testing_workdir, test_package_name + ".tar.bz2")
     # one quiet=True in the test suite for coverage
     api.transmute(condafile, ".tar.bz2", testing_workdir, quiet=True)
     assert outfile.is_file()
@@ -431,7 +461,7 @@ def test_convert_keyerror(tmpdir, mocker):
         api._convert(tarfile, ".conda", tmpdir)
 
     def create_file_and_raise(*args, **kwargs):
-        out_fn = pathlib.Path(tmpdir, pathlib.Path(tarfile[: -len(".tar.bz2")] + ".conda").name)
+        out_fn = Path(tmpdir, Path(tarfile[: -len(".tar.bz2")] + ".conda").name)
         print("out fn", out_fn)
         out_fn.write_text("")
         raise KeyboardInterrupt()
@@ -445,7 +475,7 @@ def test_convert_keyerror(tmpdir, mocker):
 
 def test_create_filelist(tmpdir, mocker):
     # another bad API, tested for coverage
-    filelist = pathlib.Path(tmpdir, "filelist.txt")
+    filelist = Path(tmpdir, "filelist.txt")
     filelist.write_text("\n".join(["filelist.txt", "anotherfile"]))
 
     # when looking for filelist-not-found.txt
@@ -461,7 +491,7 @@ def test_create_filelist(tmpdir, mocker):
         api.create(str(tmpdir), str(filelist), str(tmpdir / "newpackage.rar"))
 
     def create_file_and_raise(prefix, file_list, out_fn, *args, **kwargs):
-        pathlib.Path(prefix, out_fn).write_text("")
+        Path(prefix, out_fn).write_text("")
         raise KeyboardInterrupt()
 
     mocker.patch(
@@ -502,7 +532,7 @@ def test_api_transmute_fail_validation_to_conda(tmpdir, mocker):
 
 def test_api_transmute_fail_validation_2(tmpdir, mocker):
     package = os.path.join(data_dir, test_package_name + ".conda")
-    tmptarfile = tmpdir / pathlib.Path(package).name
+    tmptarfile = tmpdir / Path(package).name
     shutil.copy(package, tmptarfile)
 
     mocker.patch(
