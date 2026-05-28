@@ -4,26 +4,21 @@ from tempfile import TemporaryDirectory
 from conda_package_handling import api
 
 
-def write_package_dir(prefix, files):
+def write_package_dir(prefix: str, files: dict[str, str]):
     """Write a package directory tree under ``prefix``.
 
     ``files`` maps archive-relative paths to file contents. Parent directories
     are created as needed.
     """
     for relpath, content in files.items():
-        path = os.path.join(prefix, relpath)
-        parent = os.path.dirname(path)
+        path = prefix / relpath
+        parent = path.parent
         if parent:
-            os.makedirs(parent, exist_ok=True)
-        if isinstance(content, bytes):
-            with open(path, "wb") as f:
-                f.write(content)
-        else:
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(content)
+            parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
 
 
-def component_member_paths(conda_path, component):
+def component_member_paths(conda_path: str, component: str):
     """Return member paths from one .conda inner tarball.
 
     Extracts only ``component`` (``"info"`` or ``"pkg"``) from ``conda_path``
