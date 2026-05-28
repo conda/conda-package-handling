@@ -67,7 +67,7 @@ def filter_files(
 def is_info_member_path(path):
     """Return True if ``path`` belongs in the ``info-*`` component (CEP 35)."""
     normalized = path.replace("\\", "/")
-    return normalized == "info" or normalized.startswith("info/")
+    return normalized == "info" or normalized.startswith(("info/", "info\\"))
 
 
 def filter_info_files(files_list, prefix):
