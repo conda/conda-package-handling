@@ -21,6 +21,7 @@ Authors are sorted alphabetically.
 * Nehal J Wani
 * Pure Software
 * Ray Donnelly
+* Ryan Keith
 * Tobias "Tobi" Koch
 * Vadim Zayakin
 * jaimergp

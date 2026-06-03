@@ -1,15 +1,28 @@
 [//]: # (current developments)
 
-## 2.5.0 (2026-04-07)
+## 2.5.0 (2026-06-03)
+
+### Enhancements
+
+* Add Python 3.14 support. (#328)
 
 ### Bug fixes
 
 * Add `requests` to dependencies; convert to pyproject.toml instead of setup.py. (#280)
+* Fix pytest 9 compatibility by using `=` syntax for `addopts` values in `pyproject.toml`. (#312)
+* Route all ``info/`` paths into the ``info-*`` inner tarball when creating or
+  transmuting ``.conda`` packages, per CEP 35. (#316 via #322)
+* Require `conda-package-streaming >=0.12.0` for Python 3.14 compatibility. (#328)
+
+### Deprecations
+
+* Drop Python 3.8 and 3.9 support. (#328)
 
 ### Other
 
 * Switch from black/isort/flake8 to ruff. (#301)
 * Improve test coverage. (#270)
+* Remove the `issue_comment` trigger from the update workflow. (#320)
 * Various dependency updates via dependabot and pre-commit.ci.
 * Infrastructure updates via conda-bot.
 
@@ -18,9 +31,11 @@
 * @conda-bot
 * @dependabot[bot]
 * @dholth
+* @jaimergp
 * @jezdez
 * @kenodegard
 * @pre-commit-ci[bot]
+* @ryanskeith
 
 
 ## 2.4.0 (2024-10-08)

@@ -139,3 +139,8 @@
   num_commits: 4
   first_commit: 2024-04-02 13:11:21
   github: jaimergp
+- name: Ryan Keith
+  email: rkeith@anaconda.com
+  num_commits: 1
+  first_commit: 2026-06-03 11:25:25
+  github: ryanskeith
