@@ -32,6 +32,7 @@ jobs:
     - uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4.0.1
       with:
         python-version: ${{ matrix.python-version }}
+        conda-build-version: "*"
         environment-file: devtools/conda-envs/test_env.yaml
 
         channels: defaults
@@ -46,7 +47,7 @@ jobs:
       # conda setup requires this special shell
       shell: bash -l {0}
       run: |
-        conda-build -c conda -c conda-forge conda.recipe
+        conda build -c conda -c conda-forge conda.recipe
 
 # TODO: Re-enable codecov when we figure out how to grab coverage from the conda build
 #       environment
