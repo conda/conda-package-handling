@@ -13,9 +13,29 @@ import tarfile
 import time
 from collections.abc import Callable
 from contextlib import closing
+from typing import TYPE_CHECKING
 from zipfile import ZIP_STORED, ZipFile
 
-import zstandard
+try:
+    import compression.zstd as zstd
+except ImportError:
+    import backports.zstd as zstd
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import BinaryIO, Protocol
+
+    class LegacyCompressor(Protocol):
+        def stream_writer(
+            self,
+            writer: BinaryIO,
+            *,
+            size: int,
+            closefd: bool,
+        ) -> BinaryIO: ...
+
+    LegacyCompressorOrFactory = LegacyCompressor | Callable[[], LegacyCompressor]
+
 from conda_package_streaming.package_streaming import stream_conda_component
 from conda_package_streaming.url import conda_reader_for_url
 
@@ -61,7 +81,9 @@ class CondaFormat_v2(AbstractBaseFormat):
         out_fn,
         out_folder=None,
         *,
-        compressor: Callable[[], zstandard.ZstdCompressor] | None = None,
+        compressor: LegacyCompressorOrFactory | None = None,
+        compression_level: int | None = None,
+        compression_threads: int | None = None,
         compression_tuple=(None, None, None),
         **kw,  # to satisfy AbstractBaseFormat.create signature
     ):
@@ -78,20 +100,22 @@ class CondaFormat_v2(AbstractBaseFormat):
 
         if compressor and (compression_tuple != (None, None, None)):
             raise ValueError("Supply one of compressor= or (deprecated) compression_tuple=")
-
-        if compressor is None:
-            compressor = lambda: zstandard.ZstdCompressor(  # noqa: E731
-                level=ZSTD_COMPRESS_LEVEL,
-                threads=ZSTD_COMPRESS_THREADS,
+        if compressor and (compression_level is not None or compression_threads is not None):
+            raise ValueError(
+                "`compressor` overrides `compression_level` and `compression_threads`"
             )
 
-            # legacy libarchive-ish compatibility
+        # Handle legacy compression_tuple for libarchive compatibility
+        if compressor is None and compression_level is None:
             ext, comp_filter, filter_opts = compression_tuple
             if filter_opts and filter_opts.startswith("zstd:compression-level="):
-                compressor = lambda: zstandard.ZstdCompressor(  # noqa: E731
-                    level=int(filter_opts.split("=", 1)[-1]),
-                    threads=ZSTD_COMPRESS_THREADS,
-                )
+                compression_level = int(filter_opts.split("=", 1)[-1])
+
+        # Set defaults for compression parameters
+        if compression_level is None:
+            compression_level = ZSTD_COMPRESS_LEVEL
+        if compression_threads is None:
+            compression_threads = ZSTD_COMPRESS_THREADS
 
         class NullWriter:
             """
@@ -108,6 +132,27 @@ class CondaFormat_v2(AbstractBaseFormat):
             def tell(self):
                 return self.size
 
+        def _open_component_writer(component_file, pledged_size):
+            """Open a zstd writer for a component file."""
+            if compressor is not None:
+                legacy_compressor = compressor() if callable(compressor) else compressor
+                if not hasattr(legacy_compressor, "stream_writer"):
+                    raise TypeError("compressor must provide stream_writer(...)")
+                return legacy_compressor.stream_writer(
+                    component_file,
+                    size=pledged_size,
+                    closefd=False,
+                )
+            else:
+                return zstd.open(
+                    component_file,
+                    mode="w",
+                    options={
+                        zstd.CompressionParameter.compression_level: compression_level,
+                        zstd.CompressionParameter.nb_workers: compression_threads,
+                    },
+                )
+
         with (
             ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file,
             utils.tmp_chdir(prefix),
@@ -123,8 +168,6 @@ class CondaFormat_v2(AbstractBaseFormat):
                 ),
             )
 
-            # put the info last, for parity with updated transmute.
-            compress = compressor()
             for component, files in components_files:
                 # If size is known, the decompressor may be able to allocate less memory.
                 # The compressor will error if size is not correct.
@@ -134,10 +177,7 @@ class CondaFormat_v2(AbstractBaseFormat):
                 size = sizer.fileobj.size  # type: ignore
 
                 with conda_file.open(component, "w", force_zip64=True) as component_file:
-                    # only one stream_writer() per compressor() must be in use at a time
-                    component_stream = compress.stream_writer(
-                        component_file, size=size, closefd=False
-                    )
+                    component_stream = _open_component_writer(component_file, size)
                     component_tar = tarfile.TarFile(fileobj=component_stream, mode="w")
 
                     for file in files:
