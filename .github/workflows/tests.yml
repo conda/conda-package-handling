@@ -41,7 +41,7 @@ jobs:
         auto-activate-base: false
         show-channel-urls: true
 
-    - name: Install package
+    - name: Build and test package
 
       # conda setup requires this special shell
       shell: bash -l {0}
