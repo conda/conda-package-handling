@@ -25,7 +25,7 @@ try:
     libarchive_enabled = True
 
 except ImportError:
-    _warnings.warn("Install zstandard Python bindings for .conda support")
+    _warnings.warn("Install backports.zstd or use Python 3.14+ for .conda support")
 
 THREADSAFE_EXTRACT = True  #: Not present in conda-package-handling<2.0.
 
@@ -131,9 +131,8 @@ def _convert(
     zstd_compress_threads=None,
     **kw,
 ):
-    # allow package to work in degraded mode when zstandard is not available
+    # allow package to work in degraded mode when zstd is not available
     import conda_package_streaming.transmute
-    import zstandard
 
     basename = get_default_extracted_folder(fn, abspath=False)
     from .validate import validate_converted_files_match_streaming
@@ -152,23 +151,22 @@ def _convert(
             _os.unlink(out_fn)
 
         if out_ext == ".conda":
-            # ZSTD_COMPRESS_* constants are only defined if we have zstandard
+            # ZSTD_COMPRESS_* constants are only defined if we have .conda support
             if zstd_compress_level is None:
                 zstd_compress_level = ZSTD_COMPRESS_LEVEL
             if zstd_compress_threads is None:
                 zstd_compress_threads = ZSTD_COMPRESS_THREADS
 
-            def compressor():
-                return zstandard.ZstdCompressor(
-                    level=zstd_compress_level, threads=zstd_compress_threads
-                )
+            def is_info(filename):
+                return filter_info_files([filename], prefix=".") == []
 
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,
                 fn,
                 out_folder,
-                compressor=compressor,
-                is_info=is_info_member_path,
+                compression_level=zstd_compress_level,
+                compression_threads=zstd_compress_threads,
+                is_info=is_info,
             )
 
         else:
