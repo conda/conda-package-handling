@@ -64,34 +64,18 @@ def filter_files(
     ]
 
 
+def is_info_member_path(path):
+    """Return True if ``path`` belongs in the ``info-*`` component (CEP 35)."""
+    return path == "info" or path.startswith(("info/", "info\\"))
+
+
 def filter_info_files(files_list, prefix):
-    return filter_files(
-        files_list,
-        prefix,
-        filter_patterns=(
-            "info[\\\\/]index\\.json",
-            "info[\\\\/]files",
-            "info[\\\\/]paths\\.json",
-            "info[\\\\/]about\\.json",
-            "info[\\\\/]has_prefix",
-            "info[\\\\/]hash_input_files",  # legacy, not used anymore
-            "info[\\\\/]hash_input\\.json",
-            "info[\\\\/]run_exports\\.yaml",  # legacy
-            "info[\\\\/]run_exports\\.json",  # current
-            "info[\\\\/]git",
-            "info[\\\\/]recipe[\\\\/].*",
-            "info[\\\\/]recipe_log.json",
-            "info[\\\\/]recipe.tar",
-            "info[\\\\/]test[\\\\/].*",
-            "info[\\\\/]LICENSE.*",
-            "info[\\\\/]requires",
-            "info[\\\\/]meta",
-            "info[\\\\/]platform",
-            "info[\\\\/]no_link",
-            "info[\\\\/]link\\.json",
-            "info[\\\\/]icon\\.png",
-        ),
-    )
+    """Return packages files from files list that belong to the ``pkg-*`` component (CEP 35).
+
+    Returns files that go into the ``pkg-*`` component or in other words filter OUT
+    files that go into the ``info-*`` component.
+    """
+    return [f for f in filter_files(files_list, prefix) if not is_info_member_path(f)]
 
 
 def _checksum(fd, algorithm, buffersize=65536):

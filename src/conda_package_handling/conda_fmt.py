@@ -72,10 +72,9 @@ class CondaFormat_v2(AbstractBaseFormat):
             out_fn = os.path.basename(out_fn)
         conda_pkg_fn = os.path.join(out_folder, out_fn)
         file_id = out_fn[: -len(".conda")]
-        pkg_files = utils.filter_info_files(file_list, prefix)
-        # preserve order
-        pkg_files_set = set(pkg_files)
-        info_files = list(f for f in file_list if f not in pkg_files_set)
+        pkg_files, info_files = [], []
+        for f in file_list:
+            (info_files if utils.is_info_member_path(f) else pkg_files).append(f)
 
         if compressor and (compression_tuple != (None, None, None)):
             raise ValueError("Supply one of compressor= or (deprecated) compression_tuple=")
