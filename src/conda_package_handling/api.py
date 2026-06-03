@@ -3,7 +3,6 @@ from __future__ import annotations
 import functools as _functools
 import os as _os
 import warnings as _warnings
-from contextlib import suppress as _suppress
 from glob import glob as _glob
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
@@ -214,8 +213,10 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
         for fn, out_fn, errors in executor.map(convert_f, flist):
             if errors:
                 failed_files[fn] = errors
-                with _suppress(FileNotFoundError):
+                try:
                     _os.unlink(out_fn)
+                except FileNotFoundError:
+                    pass
     return failed_files
 
 
