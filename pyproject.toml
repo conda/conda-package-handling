@@ -23,7 +23,7 @@ classifiers = [
 ]
 dynamic = ["version"]
 requires-python = ">=3.10"
-dependencies = ["conda-package-streaming >= 0.9.0", "requests", "zstandard >=0.15"]
+dependencies = ["conda-package-streaming >= 0.12.0", "requests", "zstandard >=0.15"]
 
 [project.scripts]
 cph = "conda_package_handling.cli:main"
