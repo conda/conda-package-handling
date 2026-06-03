@@ -77,9 +77,8 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
             break
     else:
         raise ValueError(
-            "Didn't recognize extension for file '{}'.  Supported extensions are: {}".format(
-                fn, list(SUPPORTED_EXTENSIONS.keys())
-            )
+            f"Didn't recognize extension for file '{fn}'.  Supported extensions are: "
+            f"{list(SUPPORTED_EXTENSIONS.keys())}"
         )
 
 
@@ -116,9 +115,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 raise err
     else:
         raise ValueError(
-            "Didn't recognize extension for file '{}'.  Supported extensions are: {}".format(
-                out_fn, list(SUPPORTED_EXTENSIONS.keys())
-            )
+            f"Didn't recognize extension for file '{out_fn}'.  Supported extensions are: "
+            f"{list(SUPPORTED_EXTENSIONS.keys())}"
         )
 
     return out
@@ -144,8 +142,8 @@ def _convert(
         return (
             fn,
             "",
-            "Input file %s doesn't have a supported extension (%s), skipping it"
-            % (fn, SUPPORTED_EXTENSIONS),
+            f"Input file {fn} doesn't have a supported extension ({SUPPORTED_EXTENSIONS}), "
+            "skipping it",
         )
     out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
