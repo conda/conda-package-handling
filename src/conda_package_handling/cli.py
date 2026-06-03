@@ -133,32 +133,33 @@ def main(args=None):
         args.out_folder = (
             os.path.abspath(os.path.normpath(os.path.expanduser(args.out_folder))) + os.sep
         )
-    if args.subcommand in ("extract", "x"):
-        if args.info:
-            api.extract(args.archive_path, args.dest, components="info", prefix=args.prefix)
-        else:
-            api.extract(args.archive_path, args.dest, prefix=args.prefix)
-    elif args.subcommand in ("create", "c"):
-        api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
-    elif args.subcommand in ("transmute", "t"):
-        failed_files = api.transmute(
-            args.in_file,
-            args.out_ext,
-            args.out_folder,
-            args.processes or 1,
-            force=args.force,
-            zstd_compress_level=args.zstd_compression_level,
-            zstd_compress_threads=args.zstd_compression_threads,
-        )
-        if failed_files:
-            print("failed files:")
-            pprint(failed_files)
-            sys.exit(1)
-    elif args.subcommand in ("list", "l"):
-        components = [
-            component.strip() for component in (args.components or "info,pkg").split(",")
-        ]
-        api.list_contents(args.archive_path, verbose=args.verbose, components=components)
+    match args.subcommand:
+        case "extract" | "x":
+            if args.info:
+                api.extract(args.archive_path, args.dest, components="info", prefix=args.prefix)
+            else:
+                api.extract(args.archive_path, args.dest, prefix=args.prefix)
+        case "create" | "c":
+            api.create(args.prefix, args.file_list, args.out_fn, args.out_folder)
+        case "transmute" | "t":
+            failed_files = api.transmute(
+                args.in_file,
+                args.out_ext,
+                args.out_folder,
+                args.processes or 1,
+                force=args.force,
+                zstd_compress_level=args.zstd_compression_level,
+                zstd_compress_threads=args.zstd_compression_threads,
+            )
+            if failed_files:
+                print("failed files:")
+                pprint(failed_files)
+                sys.exit(1)
+        case "list" | "l":
+            components = [
+                component.strip() for component in (args.components or "info,pkg").split(",")
+            ]
+            api.list_contents(args.archive_path, verbose=args.verbose, components=components)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -17,8 +17,8 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
-requires-python = ">=3.8"
-dependencies = ["conda-package-streaming >= 0.9.0", "requests", "zstandard >=0.15"]
+requires-python = ">=3.10"
+dependencies = ["conda-package-streaming >= 0.12.0", "requests", "zstandard >=0.15"]
 
 [project.scripts]
 cph = "conda_package_handling.cli:main"
@@ -46,7 +46,6 @@ Documentation = "https://conda.github.io/conda-package-handling/"
 [tool.coverage.run]
 source = [ "src/", ]
 omit = [
-    "setup.py",
     "src/conda_package_handling/__main__.py",
     "src/conda_package_handling/_version.py",
     "versioneer.py",
@@ -57,8 +56,6 @@ omit = [
 norecursedirs = [".*", "*.egg*", "build", "dist", "conda.recipe"]
 addopts = [
     "--junitxml=junit.xml",
-    "--ignore=setup.py",
-    "--ignore=run_test.py",
     "--cov-report=term-missing",
     "--cov-branch",
     "--tb=native",

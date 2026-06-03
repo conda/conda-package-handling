@@ -11,8 +11,8 @@ import os
 import stat
 import tarfile
 import time
+from collections.abc import Callable
 from contextlib import closing
-from typing import Callable
 from zipfile import ZIP_STORED, ZipFile
 
 import zstandard
@@ -72,10 +72,9 @@ class CondaFormat_v2(AbstractBaseFormat):
             out_fn = os.path.basename(out_fn)
         conda_pkg_fn = os.path.join(out_folder, out_fn)
         file_id = out_fn[: -len(".conda")]
-        pkg_files = utils.filter_info_files(file_list, prefix)
-        # preserve order
-        pkg_files_set = set(pkg_files)
-        info_files = list(f for f in file_list if f not in pkg_files_set)
+        pkg_files, info_files = [], []
+        for f in file_list:
+            (info_files if utils.is_info_member_path(f) else pkg_files).append(f)
 
         if compressor and (compression_tuple != (None, None, None)):
             raise ValueError("Supply one of compressor= or (deprecated) compression_tuple=")
@@ -109,8 +108,9 @@ class CondaFormat_v2(AbstractBaseFormat):
             def tell(self):
                 return self.size
 
-        with ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file, utils.tmp_chdir(
-            prefix
+        with (
+            ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file,
+            utils.tmp_chdir(prefix),
         ):
             pkg_metadata = {"conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION}
             conda_file.writestr("metadata.json", json.dumps(pkg_metadata))
@@ -186,7 +186,7 @@ class CondaFormat_v2(AbstractBaseFormat):
                             f"{member.uname or member.uid}/{member.gname or member.gid} "
                             f"{member.size:10d} "
                         )
-                        line += "%d-%02d-%02d %02d:%02d:%02d " % time.localtime(member.mtime)[:6]
+                        line += time.strftime("%Y-%m-%d %H:%M:%S ", time.localtime(member.mtime))
                     lines[path] = line + path
                 if "pkg" in components and member.name == "info/paths.json":
                     data = json.loads(tar.extractfile(member).read().decode())

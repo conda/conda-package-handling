@@ -9,7 +9,7 @@ from glob import glob as _glob
 from .exceptions import ConversionError, InvalidArchiveError  # NOQA
 from .interface import AbstractBaseFormat
 from .tarball import CondaTarBZ2 as _CondaTarBZ2
-from .utils import ensure_list, filter_info_files
+from .utils import ensure_list, is_info_member_path
 from .utils import get_executor as _get_executor
 
 SUPPORTED_EXTENSIONS: dict[str, type[AbstractBaseFormat]] = {".tar.bz2": _CondaTarBZ2}
@@ -77,9 +77,8 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
             break
     else:
         raise ValueError(
-            "Didn't recognize extension for file '{}'.  Supported extensions are: {}".format(
-                fn, list(SUPPORTED_EXTENSIONS.keys())
-            )
+            f"Didn't recognize extension for file '{fn}'.  Supported extensions are: "
+            f"{list(SUPPORTED_EXTENSIONS.keys())}"
         )
 
 
@@ -116,9 +115,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 raise err
     else:
         raise ValueError(
-            "Didn't recognize extension for file '{}'.  Supported extensions are: {}".format(
-                out_fn, list(SUPPORTED_EXTENSIONS.keys())
-            )
+            f"Didn't recognize extension for file '{out_fn}'.  Supported extensions are: "
+            f"{list(SUPPORTED_EXTENSIONS.keys())}"
         )
 
     return out
@@ -144,8 +142,8 @@ def _convert(
         return (
             fn,
             "",
-            "Input file %s doesn't have a supported extension (%s), skipping it"
-            % (fn, SUPPORTED_EXTENSIONS),
+            f"Input file {fn} doesn't have a supported extension ({SUPPORTED_EXTENSIONS}), "
+            "skipping it",
         )
     out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
@@ -165,15 +163,12 @@ def _convert(
                     level=zstd_compress_level, threads=zstd_compress_threads
                 )
 
-            def is_info(filename):
-                return filter_info_files([filename], prefix=".") == []
-
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,
                 fn,
                 out_folder,
                 compressor=compressor,
-                is_info=is_info,
+                is_info=is_info_member_path,
             )
 
         else:
