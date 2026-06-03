@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import io
 import tarfile
+from collections.abc import Generator
 from contextlib import redirect_stdout
 from pathlib import Path
 from tarfile import TarError
-from typing import Generator
 from zipfile import BadZipFile
 
 from conda_package_streaming.extract import exceptions as cps_exceptions

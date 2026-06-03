@@ -3,6 +3,7 @@ from __future__ import annotations
 import functools as _functools
 import os as _os
 import warnings as _warnings
+from contextlib import suppress as _suppress
 from glob import glob as _glob
 
 # expose these two exceptions as part of the API.  Everything else should feed into these.
@@ -77,9 +78,8 @@ def extract(fn, dest_dir=None, components=None, prefix=None):
             break
     else:
         raise ValueError(
-            "Didn't recognize extension for file '{}'.  Supported extensions are: {}".format(
-                fn, list(SUPPORTED_EXTENSIONS.keys())
-            )
+            f"Didn't recognize extension for file '{fn}'.  Supported extensions are: "
+            f"{list(SUPPORTED_EXTENSIONS.keys())}"
         )
 
 
@@ -116,9 +116,8 @@ def create(prefix, file_list, out_fn, out_folder=None, **kw):
                 raise err
     else:
         raise ValueError(
-            "Didn't recognize extension for file '{}'.  Supported extensions are: {}".format(
-                out_fn, list(SUPPORTED_EXTENSIONS.keys())
-            )
+            f"Didn't recognize extension for file '{out_fn}'.  Supported extensions are: "
+            f"{list(SUPPORTED_EXTENSIONS.keys())}"
         )
 
     return out
@@ -144,8 +143,8 @@ def _convert(
         return (
             fn,
             "",
-            "Input file %s doesn't have a supported extension (%s), skipping it"
-            % (fn, SUPPORTED_EXTENSIONS),
+            f"Input file {fn} doesn't have a supported extension ({SUPPORTED_EXTENSIONS}), "
+            "skipping it",
         )
     out_fn = str(_os.path.join(out_folder, basename + out_ext))
     errors = ""
@@ -215,10 +214,8 @@ def transmute(in_file, out_ext, out_folder=None, processes=1, **kw):
         for fn, out_fn, errors in executor.map(convert_f, flist):
             if errors:
                 failed_files[fn] = errors
-                try:
+                with _suppress(FileNotFoundError):
                     _os.unlink(out_fn)
-                except FileNotFoundError:
-                    pass
     return failed_files
 
 

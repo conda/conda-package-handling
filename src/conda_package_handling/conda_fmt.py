@@ -11,8 +11,8 @@ import os
 import stat
 import tarfile
 import time
+from collections.abc import Callable
 from contextlib import closing
-from typing import Callable
 from zipfile import ZIP_STORED, ZipFile
 
 import zstandard
@@ -109,8 +109,9 @@ class CondaFormat_v2(AbstractBaseFormat):
             def tell(self):
                 return self.size
 
-        with ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file, utils.tmp_chdir(
-            prefix
+        with (
+            ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file,
+            utils.tmp_chdir(prefix),
         ):
             pkg_metadata = {"conda_pkg_format_version": CONDA_PACKAGE_FORMAT_VERSION}
             conda_file.writestr("metadata.json", json.dumps(pkg_metadata))
@@ -186,7 +187,7 @@ class CondaFormat_v2(AbstractBaseFormat):
                             f"{member.uname or member.uid}/{member.gname or member.gid} "
                             f"{member.size:10d} "
                         )
-                        line += "%d-%02d-%02d %02d:%02d:%02d " % time.localtime(member.mtime)[:6]
+                        line += time.strftime("%Y-%m-%d %H:%M:%S ", time.localtime(member.mtime))
                     lines[path] = line + path
                 if "pkg" in components and member.name == "info/paths.json":
                     data = json.loads(tar.extractfile(member).read().decode())
