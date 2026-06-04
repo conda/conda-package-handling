@@ -7,6 +7,7 @@ Authors are sorted alphabetically.
 * Christopher Barber
 * Conda Bot
 * Daniel Bast
+* dependabot[bot]
 * Daniel Holth
 * Eli Uriegas
 * Jannis Leidel
@@ -20,6 +21,7 @@ Authors are sorted alphabetically.
 * Nehal J Wani
 * Pure Software
 * Ray Donnelly
+* Ryan Keith
 * Tobias "Tobi" Koch
 * Vadim Zayakin
 * jaimergp
