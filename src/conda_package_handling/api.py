@@ -157,16 +157,13 @@ def _convert(
             if zstd_compress_threads is None:
                 zstd_compress_threads = ZSTD_COMPRESS_THREADS
 
-            def is_info(filename):
-                return filter_info_files([filename], prefix=".") == []
-
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,
                 fn,
                 out_folder,
+                is_info=is_info_member_path,
                 compression_level=zstd_compress_level,
                 compression_threads=zstd_compress_threads,
-                is_info=is_info,
             )
 
         else:
