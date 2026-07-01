@@ -1,0 +1,23 @@
+### Enhancements
+
+* Use Python 3.14's `compression.zstd`, or `backports.zstd` for older version of
+  Python, instead of `zstandard / python-zstandard`. Require Python >= 3.10,
+  `conda-package-streaming` >= 0.13.0. The API now accepts `compression_level`,
+  `compression_threads` arguments in favor of the deprecated `compressor`
+  object. (#305)
+
+### Bug fixes
+
+* <news item>
+
+### Deprecations
+
+* <news item>
+
+### Docs
+
+* <news item>
+
+### Other
+
+* <news item>
