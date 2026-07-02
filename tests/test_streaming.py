@@ -32,7 +32,7 @@ def test__stream_components(tmp_path: Path, mocker: MockerFixture):
     )
 
     with pytest.raises(CaseInsensitiveFileSystemError):
-        list(_stream_components(test_file, ["pkg"]))
+        list(_stream_components(TEST_CONDA, ["pkg"]))
 
 
 def test__extract(tmp_path: Path, mocker: MockerFixture):

@@ -27,7 +27,7 @@ requirements:
   run:
     - python >=3.10
     - zstandard >=0.15
-    - conda-package-streaming >=0.12.0
+    - conda-package-streaming >=0.13.0
     - requests
 
 test:
