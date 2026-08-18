@@ -5,12 +5,16 @@ class InvalidArchiveError(Exception):
     """Raised when libarchive can't open a file"""
 
     def __init__(self, fn, msg, *args, **kw):
+        self._pickle_args = (fn, msg, *args)
         msg = (
             f"Error with archive {fn}.  You probably need to delete and re-download "
             f"or re-create this file.  Message was:\n\n{msg}"
         )
         self.errno = ENOENT
         super().__init__(msg)
+
+    def __reduce__(self):
+        return type(self), self._pickle_args, {**self.__dict__, "args": self.args}
 
 
 class ArchiveCreationError(Exception):
@@ -35,10 +39,12 @@ class CaseInsensitiveFileSystemError(InvalidArchiveError):
         self.package_location = package_location
         self.extract_location = extract_location
         super().__init__(package_location, message, **kwargs)
+        self._pickle_args = (package_location, extract_location)
 
 
 class ConversionError(Exception):
     def __init__(self, missing_files, mismatching_sizes, *args, **kw):
+        self._pickle_args = (missing_files, mismatching_sizes, *args)
         self.missing_files = missing_files
         self.mismatching_sizes = mismatching_sizes
         errors = ""
@@ -50,3 +56,6 @@ class ConversionError(Exception):
         )
 
         super().__init__(errors, *args, **kw)
+
+    def __reduce__(self):
+        return type(self), self._pickle_args, {**self.__dict__, "args": self.args}
