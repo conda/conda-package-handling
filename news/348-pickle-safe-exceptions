@@ -4,7 +4,7 @@
 
 ### Bug fixes
 
-* Preserve custom exception types and state when errors cross process boundaries. (#348)
+* Preserve custom exception types and state when errors cross process boundaries by making them pickle-safe. (#348)
 
 ### Deprecations
 
