@@ -1,5 +1,25 @@
 [//]: # (current developments)
 
+## 2.6.0 (2026-08-18)
+
+### Enhancements
+
+* Reuse a single `ZipFile` across both components of a `.conda` archive during extraction, avoiding a redundant central-directory parse per package. Small but consistent speedup on every install. Require `conda-package-streaming >=0.13.0` (#318)
+
+### Bug fixes
+
+* Preserve custom exception types and state when errors cross process boundaries by making them pickle-safe. (#348)
+
+### Contributors
+
+* @conda-bot
+* @dholth
+* @jezdez
+* @dependabot[bot]
+* @pre-commit-ci[bot]
+
+
+
 ## 2.5.0 (2026-06-03)
 
 ### Enhancements
