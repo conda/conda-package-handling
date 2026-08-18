@@ -132,8 +132,17 @@ class CondaFormat_v2(AbstractBaseFormat):
             def tell(self):
                 return self.size
 
-        def _open_component_writer(component_file, pledged_size):
-            """Open a zstd writer for a component file."""
+        def _open_component_writer(component_file, pledged_size: int):
+            """Open a zstd writer for a component file.
+
+            Args:
+                component_file: File-like object to write compressed data to.
+                pledged_size: The exact size of the data that will be compressed.
+                             This allows the compressor to optimize compression.
+
+            Returns:
+                A file-like object that accepts uncompressed data.
+            """
             if compressor is not None:
                 legacy_compressor = compressor() if callable(compressor) else compressor
                 if not hasattr(legacy_compressor, "stream_writer"):
@@ -144,7 +153,7 @@ class CondaFormat_v2(AbstractBaseFormat):
                     closefd=False,
                 )
             else:
-                return zstd.open(
+                zstd_file = zstd.open(
                     component_file,
                     mode="w",
                     options={
@@ -152,6 +161,9 @@ class CondaFormat_v2(AbstractBaseFormat):
                         zstd.CompressionParameter.nb_workers: compression_threads,
                     },
                 )
+                # backports.zstd >= 0.3.0 or compression.zstd has set_pledged_input_size()
+                zstd_file._compressor.set_pledged_input_size(pledged_size)
+                return zstd_file
 
         with (
             ZipFile(conda_pkg_fn, "w", compression=ZIP_STORED) as conda_file,
