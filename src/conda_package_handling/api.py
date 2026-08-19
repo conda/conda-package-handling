@@ -158,7 +158,7 @@ def _convert(
                 zstd_compress_threads = ZSTD_COMPRESS_THREADS
             elif zstd_compress_threads == -1:
                 # known to have diminishing returns after 5 threads
-                zstd_compress_threads = max(_os.cpu_count() or 1, 5) or 1
+                zstd_compress_threads = min(_os.cpu_count() or 1, 5) or 1
 
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,
