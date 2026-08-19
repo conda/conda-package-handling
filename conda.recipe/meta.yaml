@@ -25,7 +25,7 @@ requirements:
     - wheel
     - flit
   run:
-    - python >=3.10
+    - python
     - zstandard >=0.15
     - conda-package-streaming >=0.13.0
     - requests
