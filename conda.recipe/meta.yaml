@@ -26,7 +26,7 @@ requirements:
     - flit
   run:
     - python >=3.10
-    - backports.zstd >=0.3.0
+    - backports.zstd >=1.1.0
     - conda-package-streaming >=0.13.0
     - requests
 

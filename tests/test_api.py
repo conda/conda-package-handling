@@ -561,110 +561,12 @@ def test_api_translates_exception(mocker, tmpdir):
         api.extract(tarfile, tmpdir)
 
 
-def test_zstd_pledged_size_correct(testing_workdir, tmp_path):
-    """Test that pledged_size is correctly used during compression.
-
-    When the pledged_size is set, the zstd compressor can optimize the frame
-    and may set additional flags in the frame header (like DICT_ID_FLAG).
-    """
+def test_zstd_pledged_size(testing_workdir):
     try:
         import compression.zstd as zstd
     except ImportError:
         import backports.zstd as zstd
 
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
-
-    # Create a conda package with known compression level
-    errors = api.transmute(tarfile, ".conda", testing_workdir, zstd_compress_level=3)
-    assert not errors
-
-    condafile = os.path.join(testing_workdir, test_package_name + ".conda")
-    assert os.path.isfile(condafile)
-
-    # Extract the zstd components and verify they have valid zstd headers
-    with zipfile.ZipFile(condafile, "r") as conda_zip:
-        # Check both info and pkg components
-        for component_name in ["info", "pkg"]:
-            # Find the component file (e.g., info-mock-2.0.0-py37_1000.tar.zst)
-            matching_files = [n for n in conda_zip.namelist() if n.startswith(component_name + "-")]
-            assert len(matching_files) == 1, f"Found {len(matching_files)} files starting with {component_name}-"
-
-            component_file = matching_files[0]
-            with conda_zip.open(component_file) as f:
-                data = f.read()
-
-            # Verify zstd frame magic number (0x28, 0xB5, 0x2F, 0xFD)
-            assert data[:4] == b'\x28\xb5\x2f\xfd', f"Invalid zstd frame header in {component_file}"
-
-            # The frame was compressed with pledged_size, which may set DICT_ID_FLAG
-            # (bit 5 of frame header flag byte)
-            frame_header_flag = data[4]
-            has_dict_id_flag = (frame_header_flag & 0x20) != 0
-
-            # When pledged_size is set, zstd may set the DICT_ID_FLAG
-            # This is an indication that pledged_size was used
-            # (Actual behavior depends on zstd version, so we just verify the frame is valid)
-            assert frame_header_flag >= 0, "Frame header flag should be non-negative"
-
-
-def test_zstd_pledged_size_incorrect_data_size(testing_workdir):
-    """Test that incorrect size data detection works with zstd.
-
-    This verifies that when more or less data is written than pledged_size,
-    the compressor detects the mismatch and raises an error or produces
-    invalid output that can be detected.
-    """
-    try:
-        import compression.zstd as zstd
-    except ImportError:
-        import backports.zstd as zstd
-
-    import io
-
-    # Create test data
-    test_data = b"test content" * 100
-    actual_size = len(test_data)
-
-    # Test: Try to compress with pledged_size that's too small
-    cctx = zstd.ZstdCompressor(options={
-        zstd.CompressionParameter.compression_level: 3,
-    })
-
-    # Pledge half the size
-    cctx.set_pledged_input_size(actual_size // 2)
-
-    # Try to compress all data - this should fail or warn
-    try:
-        compressed = cctx.compress(test_data)
-        compressed += cctx.flush()
-
-        # If it didn't raise, try to decompress to see if it's valid
-        dctx = zstd.ZstdDecompressor()
-        try:
-            decompressed = dctx.decompress(compressed)
-            # The decompressed data should be shorter or cause an error
-            # since we pledged less data than we wrote
-        except Exception as e:
-            # Expected: decompression fails because pledged size doesn't match
-            pass
-    except zstd.ZstdError as e:
-        # Expected: zstd raises an error about size mismatch
-        assert "pledged" in str(e).lower() or "size" in str(e).lower()
-
-
-
-def test_zstd_pledged_size_mismatch_detected(testing_workdir, tmp_path):
-    """Test that pledged_size mismatch causes compression errors.
-
-    When the pledged_size doesn't match the actual data written, zstd should
-    raise an error to prevent silent corruption.
-    """
-    try:
-        import compression.zstd as zstd
-    except ImportError:
-        import backports.zstd as zstd
-
-    # Create a minimal package structure
     pkg_dir = Path(testing_workdir) / "test_pkg"
     _write_package_dir(
         pkg_dir,
@@ -675,31 +577,23 @@ def test_zstd_pledged_size_mismatch_detected(testing_workdir, tmp_path):
         },
     )
 
-    # Test the internal _open_component_writer behavior by creating a mock scenario
-    # We'll import the conda_fmt module and test pledged_size handling
-    from conda_package_handling.conda_fmt import CondaFormat_v2
-
-    # This test verifies the pledged_size is set on the compressor
-    # by checking that the zstd frame includes the content size flag
     output_conda = Path(testing_workdir) / "test-1.0-0.conda"
-
-    errors = api.create(
+    api.create(
         pkg_dir,
         None,
         str(output_conda),
         out_folder=testing_workdir,
     )
 
-    assert os.path.isfile(str(output_conda))
+    with zipfile.ZipFile(output_conda) as conda_zip:
+        components = [
+            name
+            for name in conda_zip.namelist()
+            if name.endswith(".tar.zst")
+        ]
+        assert len(components) == 2
 
-    # Verify the .conda file structure and component sizes
-    with zipfile.ZipFile(output_conda, "r") as conda_zip:
-        files = conda_zip.namelist()
-        assert "metadata.json" in files
-
-        # Verify both components exist
-        info_components = [f for f in files if f.startswith("info-") and f.endswith(".tar.zst")]
-        pkg_components = [f for f in files if f.startswith("pkg-") and f.endswith(".tar.zst")]
-
-        assert len(info_components) == 1, "Should have exactly one info component"
-        assert len(pkg_components) == 1, "Should have exactly one pkg component"
+        for component in components:
+            compressed = conda_zip.read(component)
+            frame_info = zstd.get_frame_info(compressed)
+            assert frame_info.decompressed_size == len(zstd.decompress(compressed))

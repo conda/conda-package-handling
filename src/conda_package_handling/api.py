@@ -156,6 +156,8 @@ def _convert(
                 zstd_compress_level = ZSTD_COMPRESS_LEVEL
             if zstd_compress_threads is None:
                 zstd_compress_threads = ZSTD_COMPRESS_THREADS
+            elif zstd_compress_threads == -1:
+                zstd_compress_threads = _os.cpu_count() or 1
 
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,

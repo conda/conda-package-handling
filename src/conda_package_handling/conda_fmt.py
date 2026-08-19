@@ -116,6 +116,8 @@ class CondaFormat_v2(AbstractBaseFormat):
             compression_level = ZSTD_COMPRESS_LEVEL
         if compression_threads is None:
             compression_threads = ZSTD_COMPRESS_THREADS
+        elif compression_threads == -1:
+            compression_threads = os.cpu_count() or 1
 
         class NullWriter:
             """
