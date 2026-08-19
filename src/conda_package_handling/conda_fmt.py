@@ -117,7 +117,8 @@ class CondaFormat_v2(AbstractBaseFormat):
         if compression_threads is None:
             compression_threads = ZSTD_COMPRESS_THREADS
         elif compression_threads == -1:
-            compression_threads = os.cpu_count() or 1
+            # known to have diminishing returns after 5 threads
+            compression_threads = max(os.cpu_count() or 1, 5) or 1
 
         class NullWriter:
             """
