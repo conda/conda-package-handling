@@ -24,10 +24,8 @@ packages, check out
 
 Version 2.x is approximately two times faster extracting `.conda` packages, by
 extracting `.conda`'s embedded `.tar.zst` without first writing it to a
-temporary file. It uses
-[`python-zstandard`](https://github.com/indygreg/python-zstandard) and the
-Python standard library instead of a custom `libarchive` and so is easier to
-build. Extraction does not `chdir` to the output directory, and is thread-safe.
+temporary file. It no longer uses `libarchive` and so is easier to build.
+Extraction does not `chdir` to the output directory, and is thread-safe.
 
 Version 2.x creates `.conda` packages slightly differently as well.
 
