@@ -559,3 +559,41 @@ def test_api_translates_exception(mocker, tmpdir):
     # should this be exported from the api or inherit from InvalidArchiveError?
     with pytest.raises(exceptions.CaseInsensitiveFileSystemError):
         api.extract(tarfile, tmpdir)
+
+
+def test_zstd_pledged_size(testing_workdir):
+    try:
+        import compression.zstd as zstd
+    except ImportError:
+        import backports.zstd as zstd
+
+    pkg_dir = Path(testing_workdir) / "test_pkg"
+    _write_package_dir(
+        pkg_dir,
+        {
+            "info/index.json": json.dumps({"name": "test", "version": "1.0"}),
+            "info/files": "",
+            "pkg/test.txt": "test content",
+        },
+    )
+
+    output_conda = Path(testing_workdir) / "test-1.0-0.conda"
+    api.create(
+        pkg_dir,
+        None,
+        str(output_conda),
+        out_folder=testing_workdir,
+    )
+
+    with zipfile.ZipFile(output_conda) as conda_zip:
+        components = [
+            name
+            for name in conda_zip.namelist()
+            if name.endswith(".tar.zst")
+        ]
+        assert len(components) == 2
+
+        for component in components:
+            compressed = conda_zip.read(component)
+            frame_info = zstd.get_frame_info(compressed)
+            assert frame_info.decompressed_size == len(zstd.decompress(compressed))
