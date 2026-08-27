@@ -13,28 +13,8 @@ import tarfile
 import time
 from collections.abc import Callable
 from contextlib import closing
-from typing import TYPE_CHECKING
+from typing import BinaryIO, Protocol
 from zipfile import ZIP_STORED, ZipFile
-
-try:
-    import compression.zstd as zstd
-except ImportError:
-    import backports.zstd as zstd
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from typing import BinaryIO, Protocol
-
-    class LegacyCompressor(Protocol):
-        def stream_writer(
-            self,
-            writer: BinaryIO,
-            *,
-            size: int,
-            closefd: bool,
-        ) -> BinaryIO: ...
-
-    LegacyCompressorOrFactory = LegacyCompressor | Callable[[], LegacyCompressor]
 
 from conda_package_streaming.package_streaming import stream_conda_component
 from conda_package_streaming.url import conda_reader_for_url
@@ -42,6 +22,25 @@ from conda_package_streaming.url import conda_reader_for_url
 from . import utils
 from .interface import AbstractBaseFormat
 from .streaming import _extract, _list
+
+try:
+    import compression.zstd as zstd
+except ImportError:
+    import backports.zstd as zstd
+
+
+class LegacyCompressor(Protocol):
+    def stream_writer(
+        self,
+        writer: BinaryIO,
+        *,
+        size: int,
+        closefd: bool,
+    ) -> BinaryIO: ...
+
+
+LegacyCompressorOrFactory = LegacyCompressor | Callable[[], LegacyCompressor]
+
 
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=19")
