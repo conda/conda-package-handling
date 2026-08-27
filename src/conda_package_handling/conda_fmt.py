@@ -46,10 +46,21 @@ from .streaming import _extract, _list
 CONDA_PACKAGE_FORMAT_VERSION = 2
 DEFAULT_COMPRESSION_TUPLE = (".tar.zst", "zstd", "zstd:compression-level=19")
 
-# increase to reduce speed and increase compression (22 = conda's default)
+# higher "ultra" levels have dramatically higher memory usage
 ZSTD_COMPRESS_LEVEL = 19
-# increase to reduce compression (slightly) and increase speed
+# usually a good idea to increase threads
 ZSTD_COMPRESS_THREADS = 1
+
+
+def _translate_zstd_level_threads(zstd_compress_level, zstd_compress_threads) -> tuple[int, int]:
+    """Called by _convert to get integer level, threads from arguments."""
+    if zstd_compress_level is None:
+        zstd_compress_level = ZSTD_COMPRESS_LEVEL
+    if zstd_compress_threads is None:
+        zstd_compress_threads = ZSTD_COMPRESS_THREADS
+    elif zstd_compress_threads == -1:
+        zstd_compress_threads = os.cpu_count() or 1
+    return zstd_compress_level, zstd_compress_threads
 
 
 class CondaFormat_v2(AbstractBaseFormat):
@@ -111,14 +122,9 @@ class CondaFormat_v2(AbstractBaseFormat):
             if filter_opts and filter_opts.startswith("zstd:compression-level="):
                 compression_level = int(filter_opts.split("=", 1)[-1])
 
-        # Set defaults for compression parameters
-        if compression_level is None:
-            compression_level = ZSTD_COMPRESS_LEVEL
-        if compression_threads is None:
-            compression_threads = ZSTD_COMPRESS_THREADS
-        elif compression_threads == -1:
-            # known to have diminishing returns after 5 threads
-            compression_threads = min(os.cpu_count() or 1, 5) or 1
+        compression_level, compression_threads = _translate_zstd_level_threads(
+            compression_level, compression_threads
+        )
 
         class NullWriter:
             """
@@ -210,11 +216,11 @@ class CondaFormat_v2(AbstractBaseFormat):
         md5, sha256 = utils.checksums(in_file, ("md5", "sha256"))
         return {"size": size, "md5": md5, "sha256": sha256}
 
-    @classmethod
-    def list_contents(cls, fn, verbose=False, **kw):
+    @staticmethod
+    def list_contents(fn, verbose=False, **kw):
         components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
         if "://" in fn:
-            return cls._list_remote_contents(fn, components=components, verbose=verbose)
+            return CondaFormat_v2._list_remote_contents(fn, components=components, verbose=verbose)
         # local resource
         if not os.path.isabs(fn):
             fn = os.path.abspath(fn)

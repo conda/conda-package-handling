@@ -17,7 +17,11 @@ SUPPORTED_EXTENSIONS: dict[str, type[AbstractBaseFormat]] = {".tar.bz2": _CondaT
 libarchive_enabled = False  #: Old API meaning "can extract .conda" (now without libarchive)
 
 try:
-    from .conda_fmt import ZSTD_COMPRESS_LEVEL, ZSTD_COMPRESS_THREADS
+    from .conda_fmt import (
+        ZSTD_COMPRESS_LEVEL,
+        ZSTD_COMPRESS_THREADS,
+        _translate_zstd_level_threads,
+    )
     from .conda_fmt import CondaFormat_v2 as _CondaFormat_v2
 
     SUPPORTED_EXTENSIONS[".conda"] = _CondaFormat_v2
@@ -151,15 +155,9 @@ def _convert(
             _os.unlink(out_fn)
 
         if out_ext == ".conda":
-            # ZSTD_COMPRESS_* constants are only defined if we have .conda support
-            if zstd_compress_level is None:
-                zstd_compress_level = ZSTD_COMPRESS_LEVEL
-            if zstd_compress_threads is None:
-                zstd_compress_threads = ZSTD_COMPRESS_THREADS
-            elif zstd_compress_threads == -1:
-                # known to have diminishing returns after 5 threads
-                zstd_compress_threads = min(_os.cpu_count() or 1, 5) or 1
-
+            zstd_compress_level, zstd_compress_threads = _translate_zstd_level_threads(  # type: ignore
+                zstd_compress_level, zstd_compress_threads
+            )
             transmute = _functools.partial(
                 conda_package_streaming.transmute.transmute,
                 fn,

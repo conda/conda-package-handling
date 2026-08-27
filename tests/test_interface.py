@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+import conda_package_handling.conda_fmt as conda_fmt
 from conda_package_handling.conda_fmt import CondaFormat_v2
 from conda_package_handling.tarball import CondaTarBZ2
 
@@ -54,3 +55,8 @@ def test_extract_create(tmpdir):
                 compressor=True,
                 compression_tuple=("1", "2", "3"),  # type: ignore
             )
+
+
+@pytest.mark.parametrize(('level', 'threads', 'expected'), [(None, None, (19,1)), (1,1,(1,1)), (None, -1, (19, os.cpu_count()))])
+def test_zstd_level_threads(level, threads, expected):
+    assert conda_fmt._translate_zstd_level_threads(level, threads) == expected
