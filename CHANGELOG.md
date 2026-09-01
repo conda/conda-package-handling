@@ -9,7 +9,9 @@
   `conda-package-streaming` >= 0.13.0. The API now accepts `compression_level`,
   `compression_threads` arguments in favor of the deprecated `compressor`
   object. (#305)
-* Reuse a single `ZipFile` across both components of a `.conda` archive during extraction, avoiding a redundant central-directory parse per package. Small but consistent speedup on every install. Require `conda-package-streaming >=0.13.0` (#318)
+* Reuse a single `ZipFile` across both components of a `.conda` archive during
+  extraction, avoiding a redundant central-directory parse per package.
+  Small but consistent speedup on every install. Require `conda-package-streaming >=0.13.0` (#318)
 
 ### Bug fixes
 
