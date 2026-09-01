@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 
+import conda_package_handling.conda_fmt as conda_fmt
 from conda_package_handling.conda_fmt import CondaFormat_v2
 from conda_package_handling.tarball import CondaTarBZ2
 
@@ -54,3 +55,32 @@ def test_extract_create(tmpdir):
                 compressor=True,
                 compression_tuple=("1", "2", "3"),  # type: ignore
             )
+
+
+@pytest.mark.parametrize(
+    ("level", "threads", "cpu_count", "expected"),
+    [
+        (None, None, 7, (19, 1)),
+        (1, 1, 7, (1, 1)),
+        (None, -1, 7, (19, 7)),
+        (None, -1, None, (19, 1)),
+    ],
+)
+def test_zstd_level_threads(monkeypatch, level, threads, cpu_count, expected):
+    monkeypatch.setattr(conda_fmt.os, "cpu_count", lambda: cpu_count)
+    assert conda_fmt._translate_zstd_level_threads(level, threads) == expected
+
+
+def test_list_contents_dispatches_to_subclass(monkeypatch):
+    class CustomCondaFormat(CondaFormat_v2):
+        @staticmethod
+        def _list_remote_contents(url, verbose=False, components=("info", "pkg")):
+            return url, verbose, components
+
+    monkeypatch.setattr(
+        CondaFormat_v2,
+        "_list_remote_contents",
+        staticmethod(lambda *args, **kwargs: "base"),
+    )
+    url = "https://example.invalid/package.conda"
+    assert CustomCondaFormat.list_contents(url) == (url, False, ("info", "pkg"))
