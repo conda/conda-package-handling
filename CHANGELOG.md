@@ -1,5 +1,30 @@
 [//]: # (current developments)
 
+## 2.6.0 (2026-09-01)
+
+### Enhancements
+
+* Use Python 3.14's `compression.zstd`, or `backports.zstd` for older version of
+  Python, instead of `zstandard / python-zstandard`. Require Python >= 3.10,
+  `conda-package-streaming` >= 0.13.0. The API now accepts `compression_level`,
+  `compression_threads` arguments in favor of the deprecated `compressor`
+  object. (#305)
+* Reuse a single `ZipFile` across both components of a `.conda` archive during extraction, avoiding a redundant central-directory parse per package. Small but consistent speedup on every install. Require `conda-package-streaming >=0.13.0` (#318)
+
+### Bug fixes
+
+* Preserve custom exception types and state when errors cross process boundaries by making them pickle-safe. (#348)
+
+### Contributors
+
+* @conda-bot
+* @dholth
+* @jezdez
+* @dependabot[bot]
+* @pre-commit-ci[bot]
+
+
+
 ## 2.5.0 (2026-06-03)
 
 ### Enhancements
