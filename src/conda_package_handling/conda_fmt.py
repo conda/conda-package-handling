@@ -215,11 +215,11 @@ class CondaFormat_v2(AbstractBaseFormat):
         md5, sha256 = utils.checksums(in_file, ("md5", "sha256"))
         return {"size": size, "md5": md5, "sha256": sha256}
 
-    @staticmethod
-    def list_contents(fn, verbose=False, **kw):
+    @classmethod
+    def list_contents(cls, fn, verbose=False, **kw):
         components = utils.ensure_list(kw.get("components")) or ("info", "pkg")
         if "://" in fn:
-            return CondaFormat_v2._list_remote_contents(fn, components=components, verbose=verbose)
+            return cls._list_remote_contents(fn, components=components, verbose=verbose)
         # local resource
         if not os.path.isabs(fn):
             fn = os.path.abspath(fn)
