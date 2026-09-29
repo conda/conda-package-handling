@@ -5,7 +5,7 @@ import pytest
 
 import conda_package_handling.cli as cli
 
-from .test_api import data_dir, test_package_name
+from .constants import DATA_DIR, MOCK_PACKAGE
 
 
 def test_cli(tmpdir, mocker):
@@ -15,18 +15,18 @@ def test_cli(tmpdir, mocker):
     for command in [
         [
             "x",
-            str(Path(data_dir, test_package_name + ".tar.bz2")),
+            str(Path(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")),
             f"--prefix={tmpdir}",
         ],
         [
             "x",
-            str(Path(data_dir, test_package_name + ".conda")),
+            str(Path(DATA_DIR, MOCK_PACKAGE + ".conda")),
             "--info",
             f"--prefix={tmpdir}",
         ],
         [
             "c",
-            str(Path(tmpdir, test_package_name)),
+            str(Path(tmpdir, MOCK_PACKAGE)),
             ".tar.bz2",
             f"--out-folder={tmpdir}",
         ],
@@ -44,7 +44,7 @@ def test_cli(tmpdir, mocker):
     with pytest.raises(SystemExit):
         command = [
             "t",
-            str(Path(data_dir, test_package_name + ".tar.bz2")),
+            str(Path(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")),
             ".conda",
             f"--out-folder={tmpdir}",
         ]
@@ -61,11 +61,11 @@ def test_import_main():
 
 @pytest.mark.parametrize(
     "artifact,n_files",
-    [("mock-2.0.0-py37_1000.conda", 43), ("mock-2.0.0-py37_1000.tar.bz2", 43)],
+    [(f"{MOCK_PACKAGE}.conda", 43), (f"{MOCK_PACKAGE}.tar.bz2", 43)],
 )
 def test_list(artifact, n_files, capsys):
     "Integration test to ensure `cph list` works correctly."
-    cli.main(["list", os.path.relpath(os.path.join(data_dir, artifact), os.getcwd())])
+    cli.main(["list", os.path.relpath(os.path.join(DATA_DIR, artifact), os.getcwd())])
     stdout, stderr = capsys.readouterr()
     assert n_files == sum(bool(line.strip()) for line in stdout.splitlines())
 
@@ -74,7 +74,7 @@ def test_list(artifact, n_files, capsys):
         [
             "list",
             "--verbose",
-            os.path.join(data_dir, artifact),
+            os.path.join(DATA_DIR, artifact),
         ]
     )
     stdout, stderr = capsys.readouterr()
@@ -83,7 +83,7 @@ def test_list(artifact, n_files, capsys):
     with pytest.raises(ValueError):
         cli.main(["list", "setup.py"])
 
-    cli.main(["list", os.path.join(data_dir, artifact), "--components=pkg"])
+    cli.main(["list", os.path.join(DATA_DIR, artifact), "--components=pkg"])
     stdout, stderr = capsys.readouterr()
     listed_files = sum(bool(line.strip()) for line in stdout.splitlines())
     if artifact.endswith(".conda"):
@@ -95,8 +95,8 @@ def test_list(artifact, n_files, capsys):
 @pytest.mark.parametrize(
     "fn,n_files",
     [
-        ("mock-2.0.0-py37_1000.conda", 43),
-        ("mock-2.0.0-py37_1000.tar.bz2", -1),
+        (f"{MOCK_PACKAGE}.conda", 43),
+        (f"{MOCK_PACKAGE}.tar.bz2", -1),
     ],
 )
 def test_list_remote(capsys, localserver, fn, n_files):

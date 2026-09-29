@@ -5,11 +5,12 @@ import shutil
 import threading
 import typing
 import wsgiref.simple_server
-from pathlib import Path
 from typing import Any
 
 import bottle
 import pytest
+
+from .constants import DATA_DIR
 
 if typing.TYPE_CHECKING:
     import wsgiref.types  # added in 3.11
@@ -43,9 +44,6 @@ def testing_workdir(tmpdir, request):
     return str(tmpdir)
 
 
-datadir = Path(__file__).parent / "data"
-
-
 @bottle.route("/<filename>", "GET")
 def serve_file(filename):
     mimetype = "auto"
@@ -54,7 +52,7 @@ def serve_file(filename):
         mimetype = "application/x-tar"
     elif filename.endswith(".conda"):
         mimetype = "binary/octet-stream"
-    return bottle.static_file(filename, root=datadir.as_posix(), mimetype=mimetype)
+    return bottle.static_file(filename, root=DATA_DIR.as_posix(), mimetype=mimetype)
 
 
 class ServerThread(threading.Thread):

@@ -1,0 +1,3 @@
+### Other
+
+* Centralize test package names and fixture paths so test modules and the HTTP test server share the same definitions.

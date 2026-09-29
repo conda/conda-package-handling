@@ -13,7 +13,7 @@ from pytest_mock import MockerFixture
 from conda_package_handling.exceptions import CaseInsensitiveFileSystemError, InvalidArchiveError
 from conda_package_handling.streaming import _extract, _stream_components
 
-from .test_interface import TEST_CONDA
+from .constants import TEST_CONDA
 
 
 def test__stream_components(tmp_path: Path, mocker: MockerFixture):

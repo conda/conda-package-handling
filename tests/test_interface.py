@@ -13,10 +13,7 @@ import conda_package_handling.conda_fmt as conda_fmt
 from conda_package_handling.conda_fmt import CondaFormat_v2
 from conda_package_handling.tarball import CondaTarBZ2
 
-from .test_api import data_dir, test_package_name
-
-TEST_CONDA = Path(data_dir, test_package_name + ".conda")
-TEST_TARBZ = Path(data_dir, test_package_name + ".tar.bz2")
+from .constants import TEST_CONDA, TEST_TARBZ
 
 
 def test_extract_create(tmpdir):

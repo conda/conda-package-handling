@@ -18,12 +18,10 @@ import conda_package_handling
 import conda_package_handling.tarball
 from conda_package_handling import api, exceptions
 
+from .constants import CPH_TEST_DATA_PACKAGE, DATA_DIR, MOCK_PACKAGE
 
-this_dir = os.path.dirname(__file__)
-data_dir = os.path.join(this_dir, "data")
-version_file = Path(this_dir).parent / "src" / "conda_package_handling" / "__init__.py"
-test_package_name = "mock-2.0.0-py37_1000"
-test_package_name_2 = "cph_test_data-0.0.1-0"
+
+version_file = Path(__file__).parents[1] / "src" / "conda_package_handling" / "__init__.py"
 
 
 def _write_package_dir(prefix: Path | str, files: dict[str, str]):
@@ -67,15 +65,15 @@ def test_correct_version():
 
 
 def test_api_extract_tarball_implicit_path(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
     local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
     shutil.copy2(tarfile, local_tarfile)
     api.extract(local_tarfile)
-    assert os.path.isfile(os.path.join(testing_workdir, test_package_name, "info", "index.json"))
+    assert os.path.isfile(os.path.join(testing_workdir, MOCK_PACKAGE, "info", "index.json"))
 
 
 def test_api_tarball_details(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
     results = api.get_pkg_details(tarfile)
     assert results["size"] == 106576
     assert results["md5"] == "0f9cce120a73803a70abb14bd4d4900b"
@@ -83,7 +81,7 @@ def test_api_tarball_details(testing_workdir):
 
 
 def test_api_conda_v2_details(testing_workdir):
-    condafile = os.path.join(data_dir, test_package_name + ".conda")
+    condafile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     results = api.get_pkg_details(condafile)
     assert results["size"] == 113421
     assert results["sha256"] == "181ec44eb7b06ebb833eae845bcc466ad96474be1f33ee55cab7ac1b0fdbbfa3"
@@ -91,7 +89,7 @@ def test_api_conda_v2_details(testing_workdir):
 
 
 def test_api_extract_tarball_explicit_path(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
     local_tarfile = os.path.join(testing_workdir, os.path.basename(tarfile))
     shutil.copy2(tarfile, local_tarfile)
 
@@ -100,18 +98,18 @@ def test_api_extract_tarball_explicit_path(testing_workdir):
 
 
 def test_api_extract_conda_v2_implicit_path(testing_workdir):
-    condafile = os.path.join(data_dir, test_package_name + ".conda")
+    condafile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
     shutil.copy2(condafile, local_condafile)
     api.extract(local_condafile)
-    assert os.path.isfile(os.path.join(testing_workdir, test_package_name, "info", "index.json"))
+    assert os.path.isfile(os.path.join(testing_workdir, MOCK_PACKAGE, "info", "index.json"))
 
 
 def test_api_extract_conda_v2_no_destdir_relative_path(testing_workdir):
     cwd = os.getcwd()
     os.chdir(testing_workdir)
     try:
-        condafile = os.path.join(data_dir, test_package_name + ".conda")
+        condafile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
         local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
         shutil.copy2(condafile, local_condafile)
 
@@ -124,7 +122,7 @@ def test_api_extract_conda_v2_no_destdir_relative_path(testing_workdir):
 
 
 def test_api_extract_conda_v2_explicit_path(testing_workdir):
-    condafile = os.path.join(data_dir, test_package_name + ".conda")
+    condafile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
     shutil.copy2(condafile, local_condafile)
 
@@ -133,10 +131,10 @@ def test_api_extract_conda_v2_explicit_path(testing_workdir):
 
 
 def test_api_extract_conda_v2_explicit_path_prefix(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + ".conda")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     api.extract(tarfile, prefix=os.path.join(testing_workdir, "folder"))
     assert os.path.isfile(
-        os.path.join(testing_workdir, "folder", test_package_name, "info", "index.json")
+        os.path.join(testing_workdir, "folder", MOCK_PACKAGE, "info", "index.json")
     )
 
     api.extract(tarfile, dest_dir="steve", prefix=os.path.join(testing_workdir, "folder"))
@@ -144,13 +142,13 @@ def test_api_extract_conda_v2_explicit_path_prefix(testing_workdir):
 
 
 def test_api_extract_dest_dir_and_prefix_both_abs_raises():
-    tarfile = os.path.join(data_dir, test_package_name + ".conda")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     with pytest.raises(ValueError):
         api.extract(tarfile, prefix=os.path.dirname(tarfile), dest_dir=os.path.dirname(tarfile))
 
 
 def test_api_extract_info_conda_v2(testing_workdir):
-    condafile = os.path.join(data_dir, test_package_name + ".conda")
+    condafile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     local_condafile = os.path.join(testing_workdir, os.path.basename(condafile))
     shutil.copy2(condafile, local_condafile)
     api.extract(local_condafile, "manual_path", components="info")
@@ -165,23 +163,23 @@ def check_conda_v2_metadata(condafile):
 
 
 def test_api_transmute_tarball_to_conda_v2(testing_workdir):
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
     # lower compress level makes the test run much faster, even 15 is much
     # better than 22
     errors = api.transmute(tarfile, ".conda", testing_workdir, zstd_compress_level=3)
     assert not errors
-    condafile = os.path.join(testing_workdir, test_package_name + ".conda")
+    condafile = os.path.join(testing_workdir, MOCK_PACKAGE + ".conda")
     assert os.path.isfile(condafile)
     check_conda_v2_metadata(condafile)
 
 
 def test_api_transmute_tarball_info_sorts_first(testing_workdir):
-    test_packages = [test_package_name]
-    test_packages_with_symlinks = [test_package_name_2]
+    test_packages = [MOCK_PACKAGE]
+    test_packages_with_symlinks = [CPH_TEST_DATA_PACKAGE]
     if sys.platform != "win32":
         test_packages += test_packages_with_symlinks
     for test_package in test_packages:
-        test_file = os.path.join(data_dir, test_package + ".tar.bz2")
+        test_file = os.path.join(DATA_DIR, test_package + ".tar.bz2")
 
         # transmute/convert doesn't re-sort files; extract to folder.
         api.extract(test_file, testing_workdir)
@@ -214,8 +212,8 @@ def test_api_transmute_to_conda_v2_contents(testing_workdir):
                 continue
             yield entry
 
-    tar_path = os.path.join(data_dir, test_package_name_2 + ".tar.bz2")
-    conda_path = os.path.join(testing_workdir, test_package_name_2 + ".conda")
+    tar_path = os.path.join(DATA_DIR, CPH_TEST_DATA_PACKAGE + ".tar.bz2")
+    conda_path = os.path.join(testing_workdir, CPH_TEST_DATA_PACKAGE + ".conda")
     api.transmute(tar_path, ".conda", testing_workdir, zstd_compress_level=3)
 
     # Verify original contents were all put in the right place
@@ -309,8 +307,8 @@ def test_api_cep35_info_placement(tmp_path: Path, via):
 
 
 def test_api_transmute_conda_v2_to_tarball(testing_workdir):
-    condafile = os.path.join(data_dir, test_package_name + ".conda")
-    outfile = Path(testing_workdir, test_package_name + ".tar.bz2")
+    condafile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
+    outfile = Path(testing_workdir, MOCK_PACKAGE + ".tar.bz2")
     # one quiet=True in the test suite for coverage
     api.transmute(condafile, ".tar.bz2", testing_workdir, quiet=True)
     assert outfile.is_file()
@@ -449,7 +447,7 @@ def test_convert_bad_extension(testing_workdir):
 
 
 def test_convert_keyerror(tmpdir, mocker):
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
 
     mocker.patch(
         "conda_package_streaming.transmute.transmute",
@@ -505,7 +503,7 @@ def test_create_filelist(tmpdir, mocker):
 
 
 def test_api_transmute_fail_validation(tmpdir, mocker):
-    package = os.path.join(data_dir, test_package_name + ".conda")
+    package = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
 
     # this code is only called for .conda -> .tar.bz2; a streaming validate for
     # .tar.bz2 -> .conda would be a good idea.
@@ -519,7 +517,7 @@ def test_api_transmute_fail_validation(tmpdir, mocker):
 
 
 def test_api_transmute_fail_validation_to_conda(tmpdir, mocker):
-    package = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    package = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
 
     mocker.patch(
         "conda_package_handling.validate.validate_converted_files_match_streaming",
@@ -531,7 +529,7 @@ def test_api_transmute_fail_validation_to_conda(tmpdir, mocker):
 
 
 def test_api_transmute_fail_validation_2(tmpdir, mocker):
-    package = os.path.join(data_dir, test_package_name + ".conda")
+    package = os.path.join(DATA_DIR, MOCK_PACKAGE + ".conda")
     tmptarfile = tmpdir / Path(package).name
     shutil.copy(package, tmptarfile)
 
@@ -548,7 +546,7 @@ def test_api_transmute_fail_validation_2(tmpdir, mocker):
 def test_api_translates_exception(mocker, tmpdir):
     from conda_package_streaming.extract import exceptions as cps_exceptions
 
-    tarfile = os.path.join(data_dir, test_package_name + ".tar.bz2")
+    tarfile = os.path.join(DATA_DIR, MOCK_PACKAGE + ".tar.bz2")
 
     # translates their exception to our exception of the same name
     mocker.patch(
